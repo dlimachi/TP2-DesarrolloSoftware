@@ -6,6 +6,7 @@ import ar.edu.itba.parkingmanagmentapi.dto.ReservationResponse;
 import ar.edu.itba.parkingmanagmentapi.dto.ScheduledReservationRequest;
 import ar.edu.itba.parkingmanagmentapi.dto.enums.ReservationStatus;
 import ar.edu.itba.parkingmanagmentapi.service.ScheduledReservationService;
+import ar.edu.itba.parkingmanagmentapi.service.orchestrator.ReservationOrchestratorService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,10 +22,10 @@ import java.time.LocalDateTime;
 @CrossOrigin(origins = "*")
 public class ScheduledReservationController {
 
-    private final ScheduledReservationService scheduledReservationService;
+    private final ReservationOrchestratorService reservationOrchestratorService;
 
-    public ScheduledReservationController(ScheduledReservationService reservationService) {
-        this.scheduledReservationService = reservationService;
+    public ScheduledReservationController(ReservationOrchestratorService reservationOrchestratorService) {
+        this.reservationOrchestratorService = reservationOrchestratorService;
     }
 
     @PostMapping
