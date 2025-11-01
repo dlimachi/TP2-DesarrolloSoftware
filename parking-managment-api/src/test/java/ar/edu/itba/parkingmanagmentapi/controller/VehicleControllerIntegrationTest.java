@@ -4,6 +4,7 @@ import ar.edu.itba.parkingmanagmentapi.BaseIntegrationTest;
 import ar.edu.itba.parkingmanagmentapi.dto.ApiResponse;
 import ar.edu.itba.parkingmanagmentapi.dto.VehicleRequest;
 import ar.edu.itba.parkingmanagmentapi.dto.VehicleResponse;
+import ar.edu.itba.parkingmanagmentapi.dto.enums.VehicleType;
 import ar.edu.itba.parkingmanagmentapi.model.UserVehicleAssignment;
 import ar.edu.itba.parkingmanagmentapi.model.UserVehicleAssignmentId;
 import ar.edu.itba.parkingmanagmentapi.model.Vehicle;
@@ -177,6 +178,40 @@ class VehicleControllerIntegrationTest extends BaseIntegrationTest {
 
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
         assertTrue(vehicleRepository.findById(vehicle.getLicensePlate()).isPresent());
+    }
+
+    @Test
+    void testUpdateVehicle_shouldReturn200_andVehicleIsUpdated() {
+        Vehicle vehicle = existingVehicle;
+
+        VehicleRequest updateRequest = new VehicleRequest();
+        updateRequest.setLicensePlate("XYZ123");
+        updateRequest.setBrand("Nissan");
+        updateRequest.setModel("Altima");
+        updateRequest.setType(VehicleType.CAR.getName());
+        updateRequest.setUserId(normalUser.getId());
+
+        HttpEntity<VehicleRequest> requestEntity = new HttpEntity<>(updateRequest, createAuthHeaders(normalUser));
+
+        ResponseEntity<ApiResponse<VehicleResponse>> response = restTemplate.exchange(
+                "/vehicles/" + vehicle.getLicensePlate(),
+                HttpMethod.PUT,
+                requestEntity,
+                new ParameterizedTypeReference<>() {
+                }
+        );
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        VehicleResponse vehicleResponse = response.getBody().getData();
+        assertEquals("Nissan", vehicleResponse.getBrand());
+        assertEquals("Altima", vehicleResponse.getModel());
+
+        Optional<Vehicle> updatedVehicleOpt = vehicleRepository.findById(vehicle.getLicensePlate());
+        assertTrue(updatedVehicleOpt.isPresent());
+        Vehicle updatedVehicle = updatedVehicleOpt.get();
+        assertEquals("Nissan", updatedVehicle.getBrand());
+        assertEquals("Altima", updatedVehicle.getModel());
     }
 
 }

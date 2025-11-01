@@ -76,9 +76,11 @@ public abstract class ReservationServiceImpl<T> implements ReservationService<T>
         Vehicle vehicle = vehicleService.findEntityByLicensePlateOrCreate(
                 new Vehicle(licensePlate, null, null, vehicleType)
         );
-        return userVehicleAssignmentService.findByUserIdAndLicensePlateOrCreate(
-                AppConstants.DEFAULT_USER_ID, vehicle.getLicensePlate()
-        );
+        return userVehicleAssignmentService.createUserAssigment(AppConstants.DEFAULT_USER_ID, vehicle);
+    }
+
+    protected UserVehicleAssignment verifyUserVehicleAssignment(Long userId, String licensePlate) {
+        return userVehicleAssignmentService.findByUserIdAndLicensePlate(userId, licensePlate);
     }
 
 }

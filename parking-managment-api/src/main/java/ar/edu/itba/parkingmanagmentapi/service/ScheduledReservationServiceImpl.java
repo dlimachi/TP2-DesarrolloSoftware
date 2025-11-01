@@ -1,6 +1,5 @@
 package ar.edu.itba.parkingmanagmentapi.service;
 
-import ar.edu.itba.parkingmanagmentapi.config.AppConstants;
 import ar.edu.itba.parkingmanagmentapi.dto.ReservationResponse;
 import ar.edu.itba.parkingmanagmentapi.dto.ScheduledReservationRequest;
 import ar.edu.itba.parkingmanagmentapi.dto.enums.ReservationStatus;
@@ -9,7 +8,6 @@ import ar.edu.itba.parkingmanagmentapi.exceptions.NotFoundException;
 import ar.edu.itba.parkingmanagmentapi.model.ScheduledReservation;
 import ar.edu.itba.parkingmanagmentapi.model.Spot;
 import ar.edu.itba.parkingmanagmentapi.model.UserVehicleAssignment;
-import ar.edu.itba.parkingmanagmentapi.model.Vehicle;
 import ar.edu.itba.parkingmanagmentapi.repository.ParkingPriceRepository;
 import ar.edu.itba.parkingmanagmentapi.repository.ScheduledReservationRepository;
 import ar.edu.itba.parkingmanagmentapi.repository.ScheduledReservationSpecifications;
@@ -60,7 +58,7 @@ public class ScheduledReservationServiceImpl extends ReservationServiceImpl<Sche
 
         BigDecimal estimatedPrice = calculateEstimatedPrice(spot, request.getReservedStartTime(), request.getExpectedEndTime());
 
-        UserVehicleAssignment assignment = findOrCreateVehicleAssignment(request.getVehicleLicensePlate(), spot.getVehicleType());
+        UserVehicleAssignment assignment = verifyUserVehicleAssignment(request.getUserId(), request.getVehicleLicensePlate());
 
         LocalDateTime now = LocalDateTime.now();
         ScheduledReservation reservation = new ScheduledReservation();

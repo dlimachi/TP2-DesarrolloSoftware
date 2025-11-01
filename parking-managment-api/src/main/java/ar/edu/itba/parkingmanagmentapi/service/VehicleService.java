@@ -22,8 +22,6 @@ public interface VehicleService {
 
     // -------------------------- RAW ENTITIES --------------------------
 
-    Vehicle findEntityByLicensePlate(String licensePlate);
-
     Vehicle findEntityByLicensePlateOrCreate(Vehicle vehicle);
 
 }

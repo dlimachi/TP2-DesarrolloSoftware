@@ -1,10 +1,7 @@
 package ar.edu.itba.parkingmanagmentapi.controller;
 
 import ar.edu.itba.parkingmanagmentapi.BaseIntegrationTest;
-import ar.edu.itba.parkingmanagmentapi.dto.ApiResponse;
-import ar.edu.itba.parkingmanagmentapi.dto.ParkingLotRequest;
-import ar.edu.itba.parkingmanagmentapi.dto.ParkingLotResponse;
-import ar.edu.itba.parkingmanagmentapi.dto.SpotRequest;
+import ar.edu.itba.parkingmanagmentapi.dto.*;
 import ar.edu.itba.parkingmanagmentapi.dto.enums.VehicleType;
 import ar.edu.itba.parkingmanagmentapi.model.Manager;
 import ar.edu.itba.parkingmanagmentapi.model.ParkingLot;
@@ -24,7 +21,6 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ParkingLotControllerIntegrationTest extends BaseIntegrationTest {
-
     @Test
     void testCreateParkingLot_shouldReturn201_andParkingLotIsPersisted() {
         // Arrange
@@ -266,5 +262,65 @@ class ParkingLotControllerIntegrationTest extends BaseIntegrationTest {
         assertTrue(parkingLotRepository.existsById(parkingLot.getId()), "ParkingLot should still exist");
     }
 
+    @Test
+    void testGetAllParkingByManager_shouldReturn200_andListOfParkingLots() {
+        HttpEntity<Void> requestEntity = new HttpEntity<>(createAuthHeaders(managerUser));
+        ResponseEntity<ApiResponse<List<ParkingLotResponse>>> response = restTemplate.exchange(
+                "/parking-lots/user/" + managerUser.getId(),
+                HttpMethod.GET,
+                requestEntity,
+                new ParameterizedTypeReference<>() {
+                }
+        );
 
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertNotNull(response.getBody().getData());
+        assertTrue(response.getBody().getData().size() >= 1);
+        assertEquals(existingParkingLot.getName(), response.getBody().getData().get(0).getName());
+        assertEquals(existingParkingLot.getAddress(), response.getBody().getData().get(0).getAddress());
+        assertEquals(existingParkingLot.getImageUrl(), response.getBody().getData().get(0).getImageUrl());
+    }
+
+    @Test
+    void testGetAllScheduledReservationsByParkingLot_shouldReturn200_andListOfScheduledReservations() {
+        HttpEntity<Void> requestEntity = new HttpEntity<>(createAuthHeaders(managerUser));
+        ResponseEntity<ApiResponse<PageResponse<ReservationResponse>>> response = restTemplate.exchange(
+                "/parking-lots/" + existingParkingLot.getId() + "/reservations",
+                HttpMethod.GET,
+                requestEntity,
+                new ParameterizedTypeReference<>() {
+                }
+        );
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertNotNull(response.getBody().getData());
+        assertTrue(response.getBody().getData().getTotalElements() >= 1);
+        assertEquals(existingReservation.getStatus(), response.getBody().getData().getContent().get(0).getStatus());
+        assertEquals(existingReservation.getEstimatedPrice(), response.getBody().getData().getContent().get(0).getPrice());
+        assertEquals(existingReservation.getUserVehicleAssignment().getVehicle().getLicensePlate(),
+                response.getBody().getData().getContent().get(0).getVehicleLicensePlate());
+    }
+
+    @Test
+    void testGetWalkInReservationsByParkingLot_shouldReturn200_andListOfWalkInReservations() {
+        HttpEntity<Void> requestEntity = new HttpEntity<>(createAuthHeaders(managerUser));
+        ResponseEntity<ApiResponse<List<ReservationResponse>>> response = restTemplate.exchange(
+                "/parking-lots/" + existingParkingLot.getId() + "/walk-in-reservations",
+                HttpMethod.GET,
+                requestEntity,
+                new ParameterizedTypeReference<>() {
+                }
+        );
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertNotNull(response.getBody().getData());
+        assertTrue(response.getBody().getData().size() >= 1);
+        assertEquals(existingWalkInStay.getStatus(), response.getBody().getData().get(0).getStatus());
+        assertEquals(existingWalkInStay.getTotalPrice(), response.getBody().getData().get(0).getPrice());
+        assertEquals(existingWalkInStay.getUserVehicleAssignment().getVehicle().getLicensePlate(),
+                response.getBody().getData().get(0).getVehicleLicensePlate());
+    }
 }

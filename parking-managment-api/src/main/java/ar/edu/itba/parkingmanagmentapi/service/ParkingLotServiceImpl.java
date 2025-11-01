@@ -7,7 +7,6 @@ import ar.edu.itba.parkingmanagmentapi.exceptions.BadRequestException;
 import ar.edu.itba.parkingmanagmentapi.exceptions.NotFoundException;
 import ar.edu.itba.parkingmanagmentapi.model.Manager;
 import ar.edu.itba.parkingmanagmentapi.model.ParkingLot;
-import ar.edu.itba.parkingmanagmentapi.model.Spot;
 import ar.edu.itba.parkingmanagmentapi.model.User;
 import ar.edu.itba.parkingmanagmentapi.repository.ParkingLotRepository;
 import ar.edu.itba.parkingmanagmentapi.repository.ScheduledReservationRepository;
@@ -38,12 +37,6 @@ public class ParkingLotServiceImpl implements ParkingLotService {
     public ParkingLotResponse createParkingLot(ParkingLotRequest request) {
         createParkingLotRequestValidator.validate(request);
 
-        if (parkingLotRepository.existsByAddress(request.getAddress())) {
-            throw new IllegalArgumentException(
-                    "ParkingLot with address " + request.getAddress() + " already exists"
-            );
-        }
-
         Manager currentManager = securityService.getCurrentManager().get();
 
         ParkingLot parkingLot = new ParkingLot();
@@ -53,18 +46,6 @@ public class ParkingLotServiceImpl implements ParkingLotService {
         parkingLot.setLatitude(request.getLatitude());
         parkingLot.setLongitude(request.getLongitude());
         parkingLot.setManager(currentManager);
-        parkingLot.setSpots(Optional.ofNullable(request.getSpots())
-                .orElseGet(List::of)
-                .stream()
-                .map(spotDto -> {
-                    Spot spot = new Spot();
-                    spot.setParkingLot(parkingLot);
-                    spot.setVehicleType(spotDto.getVehicleType());
-                    spot.setFloor(spotDto.getFloor());
-                    spot.setCode(spotDto.getCode());
-                    return spot;
-                })
-                .collect(Collectors.toList()));
 
         return ParkingLotMapper.toParkingLotResponse(parkingLotRepository.save(parkingLot));
     }

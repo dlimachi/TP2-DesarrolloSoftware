@@ -103,8 +103,6 @@ CREATE TABLE IF NOT EXISTS user_vehicle_assignment (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (user_id, vehicle_license_plate),
-    spot_code_snapshot VARCHAR(20),
-    spot_floor_snapshot INT,
     CONSTRAINT fk_user_vehicle_user FOREIGN KEY (user_id) REFERENCES common_user(id),
     CONSTRAINT fk_user_vehicle_vehicle FOREIGN KEY (vehicle_license_plate) REFERENCES vehicle(license_plate)
     );

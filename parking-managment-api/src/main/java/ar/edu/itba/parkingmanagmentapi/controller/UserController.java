@@ -39,12 +39,6 @@ public class UserController {
         return ApiResponse.created(createdUser);
     }
 
-    @GetMapping
-    public ResponseEntity<?> getAllUsers() {
-        List<UserResponse> users = userService.findAll();
-        return ApiResponse.ok(users);
-    }
-
     @GetMapping("/{id}")
     public ResponseEntity<?> getUserById(@PathVariable Long id) {
         UserResponse user = userService.findById(id);
@@ -84,12 +78,6 @@ public class UserController {
                 .map(UserMapper::toUserResponse)
                 .orElseThrow(() -> new AuthenticationFailedException("No authenticated user found"));
         return ApiResponse.ok(currentUser);
-    }
-
-    @GetMapping("/search")
-    public ResponseEntity<?> searchUsers(@RequestParam String q) {
-        List<UserResponse> users = userService.searchUsers(q);
-        return ApiResponse.ok(users);
     }
 
     @GetMapping("/email/{email}")

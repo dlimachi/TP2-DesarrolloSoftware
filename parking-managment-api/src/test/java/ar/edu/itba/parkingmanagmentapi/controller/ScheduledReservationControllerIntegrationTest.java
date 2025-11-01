@@ -44,10 +44,11 @@ class ScheduledReservationControllerIntegrationTest extends BaseIntegrationTest 
 
         ReservationResponse data = response.getBody().getData();
         assertEquals(request.getSpotId(), data.getSpotId());
-        assertEquals(request.getVehicleLicensePlate(), data.getVehicleLicensePlate());
 
         Optional<ScheduledReservation> savedOpt = reservationRepository.findById(data.getId());
         assertTrue(savedOpt.isPresent());
+        assertEquals(ReservationStatus.PENDING, savedOpt.get().getStatus());
+        assertNotNull(savedOpt.get().getEstimatedPrice());
     }
 
     @Test

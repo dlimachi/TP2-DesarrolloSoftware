@@ -4,6 +4,7 @@ import ar.edu.itba.parkingmanagmentapi.dto.*;
 import ar.edu.itba.parkingmanagmentapi.dto.enums.ReservationStatus;
 import ar.edu.itba.parkingmanagmentapi.service.ParkingLotService;
 import ar.edu.itba.parkingmanagmentapi.service.ScheduledReservationService;
+import ar.edu.itba.parkingmanagmentapi.service.WalkInStayService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,10 +25,12 @@ public class ParkingLotController {
 
     private final ScheduledReservationService reservationService;
 
+    private final WalkInStayService walkInStayService;
 
-    public ParkingLotController(ParkingLotService parkingLotService, ScheduledReservationService reservationService) {
+    public ParkingLotController(ParkingLotService parkingLotService, ScheduledReservationService reservationService, WalkInStayService walkInStayService) {
         this.parkingLotService = parkingLotService;
         this.reservationService = reservationService;
+        this.walkInStayService = walkInStayService;
     }
 
     @PostMapping
@@ -82,6 +85,16 @@ public class ParkingLotController {
         return ApiResponse.ok(PageResponse.of(reservations));
     }
 
+    @GetMapping("/{parkingLotId}/walk-in-reservations")
+    @PreAuthorize("@authorizationService.isCurrentUserManagerOfParkingLot(#parkingLotId)")
+    public ResponseEntity<?> getWalkInStaysByParkingLot(
+            @PathVariable Long parkingLotId,
+            @RequestParam(required = false, defaultValue = "ACTIVE") ReservationStatus status,
+            @RequestParam(required = false) String licensePlate
+    ) {
+        Page<ReservationResponse> response = walkInStayService.getReservationsByParkingLot(parkingLotId, status, licensePlate, null, null, Pageable.unpaged());
+        return ApiResponse.ok(response.getContent());
+    }
 
 }
 

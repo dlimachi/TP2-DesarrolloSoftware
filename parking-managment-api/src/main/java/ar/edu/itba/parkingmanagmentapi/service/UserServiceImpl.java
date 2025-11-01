@@ -1,6 +1,5 @@
 package ar.edu.itba.parkingmanagmentapi.service;
 
-import ar.edu.itba.parkingmanagmentapi.config.AppConstants;
 import ar.edu.itba.parkingmanagmentapi.dto.CreateUserRequest;
 import ar.edu.itba.parkingmanagmentapi.dto.UpdateUserRequest;
 import ar.edu.itba.parkingmanagmentapi.dto.UserResponse;
@@ -16,9 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -71,7 +68,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponse updateUser(Long id, UpdateUserRequest user) {
         updatedUserRequestValidator.validate(user);
-        
+
         User userSaved = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("user.not.found"));
 
@@ -98,18 +95,6 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * Lists all users
-     */
-    @Override
-    @Transactional(readOnly = true)
-    public List<UserResponse> findAll() {
-        return userRepository.findAll()
-                .stream()
-                .map(UserMapper::toUserResponse)
-                .collect(Collectors.toList());
-    }
-
-    /**
      * Deletes a user
      */
     @Override
@@ -120,18 +105,6 @@ public class UserServiceImpl implements UserService {
     }
 
     // -------------------------- EXTENSIONS --------------------------
-
-    /**
-     * Searches users by search term
-     */
-    @Override
-    @Transactional(readOnly = true)
-    public List<UserResponse> searchUsers(String searchTerm) {
-        return userRepository.findByFirstNameOrLastNameContainingIgnoreCase(searchTerm)
-                .stream()
-                .map(UserMapper::toUserResponse)
-                .collect(Collectors.toList());
-    }
 
     /**
      * Finds a user by Email
@@ -154,12 +127,4 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByEmail(email);
     }
 
-    /**
-     * Find default user
-     */
-    @Override
-    public User findDefaulUser() {
-        return userRepository.findById(AppConstants.DEFAULT_USER_ID)
-                .orElseThrow(() -> new NotFoundException("There is no default user"));
-    }
 }
