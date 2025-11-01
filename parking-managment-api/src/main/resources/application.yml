@@ -1,0 +1,40 @@
+spring:
+  profiles:
+    active: dev
+  application:
+    name: parking-management-api
+
+
+# Configuración del servidor
+server:
+  port: 8081
+  servlet:
+    context-path: /api
+
+# Configuración de JWT
+jwt:
+  secret: your-secret-key-here-make-it-long-and-secure-in-production
+  expiration: 6000 # 1 minutos en milisegundos
+  refresh:
+    expiration: 86400000 # 1 dia en milisegundos
+
+# CORS Configuration
+cors:
+  allowed-origins: "*"
+  allowed-methods: "GET,POST,PUT,DELETE,OPTIONS,PATCH"
+  allowed-headers: "*"
+  allow-credentials: true
+
+# Password recovery feature configuration
+recovery:
+  token:
+    ttl-seconds: 1800
+  expose-token-in-response: false
+
+
+constants:
+  default:
+    user_id: 1
+
+app:
+  default-language: es
