@@ -4,7 +4,6 @@ import ar.edu.itba.parkingmanagmentapi.dto.CreateUserRequest;
 import ar.edu.itba.parkingmanagmentapi.dto.UpdateUserRequest;
 import ar.edu.itba.parkingmanagmentapi.dto.UserResponse;
 import ar.edu.itba.parkingmanagmentapi.model.User;
-
 import java.util.Optional;
 
 public interface UserService {
@@ -12,7 +11,7 @@ public interface UserService {
     /**
      * Creates a new user
      */
-    UserResponse createUser(CreateUserRequest user);
+    UserResponse createUser(CreateUserRequest user, String encodedPassword);
 
     /**
      * Updates an existing user

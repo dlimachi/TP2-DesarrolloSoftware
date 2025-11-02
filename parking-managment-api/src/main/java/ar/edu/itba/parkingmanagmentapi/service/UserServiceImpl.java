@@ -9,36 +9,21 @@ import ar.edu.itba.parkingmanagmentapi.model.User;
 import ar.edu.itba.parkingmanagmentapi.model.UserDetail;
 import ar.edu.itba.parkingmanagmentapi.repository.UserRepository;
 import ar.edu.itba.parkingmanagmentapi.util.UserMapper;
-import ar.edu.itba.parkingmanagmentapi.validators.CreateUserRequestValidator;
-import ar.edu.itba.parkingmanagmentapi.validators.UpdatedUserRequestedValidator;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-
-    private final CreateUserRequestValidator createUserRequestValidator;
-    private final UpdatedUserRequestedValidator updatedUserRequestValidator;
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-
-    public UserServiceImpl(CreateUserRequestValidator createUserRequestValidator, UpdatedUserRequestedValidator updatedUserRequestValidator, UserRepository userRepository, PasswordEncoder passwordEncoder) {
-        this.createUserRequestValidator = createUserRequestValidator;
-        this.updatedUserRequestValidator = updatedUserRequestValidator;
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
 
     /**
      * Creates a new user
      */
     @Override
-    public UserResponse createUser(CreateUserRequest userRequest) {
-        createUserRequestValidator.validate(userRequest);
-
+    public UserResponse createUser(CreateUserRequest userRequest, String encodedPassword) {
         if (userRepository.existsByEmail(userRequest.getEmail())) {
             throw new BadRequestException("user.email.already_exists", userRequest.getEmail());
         }
@@ -48,18 +33,10 @@ public class UserServiceImpl implements UserService {
         user.setFirstName(userRequest.getFirstName());
         user.setLastName(userRequest.getLastName());
         user.setImageUrl(userRequest.getImageUrl());
-        user.setPasswordHash(passwordEncoder.encode(userRequest.getPassword()));
+        user.setPasswordHash(encodedPassword);
         user.setUserDetail(new UserDetail());
 
-        userRepository.save(user);
-
-        return UserResponse.builder()
-                .id(user.getId())
-                .firstName(userRequest.getFirstName())
-                .lastName(userRequest.getLastName())
-                .email(user.getEmail())
-                .imageUrl(userRequest.getImageUrl())
-                .build();
+        return UserMapper.toUserResponse(userRepository.save(user));
     }
 
     /**
@@ -67,8 +44,6 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public UserResponse updateUser(Long id, UpdateUserRequest user) {
-        updatedUserRequestValidator.validate(user);
-
         User userSaved = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("user.not.found"));
 
@@ -78,9 +53,8 @@ public class UserServiceImpl implements UserService {
         userSaved.getUserDetail().setPhone(user.getUserDetail().getPhone());
         userSaved.getUserDetail().setAddress(user.getUserDetail().getAddress());
         userSaved.getUserDetail().setLang(user.getUserDetail().getLang());
-        userRepository.save(userSaved);
 
-        return UserMapper.toUserResponse(userSaved);
+        return UserMapper.toUserResponse(userRepository.save(userSaved));
     }
 
     /**
