@@ -6,6 +6,7 @@ import ar.edu.itba.parkingmanagmentapi.dto.ReservationResponse;
 import ar.edu.itba.parkingmanagmentapi.dto.WalkInStayRequest;
 import ar.edu.itba.parkingmanagmentapi.dto.enums.ReservationStatus;
 import ar.edu.itba.parkingmanagmentapi.service.WalkInStayService;
+import ar.edu.itba.parkingmanagmentapi.service.orchestrator.ReservationOrchestratorService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,16 +23,16 @@ import java.time.LocalDateTime;
 @CrossOrigin(origins = "*")
 public class WalkInStayController {
 
-    private final WalkInStayService walkInStayService;
+    private final ReservationOrchestratorService reservationOrchestratorService;
 
-    public WalkInStayController(WalkInStayService walkInStayService) {
-        this.walkInStayService = walkInStayService;
+    public WalkInStayController(ReservationOrchestratorService reservationOrchestratorService) {
+        this.reservationOrchestratorService = reservationOrchestratorService;
     }
 
     @PostMapping
     @PreAuthorize("@authorizationService.isCurrentUserManagerOfSpot(#request.spotId)")
     public ResponseEntity<?> createWalkInStay(@Valid @RequestBody WalkInStayRequest request) {
-        ReservationResponse response = walkInStayService.createReservation(request);
+        ReservationResponse response = reservationOrchestratorService.createWalkInStayReservation(request);
         return ApiResponse.created(response);
     }
 

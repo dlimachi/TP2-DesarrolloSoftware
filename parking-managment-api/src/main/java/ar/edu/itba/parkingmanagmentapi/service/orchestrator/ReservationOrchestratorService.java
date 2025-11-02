@@ -1,22 +1,119 @@
 package ar.edu.itba.parkingmanagmentapi.service.orchestrator;
 
-import ar.edu.itba.parkingmanagmentapi.service.ScheduledReservationService;
-import ar.edu.itba.parkingmanagmentapi.service.SpotService;
-import ar.edu.itba.parkingmanagmentapi.service.WalkInStayService;
+import ar.edu.itba.parkingmanagmentapi.config.AppConstants;
+import ar.edu.itba.parkingmanagmentapi.domain.DateTimeRange;
+import ar.edu.itba.parkingmanagmentapi.dto.ReservationResponse;
+import ar.edu.itba.parkingmanagmentapi.dto.ScheduledReservationRequest;
+import ar.edu.itba.parkingmanagmentapi.dto.WalkInStayRequest;
+import ar.edu.itba.parkingmanagmentapi.dto.enums.ReservationStatus;
+import ar.edu.itba.parkingmanagmentapi.exceptions.BadRequestException;
+import ar.edu.itba.parkingmanagmentapi.exceptions.NotFoundException;
+import ar.edu.itba.parkingmanagmentapi.model.*;
+import ar.edu.itba.parkingmanagmentapi.service.*;
+import ar.edu.itba.parkingmanagmentapi.validators.ScheduledReservationRequestValidator;
+import ar.edu.itba.parkingmanagmentapi.validators.WalkInStayRequestValidator;
+import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Service
 public class ReservationOrchestratorService {
+
+    private final WalkInStayRequestValidator walkInStayRequestValidator;
+    private final ScheduledReservationRequestValidator scheduledReservationRequestValidator;
 
     private final ScheduledReservationService scheduledReservationService;
     private final WalkInStayService walkInStayService;
     private final SpotService spotService;
+    private final ParkingPriceService parkingPriceService;
+    private final UserVehicleAssignmentService userVehicleAssignmentService;
 
-    public ReservationOrchestratorService(ScheduledReservationService scheduledReservationService, WalkInStayService walkInStayService, SpotService spotService) {
+    public ReservationOrchestratorService(WalkInStayRequestValidator walkInStayRequestValidator, ScheduledReservationRequestValidator scheduledReservationRequestValidator, ScheduledReservationService scheduledReservationService, WalkInStayService walkInStayService, SpotService spotService, ParkingPriceService parkingPriceService, UserVehicleAssignmentService userVehicleAssignmentService) {
+        this.walkInStayRequestValidator = walkInStayRequestValidator;
+        this.scheduledReservationRequestValidator = scheduledReservationRequestValidator;
         this.scheduledReservationService = scheduledReservationService;
         this.walkInStayService = walkInStayService;
         this.spotService = spotService;
+        this.parkingPriceService = parkingPriceService;
+        this.userVehicleAssignmentService = userVehicleAssignmentService;
     }
 
+    public ReservationResponse createWalkInStayReservation(final WalkInStayRequest walkInStayRequest) {
+        walkInStayRequestValidator.validate(walkInStayRequest);
 
+        Spot spot = spotService.findEntityById(walkInStayRequest.getSpotId());
 
+        if (!parkingPriceService.existsActiveByParkingLotIdAndVehicleType(spot.getParkingLot().getId(), spot.getVehicleType())) {
+            throw new NotFoundException("There are no active prices for this type of vehicle in the parking lot");
+        }
+
+        UserVehicleAssignment assignment = userVehicleAssignmentService.findOrCreateByUserIdAndLicensePlate(AppConstants.DEFAULT_USER_ID, walkInStayRequest.getVehicleLicensePlate());
+
+        WalkInStay stay = new WalkInStay();
+        stay.setCheckInTime(LocalDateTime.now());
+        stay.setStatus(ReservationStatus.ACTIVE);
+        stay.setExpectedEndTime(stay.getCheckInTime().plusHours(walkInStayRequest.getExpectedDurationHours()));
+        stay.setSpot(spot);
+        stay.setCheckOutTime(null);
+        stay.setUserVehicleAssignment(assignment);
+
+        spotService.toggleAvailability(spot.getId());
+        walkInStayService.createReservation(stay);
+
+        return ReservationResponse.fromWalkInStay(stay);
+    }
+
+    public ReservationResponse createScheduledReservation(final ScheduledReservationRequest scheduledReservation) {
+        scheduledReservationRequestValidator.validate(scheduledReservation);
+
+        Spot spot = spotService.findEntityById(scheduledReservation.getSpotId());
+
+        boolean isAvailable = spotService.isAvailable(spot.getId());
+        if (!isAvailable) {
+            throw new BadRequestException("spot.not.available");
+        }
+
+        List<ScheduledReservation> overlapping = scheduledReservationService.findBySpotIdAndOverlappingPeriod(
+                spot.getId(),
+                DateTimeRange.from(scheduledReservation.getReservedStartTime(), scheduledReservation.getExpectedEndTime())
+        );
+
+        if (!overlapping.isEmpty()) {
+            throw new BadRequestException("spot.not.available.in.time.range");
+        }
+
+        BigDecimal estimatedPrice = parkingPriceService.calculateEstimatedPrice(spot.getId(), DateTimeRange.from(scheduledReservation.getReservedStartTime(), scheduledReservation.getExpectedEndTime()));
+
+        UserVehicleAssignment assignment = userVehicleAssignmentService.findOrCreateByUserIdAndLicensePlate(AppConstants.DEFAULT_USER_ID, scheduledReservation.getVehicleLicensePlate());
+
+        LocalDateTime now = LocalDateTime.now();
+        ScheduledReservation reservation = new ScheduledReservation();
+        reservation.setReservedStartTime(scheduledReservation.getReservedStartTime());
+        reservation.setCreatedAt(now);
+        reservation.setUpdatedAt(now);
+        reservation.setExpectedEndTime(scheduledReservation.getExpectedEndTime());
+        reservation.setEstimatedPrice(estimatedPrice);
+        reservation.setStatus(ReservationStatus.PENDING);
+        reservation.setSpot(spot);
+        reservation.setUserVehicleAssignment(assignment);
+
+        spotService.toggleAvailability(spot.getId());
+        scheduledReservationService.create(reservation);
+
+        return ReservationResponse.fromScheduledReservation(reservation);
+    }
+
+    public ReservationResponse getScheduledReservationById(final Long reservationId) {
+        return ReservationResponse.fromScheduledReservation(scheduledReservationService.findById(reservationId));
+    }
+
+    public ReservationResponse getWalkInStayReservationById(final WalkInStayRequest walkInStayRequest) {
+        return ReservationResponse.fromWalkInStay(walkInStayService.findById(walkInStayRequest.getSpotId()));
+    }
 
 }

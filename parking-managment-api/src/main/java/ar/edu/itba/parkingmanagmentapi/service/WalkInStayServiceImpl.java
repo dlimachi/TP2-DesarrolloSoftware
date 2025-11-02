@@ -34,18 +34,23 @@ public class WalkInStayServiceImpl implements WalkInStayService {
     }
 
     @Override
+    public WalkInStay updateReservation(WalkInStay walkInStay) {
+        return walkInStayRepository.save(walkInStay);
+    }
+
+    @Override
     public WalkInStay createReservation(WalkInStay walkInStay) {
         return walkInStayRepository.save(walkInStay);
     }
 
     @Override
-    public WalkInStay getReservation(Long id) {
+    public WalkInStay findById(Long id) {
         return walkInStayRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Walk-in stay with id " + id + " not found"));
     }
 
     @Override
-    public WalkInStay updateReservationStatus(Long id, ReservationStatus status) {
+    public WalkInStay updateStatus(Long id, ReservationStatus status) {
         WalkInStay walkInStay = walkInStayRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Walk-in stay with id " + id + " not found"));
 
@@ -55,7 +60,7 @@ public class WalkInStayServiceImpl implements WalkInStayService {
     }
 
     @Override
-    public Page<WalkInStay> getReservationsByUser(Long userId, ReservationStatus status, String vehiclePlate, LocalDateTime from, LocalDateTime to, Pageable pageable) {
+    public Page<WalkInStay> findByUserId(Long userId, ReservationStatus status, String vehiclePlate, LocalDateTime from, LocalDateTime to, Pageable pageable) {
         return walkInStayRepository.findAll(
                         WalkInStaySpecifications.withFilters(userId, null, status, vehiclePlate, from, to),
                         pageable
@@ -63,7 +68,7 @@ public class WalkInStayServiceImpl implements WalkInStayService {
     }
 
     @Override
-    public Page<WalkInStay> getReservationsByParkingLot(Long parkingLotId, ReservationStatus status, String licensePlate, LocalDateTime from, LocalDateTime to, Pageable pageable) {
+    public Page<WalkInStay> findByParkingLot(Long parkingLotId, ReservationStatus status, String licensePlate, LocalDateTime from, LocalDateTime to, Pageable pageable) {
         return walkInStayRepository.findAll(
                         WalkInStaySpecifications.withFilters(null, parkingLotId, status, licensePlate, from, to),
                         pageable
@@ -72,7 +77,7 @@ public class WalkInStayServiceImpl implements WalkInStayService {
 
     @Override
     @Transactional
-    public WalkInStay extendReservation(Long id, int extraHours) {
+    public WalkInStay extend(Long id, int extraHours) {
         WalkInStay stay = walkInStayRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Walk-in stay not found"));
 

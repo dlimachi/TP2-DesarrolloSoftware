@@ -1,11 +1,11 @@
 package ar.edu.itba.parkingmanagmentapi.controller;
 
+import ar.edu.itba.parkingmanagmentapi.domain.DateTimeRange;
 import ar.edu.itba.parkingmanagmentapi.dto.ApiResponse;
 import ar.edu.itba.parkingmanagmentapi.dto.PageResponse;
 import ar.edu.itba.parkingmanagmentapi.dto.ReservationResponse;
 import ar.edu.itba.parkingmanagmentapi.dto.ScheduledReservationRequest;
 import ar.edu.itba.parkingmanagmentapi.dto.enums.ReservationStatus;
-import ar.edu.itba.parkingmanagmentapi.service.ScheduledReservationService;
 import ar.edu.itba.parkingmanagmentapi.service.orchestrator.ReservationOrchestratorService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -30,13 +30,13 @@ public class ScheduledReservationController {
 
     @PostMapping
     public ResponseEntity<?> createReservation(@Valid @RequestBody ScheduledReservationRequest request) {
-        ReservationResponse response = scheduledReservationService.createReservation(request);
+        ReservationResponse response = reservationOrchestratorService.createScheduledReservation(request);
         return ApiResponse.created(response);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getReservation(@PathVariable Long id) {
-        ReservationResponse response = scheduledReservationService.getReservation(id);
+        ReservationResponse response = reservationOrchestratorService.getScheduledReservationById(id);
         return ApiResponse.ok(response);
     }
 
@@ -49,7 +49,7 @@ public class ScheduledReservationController {
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime from,
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime to,
             Pageable pageable) {
-        Page<ReservationResponse> responses = scheduledReservationService.getReservationsByUser(userId, status, vehiclePlate, from, to, pageable);
+        Page<ReservationResponse> responses = reservationOrchestratorService.getWalkInStayReservationByUserId(userId, status, vehiclePlate, DateTimeRange.from(from, to), pageable);
         return ApiResponse.ok(PageResponse.of(responses));
     }
 

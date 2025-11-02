@@ -11,17 +11,19 @@ import java.util.List;
 
 public interface WalkInStayService {
 
-    WalkInStay createReservation(WalkInStay request);
+    WalkInStay createReservation(WalkInStay walkInStay);
 
-    WalkInStay getReservation(Long id);
+    WalkInStay updateReservation(WalkInStay walkInStay);
 
-    WalkInStay updateReservationStatus(Long id, ReservationStatus status);
+    WalkInStay findById(Long walkInStayId);
 
-    Page<WalkInStay> getReservationsByUser(Long userId, ReservationStatus status, String vehiclePlate, LocalDateTime from, LocalDateTime to, Pageable pageable);
+    WalkInStay updateStatus(Long id, ReservationStatus status);
 
-    Page<WalkInStay> getReservationsByParkingLot(Long parkingLotId, ReservationStatus status, String licensePlate, LocalDateTime from, LocalDateTime to, Pageable pageable);
+    Page<WalkInStay> findByUserId(Long userId, ReservationStatus status, String vehiclePlate, LocalDateTime from, LocalDateTime to, Pageable pageable);
 
-    WalkInStay extendReservation(Long id, int extraHours);
+    Page<WalkInStay> findByParkingLot(Long parkingLotId, ReservationStatus status, String licensePlate, LocalDateTime from, LocalDateTime to, Pageable pageable);
+
+    WalkInStay extend(Long id, int extraHours);
 
     Duration getRemainingTime(Long id);
 

@@ -29,7 +29,7 @@ public class UserVehicleAssigmentServiceImpl implements UserVehicleAssignmentSer
     }
 
     @Override
-    public UserVehicleAssignment findByUserIdAndLicensePlateOrCreate(Long userId, String licensePlate) {
+    public UserVehicleAssignment findOrCreateByUserIdAndLicensePlate(Long userId, String licensePlate) {
         return userVehicleAssignmentRepository
                 .findByUserIdAndVehicleLicensePlate(userId, licensePlate)
                 .orElseGet(() -> {

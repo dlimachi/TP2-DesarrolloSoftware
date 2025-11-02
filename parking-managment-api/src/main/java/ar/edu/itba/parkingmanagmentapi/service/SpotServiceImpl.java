@@ -143,4 +143,17 @@ public class SpotServiceImpl implements SpotService {
     public Spot updateEntity(Spot spot) {
         return spotRepository.save(spot);
     }
+
+    @Override
+    public boolean toggleAvailability(Long spotId) {
+        Spot spot = findEntityById(spotId);
+        spot.setIsAvailable(!spot.getIsAvailable());
+        return spotRepository.save(spot).getIsAvailable();
+    }
+
+    @Override
+    public boolean isAvailable(Long spotId) {
+        return spotRepository.findById(spotId).orElseThrow(() -> new NotFoundException("spot.not.found", spotId)).getIsAvailable();
+    }
+
 }

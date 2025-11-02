@@ -28,4 +28,8 @@ public interface SpotService {
 
     Spot updateEntity(Spot spot);
 
+    boolean toggleAvailability(Long spotId);
+
+    boolean isAvailable(Long spotId);
+
 }

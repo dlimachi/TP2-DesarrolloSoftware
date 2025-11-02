@@ -6,5 +6,5 @@ public interface UserVehicleAssignmentService {
 
     UserVehicleAssignment findByUserIdAndLicensePlate(Long userId, String licensePlate);
 
-    UserVehicleAssignment findByUserIdAndLicensePlateOrCreate(Long userId, String licensePlate);
+    UserVehicleAssignment findOrCreateByUserIdAndLicensePlate(Long userId, String licensePlate);
 }

@@ -1,5 +1,6 @@
 package ar.edu.itba.parkingmanagmentapi.service;
 
+import ar.edu.itba.parkingmanagmentapi.domain.DateTimeRange;
 import ar.edu.itba.parkingmanagmentapi.dto.enums.ReservationStatus;
 import ar.edu.itba.parkingmanagmentapi.exceptions.NotFoundException;
 import ar.edu.itba.parkingmanagmentapi.model.ScheduledReservation;
@@ -30,6 +31,11 @@ public class ScheduledReservationServiceImpl implements ScheduledReservationServ
     public ScheduledReservation findById(Long id) {
         return scheduledReservationRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Reservation with id " + id + " not found"));
+    }
+
+    @Override
+    public List<ScheduledReservation> findBySpotIdAndOverlappingPeriod(Long spotId, DateTimeRange period) {
+        return scheduledReservationRepository.findBySpotIdAndReservedStartTimeLessThanEqualAndExpectedEndTimeGreaterThanEqual(spotId, period.getStart(), period.getEnd());
     }
 
     @Override
