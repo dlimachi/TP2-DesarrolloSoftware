@@ -22,7 +22,7 @@ public interface UserService {
     /**
      * Finds a user by ID
      */
-    UserResponse findById(Long id);
+    User findById(Long id);
 
     /**
      * Deletes a user

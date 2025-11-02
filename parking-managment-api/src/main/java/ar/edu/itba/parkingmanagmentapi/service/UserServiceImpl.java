@@ -87,10 +87,8 @@ public class UserServiceImpl implements UserService {
      * Finds a user by ID
      */
     @Override
-    @Transactional(readOnly = true)
-    public UserResponse findById(Long id) {
+    public User findById(Long id) {
         return userRepository.findById(id)
-                .map(UserMapper::toUserResponse)
                 .orElseThrow(() -> new NotFoundException("user.not.found"));
     }
 

@@ -1,20 +1,18 @@
 package ar.edu.itba.parkingmanagmentapi.service;
 
-import ar.edu.itba.parkingmanagmentapi.dto.VehicleRequest;
 import ar.edu.itba.parkingmanagmentapi.dto.VehicleResponse;
 import ar.edu.itba.parkingmanagmentapi.model.Vehicle;
-
 import java.util.List;
 
 public interface VehicleService {
 
-    VehicleResponse create(VehicleRequest request);
+    Vehicle create(Vehicle request);
 
-    VehicleResponse findByLicensePlate(String licensePlate);
+    Vehicle findByLicensePlate(String licensePlate);
 
     List<VehicleResponse> findAllVehiclesByUser(Long id);
 
-    VehicleResponse update(String licensePlate, VehicleRequest request);
+    Vehicle update(String licensePlate, Vehicle request);
 
     void delete(String licensePlate);
 

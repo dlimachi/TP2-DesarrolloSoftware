@@ -41,7 +41,7 @@ public class UserController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getUserById(@PathVariable Long id) {
-        UserResponse user = userService.findById(id);
+        UserResponse user = UserMapper.toUserResponse(userService.findById(id));
         return ApiResponse.ok(user);
     }
 
