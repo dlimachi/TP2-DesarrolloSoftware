@@ -47,7 +47,7 @@ public class ParkingLotMapper {
 
         SpotResponse dto = new SpotResponse();
         dto.setId(spot.getId());
-        dto.setVehicleType(spot.getVehicleType());
+        dto.setVehicleType(spot.getVehicleType().toString());
         dto.setFloor(spot.getFloor());
         dto.setCode(spot.getCode());
         dto.setIsAvailable(spot.getIsAvailable());

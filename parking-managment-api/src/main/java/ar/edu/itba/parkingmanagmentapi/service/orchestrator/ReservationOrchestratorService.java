@@ -2,6 +2,7 @@ package ar.edu.itba.parkingmanagmentapi.service.orchestrator;
 
 import ar.edu.itba.parkingmanagmentapi.config.AppConstants;
 import ar.edu.itba.parkingmanagmentapi.domain.DateTimeRange;
+import ar.edu.itba.parkingmanagmentapi.domain.ReservationCriteria;
 import ar.edu.itba.parkingmanagmentapi.dto.ReservationResponse;
 import ar.edu.itba.parkingmanagmentapi.dto.ScheduledReservationRequest;
 import ar.edu.itba.parkingmanagmentapi.dto.WalkInStayRequest;
@@ -12,12 +13,12 @@ import ar.edu.itba.parkingmanagmentapi.model.*;
 import ar.edu.itba.parkingmanagmentapi.service.*;
 import ar.edu.itba.parkingmanagmentapi.validators.ScheduledReservationRequestValidator;
 import ar.edu.itba.parkingmanagmentapi.validators.WalkInStayRequestValidator;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -112,8 +113,34 @@ public class ReservationOrchestratorService {
         return ReservationResponse.fromScheduledReservation(scheduledReservationService.findById(reservationId));
     }
 
-    public ReservationResponse getWalkInStayReservationById(final WalkInStayRequest walkInStayRequest) {
-        return ReservationResponse.fromWalkInStay(walkInStayService.findById(walkInStayRequest.getSpotId()));
+    public ReservationResponse getWalkInStayReservationById(final Long reservationId) {
+        return ReservationResponse.fromWalkInStay(walkInStayService.findById(reservationId));
+    }
+
+    public Page<ReservationResponse> getScheduledReservations(final ReservationCriteria reservationCriteria, Pageable pageable) {
+        return scheduledReservationService.findByCriteria(reservationCriteria, pageable)
+                .map(ReservationResponse::fromScheduledReservation);
+    }
+
+    public Page<ReservationResponse> getWalkInStayReservations(final ReservationCriteria reservationCriteria, Pageable pageable) {
+        return walkInStayService.findByCriteria(reservationCriteria, pageable)
+                .map(ReservationResponse::fromWalkInStay);
+    }
+
+    public ReservationResponse updateScheduledReservationStatus(Long reservationId, ReservationStatus status) {
+        return ReservationResponse.fromScheduledReservation(scheduledReservationService.updateStatus(reservationId, status));
+    }
+
+    public ReservationResponse updateWalkInReservationStatus(Long reservationId, ReservationStatus status) {
+        return ReservationResponse.fromWalkInStay(walkInStayService.updateStatus(reservationId, status));
+    }
+
+    public ReservationResponse extendWalkInReservation(Long reservationId, Integer extraHours) {
+        return ReservationResponse.fromWalkInStay(walkInStayService.extend(reservationId, extraHours));
+    }
+
+    public Duration getRemainingTime(Long reservationId) {
+        return walkInStayService.getRemainingTime(reservationId);
     }
 
 }

@@ -1,6 +1,7 @@
 package ar.edu.itba.parkingmanagmentapi.service;
 
 import ar.edu.itba.parkingmanagmentapi.config.AppConstants;
+import ar.edu.itba.parkingmanagmentapi.domain.ReservationCriteria;
 import ar.edu.itba.parkingmanagmentapi.dto.ReservationResponse;
 import ar.edu.itba.parkingmanagmentapi.dto.WalkInStayRequest;
 import ar.edu.itba.parkingmanagmentapi.dto.enums.ReservationStatus;
@@ -60,17 +61,15 @@ public class WalkInStayServiceImpl implements WalkInStayService {
     }
 
     @Override
-    public Page<WalkInStay> findByUserId(Long userId, ReservationStatus status, String vehiclePlate, LocalDateTime from, LocalDateTime to, Pageable pageable) {
+    public Page<WalkInStay> findByCriteria(ReservationCriteria reservationCriteria, Pageable pageable) {
         return walkInStayRepository.findAll(
-                        WalkInStaySpecifications.withFilters(userId, null, status, vehiclePlate, from, to),
-                        pageable
-                );
-    }
-
-    @Override
-    public Page<WalkInStay> findByParkingLot(Long parkingLotId, ReservationStatus status, String licensePlate, LocalDateTime from, LocalDateTime to, Pageable pageable) {
-        return walkInStayRepository.findAll(
-                        WalkInStaySpecifications.withFilters(null, parkingLotId, status, licensePlate, from, to),
+                        WalkInStaySpecifications.withFilters(
+                                reservationCriteria.getUserId(),
+                                reservationCriteria.getParkingLotId(),
+                                reservationCriteria.getStatus(),
+                                reservationCriteria.getLicensePlate(),
+                                reservationCriteria.getRange().getStart(),
+                                reservationCriteria.getRange().getEnd()),
                         pageable
                 );
     }

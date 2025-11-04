@@ -3,6 +3,7 @@ package ar.edu.itba.parkingmanagmentapi.service;
 import ar.edu.itba.parkingmanagmentapi.dto.ParkingLotRequest;
 import ar.edu.itba.parkingmanagmentapi.dto.ParkingLotResponse;
 import ar.edu.itba.parkingmanagmentapi.dto.UpdateParkingLotRequest;
+import ar.edu.itba.parkingmanagmentapi.dto.enums.VehicleType;
 import ar.edu.itba.parkingmanagmentapi.exceptions.BadRequestException;
 import ar.edu.itba.parkingmanagmentapi.exceptions.NotFoundException;
 import ar.edu.itba.parkingmanagmentapi.model.Manager;
@@ -59,7 +60,7 @@ public class ParkingLotServiceImpl implements ParkingLotService {
                 .map(spotDto -> {
                     Spot spot = new Spot();
                     spot.setParkingLot(parkingLot);
-                    spot.setVehicleType(spotDto.getVehicleType());
+                    spot.setVehicleType(VehicleType.valueOf(spotDto.getVehicleType()));
                     spot.setFloor(spotDto.getFloor());
                     spot.setCode(spotDto.getCode());
                     return spot;

@@ -1,6 +1,8 @@
 package ar.edu.itba.parkingmanagmentapi.controller;
 
 import ar.edu.itba.parkingmanagmentapi.domain.DateTimeRange;
+import ar.edu.itba.parkingmanagmentapi.domain.ReservationCriteria;
+import ar.edu.itba.parkingmanagmentapi.domain.ReservationOwner;
 import ar.edu.itba.parkingmanagmentapi.dto.ApiResponse;
 import ar.edu.itba.parkingmanagmentapi.dto.PageResponse;
 import ar.edu.itba.parkingmanagmentapi.dto.ReservationResponse;
@@ -45,11 +47,18 @@ public class ScheduledReservationController {
     public ResponseEntity<?> getReservationsByUser(
             Long userId,
             @RequestParam(required = false, defaultValue = "PENDING") ReservationStatus status,
-            @RequestParam(required = false) String vehiclePlate,
+            @RequestParam(required = false) String licensePlate,
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime from,
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime to,
             Pageable pageable) {
-        Page<ReservationResponse> responses = reservationOrchestratorService.getWalkInStayReservationByUserId(userId, status, vehiclePlate, DateTimeRange.from(from, to), pageable);
+        ReservationCriteria criteria = ReservationCriteria.builder()
+                .userId(userId)
+                .licensePlate(licensePlate)
+                .status(status)
+                .range(DateTimeRange.from(from, to))
+                .build();
+
+        Page<ReservationResponse> responses = reservationOrchestratorService.getScheduledReservations(criteria, pageable);
         return ApiResponse.ok(PageResponse.of(responses));
     }
 
@@ -59,7 +68,7 @@ public class ScheduledReservationController {
             @PathVariable Long id,
             @RequestParam ReservationStatus status
     ) {
-        ReservationResponse response = scheduledReservationService.updateReservationStatus(id, status);
+        ReservationResponse response = reservationOrchestratorService.updateScheduledReservationStatus(id, status);
         return ApiResponse.ok(response);
     }
 

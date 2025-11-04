@@ -156,6 +156,11 @@ public class ParkingPriceServiceImpl implements ParkingPriceService {
     }
 
     @Override
+    public BigDecimal calculateEstimatedPrice(Long parkingLotId, DateTimeRange range) {
+        return BigDecimal.ZERO;
+    }
+
+    @Override
     public boolean existsActiveByParkingLotIdAndVehicleType(Long parkingLotId, VehicleType vehicleType) {
         return !parkingPriceRepository.findByParkingLotIdAndVehicleType(parkingLotId, vehicleType.toString()).isEmpty();
     }

@@ -2,6 +2,7 @@ package ar.edu.itba.parkingmanagmentapi.service;
 
 import ar.edu.itba.parkingmanagmentapi.dto.SpotRequest;
 import ar.edu.itba.parkingmanagmentapi.dto.SpotResponse;
+import ar.edu.itba.parkingmanagmentapi.dto.enums.VehicleType;
 import ar.edu.itba.parkingmanagmentapi.exceptions.BadRequestException;
 import ar.edu.itba.parkingmanagmentapi.exceptions.NotFoundException;
 import ar.edu.itba.parkingmanagmentapi.model.Manager;
@@ -51,7 +52,7 @@ public class SpotServiceImpl implements SpotService {
         }
 
         Spot spot = new Spot();
-        spot.setVehicleType(request.getVehicleType().toLowerCase());
+        spot.setVehicleType(VehicleType.valueOf(request.getVehicleType()));
         spot.setFloor(request.getFloor());
         spot.setCode(request.getCode());
         spot.setIsAvailable(true);
@@ -83,7 +84,7 @@ public class SpotServiceImpl implements SpotService {
             throw new BadRequestException("spot.already.exists", request.getCode(), request.getFloor());
         }
 
-        spot.setVehicleType(request.getVehicleType());
+        spot.setVehicleType(VehicleType.valueOf(request.getVehicleType()));
         spot.setCode(request.getCode());
         spot.setFloor(request.getFloor());
         spot.setIsReservable(request.getIsReservable());

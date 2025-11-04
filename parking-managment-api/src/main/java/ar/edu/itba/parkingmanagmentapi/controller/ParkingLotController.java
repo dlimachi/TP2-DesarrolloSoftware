@@ -1,9 +1,13 @@
 package ar.edu.itba.parkingmanagmentapi.controller;
 
+import ar.edu.itba.parkingmanagmentapi.domain.DateTimeRange;
+import ar.edu.itba.parkingmanagmentapi.domain.ReservationCriteria;
+import ar.edu.itba.parkingmanagmentapi.domain.ReservationOwner;
 import ar.edu.itba.parkingmanagmentapi.dto.*;
 import ar.edu.itba.parkingmanagmentapi.dto.enums.ReservationStatus;
 import ar.edu.itba.parkingmanagmentapi.service.ParkingLotService;
 import ar.edu.itba.parkingmanagmentapi.service.ScheduledReservationService;
+import ar.edu.itba.parkingmanagmentapi.service.orchestrator.ReservationOrchestratorService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,12 +26,11 @@ public class ParkingLotController {
 
     private final ParkingLotService parkingLotService;
 
-    private final ScheduledReservationService reservationService;
+    private final ReservationOrchestratorService reservationOrchestratorService;
 
-
-    public ParkingLotController(ParkingLotService parkingLotService, ScheduledReservationService reservationService) {
+    public ParkingLotController(ParkingLotService parkingLotService, ReservationOrchestratorService reservationOrchestratorService) {
         this.parkingLotService = parkingLotService;
-        this.reservationService = reservationService;
+        this.reservationOrchestratorService = reservationOrchestratorService;
     }
 
     @PostMapping
@@ -78,7 +81,14 @@ public class ParkingLotController {
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime from,
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime to,
             Pageable pageable) {
-        Page<ReservationResponse> reservations = reservationService.findByParkingLotId(parkingLotId, status, null, from, to, pageable);
+        ReservationCriteria reservationCriteria = ReservationCriteria
+                .builder()
+                .parkingLotId(parkingLotId)
+                .status(status)
+                .range(DateTimeRange.from(from, to))
+                .build();
+
+        Page<ReservationResponse> reservations = reservationOrchestratorService.getScheduledReservations(reservationCriteria, pageable);
         return ApiResponse.ok(PageResponse.of(reservations));
     }
 

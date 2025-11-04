@@ -23,10 +23,12 @@ public class ReservationJob {
 
     @Scheduled(fixedRate = 60000) // cada 1 min
     public void sendReminders() {
+        /*
         List<ReservationResponse> expiring = walkInStayService.getExpiringReservations();
         expiring.forEach(stay -> {
             System.out.println("Reminder: Stay " + stay.getId() + " is expiring soon!");
         });
+         */
     }
 
     /*@Scheduled(fixedRate = 60000) // cada 1 minuto

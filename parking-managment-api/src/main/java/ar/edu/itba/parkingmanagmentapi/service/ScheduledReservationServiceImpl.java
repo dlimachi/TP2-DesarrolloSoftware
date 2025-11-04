@@ -1,11 +1,13 @@
 package ar.edu.itba.parkingmanagmentapi.service;
 
 import ar.edu.itba.parkingmanagmentapi.domain.DateTimeRange;
+import ar.edu.itba.parkingmanagmentapi.domain.ReservationCriteria;
 import ar.edu.itba.parkingmanagmentapi.dto.enums.ReservationStatus;
 import ar.edu.itba.parkingmanagmentapi.exceptions.NotFoundException;
 import ar.edu.itba.parkingmanagmentapi.model.ScheduledReservation;
 import ar.edu.itba.parkingmanagmentapi.repository.ScheduledReservationRepository;
 import ar.edu.itba.parkingmanagmentapi.repository.ScheduledReservationSpecifications;
+import ar.edu.itba.parkingmanagmentapi.repository.WalkInStaySpecifications;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -45,13 +47,17 @@ public class ScheduledReservationServiceImpl implements ScheduledReservationServ
     }
 
     @Override
-    public Page<ScheduledReservation> findByUserId(Long userId, ReservationStatus status, String vehiclePlate, LocalDateTime from, LocalDateTime to, Pageable pageable) {
-        return scheduledReservationRepository.findAll(ScheduledReservationSpecifications.withFilters(userId, null, status, vehiclePlate, from, to), pageable);
-    }
-
-    @Override
-    public Page<ScheduledReservation> findByParkingLotId(Long parkingLotId, ReservationStatus status, String licensePlate, LocalDateTime from, LocalDateTime to, Pageable pageable) {
-        return scheduledReservationRepository.findAll(ScheduledReservationSpecifications.withFilters(null, parkingLotId, status, null, from, to), pageable);
+    public Page<ScheduledReservation> findByCriteria(ReservationCriteria reservationCriteria, Pageable pageable) {
+        return scheduledReservationRepository.findAll(
+                ScheduledReservationSpecifications.withFilters(
+                        reservationCriteria.getUserId(),
+                        reservationCriteria.getParkingLotId(),
+                        reservationCriteria.getStatus(),
+                        reservationCriteria.getLicensePlate(),
+                        reservationCriteria.getRange().getStart(),
+                        reservationCriteria.getRange().getEnd()),
+                pageable
+        );
     }
 
     @Override
