@@ -32,8 +32,8 @@ class ParkingPriceControllerIntegrationTest extends BaseIntegrationTest {
         ParkingPriceRequest request = new ParkingPriceRequest();
         request.setVehicleType(VehicleType.BICYCLE.getName());
         request.setPrice(new BigDecimal("100"));
-        request.setValidFrom(LocalDateTime.now());
-        request.setValidTo(LocalDateTime.now().plusDays(7));
+        request.setValidFrom(LocalDateTime.now().plusDays(102));
+        request.setValidTo(LocalDateTime.now().plusDays(109));
 
         HttpEntity<ParkingPriceRequest> requestEntity = new HttpEntity<>(request, createAuthHeaders(managerUser));
 
@@ -54,7 +54,7 @@ class ParkingPriceControllerIntegrationTest extends BaseIntegrationTest {
         Optional<ParkingPrice> savedOpt = parkingPriceRepository.findById(responseData.getId());
         assertTrue(savedOpt.isPresent());
         ParkingPrice saved = savedOpt.get();
-        assertEquals(VehicleType.BICYCLE.getName(), saved.getVehicleType());
+        assertEquals(VehicleType.BICYCLE, saved.getVehicleType());
         assertEquals(new BigDecimal("100.00"), saved.getPrice());
     }
 
@@ -148,8 +148,8 @@ class ParkingPriceControllerIntegrationTest extends BaseIntegrationTest {
         ParkingPriceRequest updateRequest = new ParkingPriceRequest();
         updateRequest.setVehicleType(VehicleType.CAR.getName());
         updateRequest.setPrice(new BigDecimal("60"));
-        updateRequest.setValidFrom(LocalDateTime.now());
-        updateRequest.setValidTo(LocalDateTime.now().plusDays(5));
+        updateRequest.setValidFrom(LocalDateTime.now().plusDays(200));
+        updateRequest.setValidTo(LocalDateTime.now().plusDays(215));
 
         HttpEntity<ParkingPriceRequest> requestEntity = new HttpEntity<>(updateRequest, createAuthHeaders(managerUser));
 

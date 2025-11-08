@@ -322,9 +322,6 @@ public abstract class BaseIntegrationTest {
         user.setEmail(email);
         user.setPasswordHash(passwordEncoder.encode(password));
 
-        if (email.equals("default@default.com"))
-            user.setId(AppConstants.DEFAULT_USER_ID);
-
         return userRepository.save(user);
     }
 
