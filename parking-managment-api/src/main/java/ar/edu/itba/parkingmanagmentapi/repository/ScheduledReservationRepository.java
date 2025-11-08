@@ -17,8 +17,8 @@ import java.util.Optional;
 public interface ScheduledReservationRepository extends JpaRepository<ScheduledReservation, Long>, JpaSpecificationExecutor<ScheduledReservation> {
 
     // Buscar reservas de un spot en un rango de tiempo
-    List<ScheduledReservation> findBySpotAndReservedStartTimeLessThanEqualAndExpectedEndTimeGreaterThanEqual(
-            Spot spot,
+    List<ScheduledReservation> findBySpotIdAndReservedStartTimeLessThanEqualAndExpectedEndTimeGreaterThanEqual(
+            Long spotId,
             LocalDateTime start,
             LocalDateTime end
     );

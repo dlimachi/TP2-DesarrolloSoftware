@@ -23,17 +23,15 @@ public class UserVehicleAssigmentServiceImpl implements UserVehicleAssignmentSer
         this.vehicleRepository = vehicleRepository;
     }
 
-    public UserVehicleAssignment findByUserIdAndLicensePlate(Long userId, String licensePlate) {
+    @Override
+    public UserVehicleAssignment findOrCreateByUserIdAndLicensePlate(Long userId, String licensePlate) {
         return userVehicleAssignmentRepository
                 .findByUserIdAndVehicleLicensePlate(userId, licensePlate)
-                .orElseThrow(() -> new NotFoundException("This assignment does not exist"));
-    }
+                .orElseGet(() -> {
+                    User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("This user does not exist"));
+                    Vehicle vehicle = vehicleRepository.findByLicensePlate(licensePlate).orElseThrow(() -> new NotFoundException("This vehicle does not exist"));
 
-    @Override
-    @Transactional
-    public UserVehicleAssignment createUserAssigment(Long userId, Vehicle vehicle) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("user.not.found"));
-        return userVehicleAssignmentRepository.save(new UserVehicleAssignment(user, vehicle));
-
+                    return userVehicleAssignmentRepository.save(new UserVehicleAssignment(user, vehicle));
+                });
     }
 }

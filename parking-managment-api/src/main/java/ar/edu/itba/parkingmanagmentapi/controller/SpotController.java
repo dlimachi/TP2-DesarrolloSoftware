@@ -4,6 +4,7 @@ import ar.edu.itba.parkingmanagmentapi.dto.ApiResponse;
 import ar.edu.itba.parkingmanagmentapi.dto.PageResponse;
 import ar.edu.itba.parkingmanagmentapi.dto.SpotRequest;
 import ar.edu.itba.parkingmanagmentapi.dto.SpotResponse;
+import ar.edu.itba.parkingmanagmentapi.dto.enums.VehicleType;
 import ar.edu.itba.parkingmanagmentapi.service.SpotService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -58,7 +59,10 @@ public class SpotController {
             @RequestParam(required = false) Boolean isAccessible,
             @RequestParam(required = false) Boolean isReservable,
             Pageable pageable) {
-        Page<SpotResponse> spots = spotService.findByFilters(parkingLotId, available, vehicleType, floor, isAccessible, isReservable, pageable);
+        VehicleType vehicleTypeEnum = vehicleType != null && !vehicleType.isBlank() 
+                ? VehicleType.fromName(vehicleType) 
+                : null;
+        Page<SpotResponse> spots = spotService.findByFilters(parkingLotId, available, vehicleTypeEnum, floor, isAccessible, isReservable, pageable);
         return ApiResponse.ok(PageResponse.of(spots));
     }
 }

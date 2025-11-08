@@ -1,11 +1,14 @@
 package ar.edu.itba.parkingmanagmentapi.controller;
 
+import ar.edu.itba.parkingmanagmentapi.domain.DateTimeRange;
+import ar.edu.itba.parkingmanagmentapi.domain.ReservationCriteria;
+import ar.edu.itba.parkingmanagmentapi.domain.ReservationOwner;
 import ar.edu.itba.parkingmanagmentapi.dto.ApiResponse;
 import ar.edu.itba.parkingmanagmentapi.dto.PageResponse;
 import ar.edu.itba.parkingmanagmentapi.dto.ReservationResponse;
 import ar.edu.itba.parkingmanagmentapi.dto.ScheduledReservationRequest;
 import ar.edu.itba.parkingmanagmentapi.dto.enums.ReservationStatus;
-import ar.edu.itba.parkingmanagmentapi.service.ScheduledReservationService;
+import ar.edu.itba.parkingmanagmentapi.service.orchestrator.ReservationOrchestratorService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,21 +24,21 @@ import java.time.LocalDateTime;
 @CrossOrigin(origins = "*")
 public class ScheduledReservationController {
 
-    private final ScheduledReservationService scheduledReservationService;
+    private final ReservationOrchestratorService reservationOrchestratorService;
 
-    public ScheduledReservationController(ScheduledReservationService reservationService) {
-        this.scheduledReservationService = reservationService;
+    public ScheduledReservationController(ReservationOrchestratorService reservationOrchestratorService) {
+        this.reservationOrchestratorService = reservationOrchestratorService;
     }
 
     @PostMapping
     public ResponseEntity<?> createReservation(@Valid @RequestBody ScheduledReservationRequest request) {
-        ReservationResponse response = scheduledReservationService.createReservation(request);
+        ReservationResponse response = reservationOrchestratorService.createScheduledReservation(request);
         return ApiResponse.created(response);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getReservation(@PathVariable Long id) {
-        ReservationResponse response = scheduledReservationService.getReservation(id);
+        ReservationResponse response = reservationOrchestratorService.getScheduledReservationById(id);
         return ApiResponse.ok(response);
     }
 
@@ -44,11 +47,18 @@ public class ScheduledReservationController {
     public ResponseEntity<?> getReservationsByUser(
             Long userId,
             @RequestParam(required = false, defaultValue = "PENDING") ReservationStatus status,
-            @RequestParam(required = false) String vehiclePlate,
+            @RequestParam(required = false) String licensePlate,
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime from,
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime to,
             Pageable pageable) {
-        Page<ReservationResponse> responses = scheduledReservationService.getReservationsByUser(userId, status, vehiclePlate, from, to, pageable);
+        ReservationCriteria criteria = ReservationCriteria.builder()
+                .userId(userId)
+                .licensePlate(licensePlate)
+                .status(status)
+                .range(DateTimeRange.from(from, to))
+                .build();
+
+        Page<ReservationResponse> responses = reservationOrchestratorService.getScheduledReservations(criteria, pageable);
         return ApiResponse.ok(PageResponse.of(responses));
     }
 
@@ -58,7 +68,7 @@ public class ScheduledReservationController {
             @PathVariable Long id,
             @RequestParam ReservationStatus status
     ) {
-        ReservationResponse response = scheduledReservationService.updateReservationStatus(id, status);
+        ReservationResponse response = reservationOrchestratorService.updateScheduledReservationStatus(id, status);
         return ApiResponse.ok(response);
     }
 

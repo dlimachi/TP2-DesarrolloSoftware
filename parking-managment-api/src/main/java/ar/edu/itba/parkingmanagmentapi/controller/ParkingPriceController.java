@@ -3,6 +3,7 @@ package ar.edu.itba.parkingmanagmentapi.controller;
 import ar.edu.itba.parkingmanagmentapi.dto.ApiResponse;
 import ar.edu.itba.parkingmanagmentapi.dto.ParkingPriceRequest;
 import ar.edu.itba.parkingmanagmentapi.dto.ParkingPriceResponse;
+import ar.edu.itba.parkingmanagmentapi.dto.enums.VehicleType;
 import ar.edu.itba.parkingmanagmentapi.service.ParkingPriceService;
 import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -65,7 +66,10 @@ public class ParkingPriceController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to,
             @RequestParam(defaultValue = "asc") String sort
     ) {
-        List<ParkingPriceResponse> responses = parkingPriceService.getByFilters(parkingLotId, min, max, vehicleType, from, to, sort);
+        VehicleType vehicleTypeEnum = vehicleType != null && !vehicleType.isBlank() 
+                ? VehicleType.fromName(vehicleType) 
+                : null;
+        List<ParkingPriceResponse> responses = parkingPriceService.getByFilters(parkingLotId, min, max, vehicleTypeEnum, from, to, sort);
         return ApiResponse.ok(responses);
     }
 }

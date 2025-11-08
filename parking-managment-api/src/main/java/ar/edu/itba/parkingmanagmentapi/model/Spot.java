@@ -1,5 +1,6 @@
 package ar.edu.itba.parkingmanagmentapi.model;
 
+import ar.edu.itba.parkingmanagmentapi.dto.enums.VehicleType;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -17,7 +18,7 @@ public class Spot {
     private Long id;
 
     @Column(name = "vehicle_type", nullable = false)
-    private String vehicleType;
+    private VehicleType vehicleType;
 
     @Column(name = "floor")
     private Integer floor;
@@ -56,7 +57,7 @@ public class Spot {
     public Spot() {
     }
 
-    public Spot(String code, Boolean isAvailable, String vehicleType, Integer floor, ParkingLot parkingLot) {
+    public Spot(String code, Boolean isAvailable, VehicleType vehicleType, Integer floor, ParkingLot parkingLot) {
         this.vehicleType = vehicleType;
         this.code = code;
         this.parkingLot = parkingLot;
@@ -73,11 +74,11 @@ public class Spot {
         this.id = id;
     }
 
-    public String getVehicleType() {
+    public VehicleType getVehicleType() {
         return vehicleType;
     }
 
-    public void setVehicleType(String vehicleType) {
+    public void setVehicleType(VehicleType vehicleType) {
         this.vehicleType = vehicleType;
     }
 

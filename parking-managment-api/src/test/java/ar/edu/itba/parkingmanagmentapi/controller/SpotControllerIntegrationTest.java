@@ -45,7 +45,7 @@ class SpotControllerIntegrationTest extends BaseIntegrationTest {
         Optional<Spot> savedSpot = spotRepository.findById(body.getId());
         assertTrue(savedSpot.isPresent(), "El spot debería estar en la base de datos");
         assertEquals("A", savedSpot.get().getCode());
-        assertEquals(VehicleType.CAR.getName(), savedSpot.get().getVehicleType());
+        assertEquals(VehicleType.CAR, savedSpot.get().getVehicleType());
         assertEquals(1, savedSpot.get().getFloor());
         assertTrue(savedSpot.get().getIsAvailable());
         assertFalse(savedSpot.get().getIsReservable());
@@ -115,9 +115,9 @@ class SpotControllerIntegrationTest extends BaseIntegrationTest {
     void testGetSpots_shouldReturnPagedResults() {
         ParkingLot parkingLot = existingParkingLot;
 
-        Spot spot1 = new Spot("A", true, "CAR", 1, parkingLot);   // disponible
-        Spot spot2 = new Spot("B", false, "CAR", 1, parkingLot);  // no disponible
-        Spot spot3 = new Spot("B", true, "MOTORCYCLE", 2, parkingLot); // moto
+        Spot spot1 = new Spot("A", true, VehicleType.CAR, 1, parkingLot);   // disponible
+        Spot spot2 = new Spot("B", false, VehicleType.CAR, 1, parkingLot);  // no disponible
+        Spot spot3 = new Spot("B", true, VehicleType.MOTORCYCLE, 2, parkingLot); // moto
 
         spotRepository.saveAll(List.of(spot1, spot2, spot3));
 
@@ -149,9 +149,9 @@ class SpotControllerIntegrationTest extends BaseIntegrationTest {
     void testGetSpots_withFilters_shouldReturnFilteredResults() {
         ParkingLot parkingLot = existingParkingLot;
 
-        Spot spot1 = new Spot("A", true, "CAR", 1, parkingLot);   // disponible
-        Spot spot2 = new Spot("B", false, "CAR", 1, parkingLot);  // no disponible
-        Spot spot3 = new Spot("B", false, "MOTORCYCLE", 2, parkingLot); // no disponible
+        Spot spot1 = new Spot("A", true, VehicleType.CAR, 1, parkingLot);   // disponible
+        Spot spot2 = new Spot("B", false, VehicleType.CAR, 1, parkingLot);  // no disponible
+        Spot spot3 = new Spot("B", false, VehicleType.MOTORCYCLE, 2, parkingLot); // no disponible
         spotRepository.saveAll(List.of(spot1, spot2, spot3));
 
         HttpEntity<Void> requestEntity = new HttpEntity<>(createAuthHeaders(managerUser));

@@ -1,5 +1,6 @@
 package ar.edu.itba.parkingmanagmentapi.repository;
 
+import ar.edu.itba.parkingmanagmentapi.dto.enums.VehicleType;
 import ar.edu.itba.parkingmanagmentapi.model.ParkingPrice;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
@@ -15,7 +16,7 @@ public class ParkingPriceSpecifications {
             Long parkingLotId,
             BigDecimal min,
             BigDecimal max,
-            String vehicleType,
+            VehicleType vehicleType,
             LocalDateTime from,
             LocalDateTime to
     ) {
@@ -34,7 +35,7 @@ public class ParkingPriceSpecifications {
             }
 
             // tipo de vehículo
-            if (vehicleType != null && !vehicleType.isBlank()) {
+            if (vehicleType != null) {
                 predicates.add(cb.equal(root.get("vehicleType"), vehicleType));
             }
 
