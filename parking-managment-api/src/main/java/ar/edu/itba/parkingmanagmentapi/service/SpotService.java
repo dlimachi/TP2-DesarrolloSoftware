@@ -2,6 +2,7 @@ package ar.edu.itba.parkingmanagmentapi.service;
 
 import ar.edu.itba.parkingmanagmentapi.dto.SpotRequest;
 import ar.edu.itba.parkingmanagmentapi.dto.SpotResponse;
+import ar.edu.itba.parkingmanagmentapi.dto.enums.VehicleType;
 import ar.edu.itba.parkingmanagmentapi.model.Spot;
 import ar.edu.itba.parkingmanagmentapi.model.User;
 import org.springframework.data.domain.Page;
@@ -20,12 +21,16 @@ public interface SpotService {
 
     Optional<User> getManagerOfSpot(Long spotId);
 
-    Page<SpotResponse> findByFilters(Long parkingLotId, Boolean available, String vehicleType, Integer floor, Boolean isAccessible, Boolean isReservable, Pageable pageable);
+    Page<SpotResponse> findByFilters(Long parkingLotId, Boolean available, VehicleType vehicleType, Integer floor, Boolean isAccessible, Boolean isReservable, Pageable pageable);
 
     // -------------------------- RAW ENTITIES --------------------------
 
     Spot findEntityById(Long spotId);
 
     Spot updateEntity(Spot spot);
+
+    boolean toggleAvailability(Long spotId);
+
+    boolean isAvailable(Long spotId);
 
 }

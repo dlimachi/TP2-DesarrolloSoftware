@@ -2,6 +2,7 @@ package ar.edu.itba.parkingmanagmentapi.service;
 
 import ar.edu.itba.parkingmanagmentapi.dto.SpotRequest;
 import ar.edu.itba.parkingmanagmentapi.dto.SpotResponse;
+import ar.edu.itba.parkingmanagmentapi.dto.enums.VehicleType;
 import ar.edu.itba.parkingmanagmentapi.exceptions.BadRequestException;
 import ar.edu.itba.parkingmanagmentapi.exceptions.NotFoundException;
 import ar.edu.itba.parkingmanagmentapi.model.Manager;
@@ -51,7 +52,7 @@ public class SpotServiceImpl implements SpotService {
         }
 
         Spot spot = new Spot();
-        spot.setVehicleType(request.getVehicleType().toLowerCase());
+        spot.setVehicleType(VehicleType.fromName(request.getVehicleType()));
         spot.setFloor(request.getFloor());
         spot.setCode(request.getCode());
         spot.setIsAvailable(true);
@@ -83,7 +84,7 @@ public class SpotServiceImpl implements SpotService {
             throw new BadRequestException("spot.already.exists", request.getCode(), request.getFloor());
         }
 
-        spot.setVehicleType(request.getVehicleType());
+        spot.setVehicleType(VehicleType.fromName(request.getVehicleType()));
         spot.setCode(request.getCode());
         spot.setFloor(request.getFloor());
         spot.setIsReservable(request.getIsReservable());
@@ -126,7 +127,7 @@ public class SpotServiceImpl implements SpotService {
     }
 
     @Override
-    public Page<SpotResponse> findByFilters(Long parkingLotId, Boolean available, String vehicleType, Integer floor, Boolean isAccessible, Boolean isReservable, Pageable pageable) {
+    public Page<SpotResponse> findByFilters(Long parkingLotId, Boolean available, VehicleType vehicleType, Integer floor, Boolean isAccessible, Boolean isReservable, Pageable pageable) {
         return spotRepository.findAll(SpotSpecifications.withFilters(parkingLotId, available, vehicleType, floor, isAccessible, isReservable), pageable)
                 .map(ParkingLotMapper::toSpotResponse);
     }
@@ -143,4 +144,17 @@ public class SpotServiceImpl implements SpotService {
     public Spot updateEntity(Spot spot) {
         return spotRepository.save(spot);
     }
+
+    @Override
+    public boolean toggleAvailability(Long spotId) {
+        Spot spot = findEntityById(spotId);
+        spot.setIsAvailable(!spot.getIsAvailable());
+        return spotRepository.save(spot).getIsAvailable();
+    }
+
+    @Override
+    public boolean isAvailable(Long spotId) {
+        return spotRepository.findById(spotId).orElseThrow(() -> new NotFoundException("spot.not.found", spotId)).getIsAvailable();
+    }
+
 }

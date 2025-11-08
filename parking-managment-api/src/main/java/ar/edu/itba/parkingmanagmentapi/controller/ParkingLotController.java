@@ -1,9 +1,13 @@
 package ar.edu.itba.parkingmanagmentapi.controller;
 
+import ar.edu.itba.parkingmanagmentapi.domain.DateTimeRange;
+import ar.edu.itba.parkingmanagmentapi.domain.ReservationCriteria;
+import ar.edu.itba.parkingmanagmentapi.domain.ReservationOwner;
 import ar.edu.itba.parkingmanagmentapi.dto.*;
 import ar.edu.itba.parkingmanagmentapi.dto.enums.ReservationStatus;
 import ar.edu.itba.parkingmanagmentapi.service.ParkingLotService;
 import ar.edu.itba.parkingmanagmentapi.service.ScheduledReservationService;
+import ar.edu.itba.parkingmanagmentapi.service.orchestrator.ReservationOrchestratorService;
 import ar.edu.itba.parkingmanagmentapi.service.WalkInStayService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -23,14 +27,11 @@ public class ParkingLotController {
 
     private final ParkingLotService parkingLotService;
 
-    private final ScheduledReservationService reservationService;
+    private final ReservationOrchestratorService reservationOrchestratorService;
 
-    private final WalkInStayService walkInStayService;
-
-    public ParkingLotController(ParkingLotService parkingLotService, ScheduledReservationService reservationService, WalkInStayService walkInStayService) {
+    public ParkingLotController(ParkingLotService parkingLotService, ReservationOrchestratorService reservationOrchestratorService) {
         this.parkingLotService = parkingLotService;
-        this.reservationService = reservationService;
-        this.walkInStayService = walkInStayService;
+        this.reservationOrchestratorService = reservationOrchestratorService;
     }
 
     @PostMapping
@@ -81,7 +82,14 @@ public class ParkingLotController {
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime from,
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime to,
             Pageable pageable) {
-        Page<ReservationResponse> reservations = reservationService.getReservationsByParkingLot(parkingLotId, status, null, from, to, pageable);
+        ReservationCriteria reservationCriteria = ReservationCriteria
+                .builder()
+                .parkingLotId(parkingLotId)
+                .status(status)
+                .range(DateTimeRange.from(from, to))
+                .build();
+
+        Page<ReservationResponse> reservations = reservationOrchestratorService.getScheduledReservations(reservationCriteria, pageable);
         return ApiResponse.ok(PageResponse.of(reservations));
     }
 
@@ -89,10 +97,18 @@ public class ParkingLotController {
     @PreAuthorize("@authorizationService.isCurrentUserManagerOfParkingLot(#parkingLotId)")
     public ResponseEntity<?> getWalkInStaysByParkingLot(
             @PathVariable Long parkingLotId,
-            @RequestParam(required = false, defaultValue = "ACTIVE") ReservationStatus status,
-            @RequestParam(required = false) String licensePlate
-    ) {
-        Page<ReservationResponse> response = walkInStayService.getReservationsByParkingLot(parkingLotId, status, licensePlate, null, null, Pageable.unpaged());
+            @RequestParam(required = false) ReservationStatus status,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime from,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime to,
+            Pageable pageable) {
+        ReservationCriteria reservationCriteria = ReservationCriteria
+                .builder()
+                .parkingLotId(parkingLotId)
+                .status(status)
+                .range(DateTimeRange.from(from, to))
+                .build();
+
+        Page<ReservationResponse> response = reservationOrchestratorService.getWalkInStayReservations(reservationCriteria, pageable);
         return ApiResponse.ok(response.getContent());
     }
 

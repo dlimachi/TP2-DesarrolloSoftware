@@ -1,6 +1,7 @@
 package ar.edu.itba.parkingmanagmentapi.service;
 
 import ar.edu.itba.parkingmanagmentapi.config.AppConstants;
+import ar.edu.itba.parkingmanagmentapi.domain.ReservationCriteria;
 import ar.edu.itba.parkingmanagmentapi.dto.ReservationResponse;
 import ar.edu.itba.parkingmanagmentapi.dto.WalkInStayRequest;
 import ar.edu.itba.parkingmanagmentapi.dto.enums.ReservationStatus;
@@ -24,103 +25,62 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-public class WalkInStayServiceImpl extends ReservationServiceImpl<WalkInStayRequest> implements WalkInStayService {
-    private final WalkInStayRequestValidator walkInStayRequestValidator;
+public class WalkInStayServiceImpl implements WalkInStayService {
 
-    protected WalkInStayServiceImpl(
-            SpotService spotService,
-            ParkingPriceRepository parkingPriceRepository,
-            ScheduledReservationRepository reservationRepository,
-            VehicleService vehicleService,
-            WalkInStayRepository walkInStayRepository,
-            WalkInStayRequestValidator walkInStayRequestValidator,
-            UserVehicleAssignmentService userVehicleAssignmentService) {
-        super(spotService, parkingPriceRepository, vehicleService, walkInStayRepository, reservationRepository, userVehicleAssignmentService);
-        this.walkInStayRequestValidator = walkInStayRequestValidator;
+    private final WalkInStayRepository walkInStayRepository;
+
+    public WalkInStayServiceImpl(WalkInStayRepository walkInStayRepository) {
+        this.walkInStayRepository = walkInStayRepository;
     }
 
     @Override
-    public ReservationResponse createReservation(WalkInStayRequest request) {
-        walkInStayRequestValidator.validate(request);
-
-        Spot spot = spotService.findEntityById(request.getSpotId());
-
-        if (!existActivePrice(spot.getParkingLot().getId(), spot.getVehicleType())) {
-            throw new NotFoundException("There are no active prices for this type of vehicle in the parking lot");
-        }
-
-        UserVehicleAssignment assignment = findOrCreateVehicleAssignment(request.getVehicleLicensePlate(), spot.getVehicleType());
-
-        WalkInStay stay = new WalkInStay();
-        stay.setCheckInTime(LocalDateTime.now());
-        stay.setStatus(ReservationStatus.ACTIVE);
-        stay.setExpectedEndTime(stay.getCheckInTime().plusHours(request.getExpectedDurationHours()));
-        stay.setSpot(spot);
-        stay.setCheckOutTime(null);
-        stay.setUserVehicleAssignment(assignment);
-
-        findSpotAndChangeAvailability(spot.getId(), false);
-
-        WalkInStay savedStay = walkInStayRepository.save(stay);
-        return ReservationResponse.fromWalkInStay(savedStay);
+    public WalkInStay updateReservation(WalkInStay walkInStay) {
+        return walkInStayRepository.save(walkInStay);
     }
 
     @Override
-    public ReservationResponse getReservation(Long id) {
-        WalkInStay stay = walkInStayRepository.findById(id)
+    public WalkInStay createReservation(WalkInStay walkInStay) {
+        return walkInStayRepository.save(walkInStay);
+    }
+
+    @Override
+    public WalkInStay findById(Long id) {
+        return walkInStayRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Walk-in stay with id " + id + " not found"));
-        return ReservationResponse.fromWalkInStay(stay);
     }
 
     @Override
-    public ReservationResponse updateReservationStatus(Long id, ReservationStatus status) {
-        WalkInStay stay = walkInStayRepository.findById(id)
+    public WalkInStay updateStatus(Long id, ReservationStatus status) {
+        WalkInStay walkInStay = walkInStayRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Walk-in stay with id " + id + " not found"));
 
-        stay.setStatus(status);
+        walkInStay.setStatus(status);
 
-        if (status == ReservationStatus.COMPLETED) {
-            stay.setCheckOutTime(LocalDateTime.now());
-            BigDecimal totalPrice = calculateEstimatedPrice(
-                    stay.getSpot(),
-                    stay.getCheckInTime(),
-                    stay.getCheckOutTime()
-            );
-            stay.setTotalPrice(totalPrice);
-            findSpotAndChangeAvailability(stay.getSpot().getId(), true);
-        }
-
-        walkInStayRepository.save(stay);
-        return ReservationResponse.fromWalkInStay(stay);
+        return walkInStayRepository.save(walkInStay);
     }
 
     @Override
-    public Page<ReservationResponse> getReservationsByUser(Long userId, ReservationStatus status, String vehiclePlate, LocalDateTime from, LocalDateTime to, Pageable pageable) {
+    public Page<WalkInStay> findByCriteria(ReservationCriteria reservationCriteria, Pageable pageable) {
         return walkInStayRepository.findAll(
-                        WalkInStaySpecifications.withFilters(userId, null, status, vehiclePlate, from, to),
+                        WalkInStaySpecifications.withFilters(
+                                reservationCriteria.getUserId(),
+                                reservationCriteria.getParkingLotId(),
+                                reservationCriteria.getStatus(),
+                                reservationCriteria.getLicensePlate(),
+                                reservationCriteria.getRange().getStart(),
+                                reservationCriteria.getRange().getEnd()),
                         pageable
-                )
-                .map(ReservationResponse::fromWalkInStay);
-    }
-
-    @Override
-    public Page<ReservationResponse> getReservationsByParkingLot(Long parkingLotId, ReservationStatus status, String licensePlate, LocalDateTime from, LocalDateTime to, Pageable pageable) {
-        return walkInStayRepository.findAll(
-                        WalkInStaySpecifications.withFilters(null, parkingLotId, status, licensePlate, from, to),
-                        pageable
-                )
-                .map(ReservationResponse::fromWalkInStay);
+                );
     }
 
     @Override
     @Transactional
-    public ReservationResponse extendReservation(Long id, int extraHours) {
+    public WalkInStay extend(Long id, int extraHours) {
         WalkInStay stay = walkInStayRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Walk-in stay not found"));
 
         stay.setExpectedEndTime(stay.getExpectedEndTime().plusHours(extraHours));
-        walkInStayRepository.save(stay);
-        return ReservationResponse.fromWalkInStay(stay);
+        return walkInStayRepository.save(stay);
     }
 
     @Override
@@ -132,9 +92,8 @@ public class WalkInStayServiceImpl extends ReservationServiceImpl<WalkInStayRequ
     }
 
     @Override
-    public List<ReservationResponse> getExpiringReservations() {
-        List<WalkInStay> stayList = walkInStayRepository.findExpiringSoon(LocalDateTime.now().plusMinutes(AppConstants.EXPIRING_RESERVATION_THRESHOLD_MINUTES));
-        return stayList.stream().map(ReservationResponse::fromWalkInStay).toList();
+    public List<WalkInStay> getExpiringReservations() {
+        return walkInStayRepository.findExpiringSoon(LocalDateTime.now().plusMinutes(AppConstants.EXPIRING_RESERVATION_THRESHOLD_MINUTES));
     }
 
 }

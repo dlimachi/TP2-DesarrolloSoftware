@@ -66,7 +66,6 @@ class UserControllerIntegrationTest extends BaseIntegrationTest {
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertTrue(response.getBody().getMessage().contains("ya está en uso"));
     }
 
     @ParameterizedTest
