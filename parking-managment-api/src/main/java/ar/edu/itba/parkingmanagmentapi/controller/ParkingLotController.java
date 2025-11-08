@@ -8,6 +8,7 @@ import ar.edu.itba.parkingmanagmentapi.dto.enums.ReservationStatus;
 import ar.edu.itba.parkingmanagmentapi.service.ParkingLotService;
 import ar.edu.itba.parkingmanagmentapi.service.ScheduledReservationService;
 import ar.edu.itba.parkingmanagmentapi.service.orchestrator.ReservationOrchestratorService;
+import ar.edu.itba.parkingmanagmentapi.service.WalkInStayService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -92,6 +93,24 @@ public class ParkingLotController {
         return ApiResponse.ok(PageResponse.of(reservations));
     }
 
+    @GetMapping("/{parkingLotId}/walk-in-reservations")
+    @PreAuthorize("@authorizationService.isCurrentUserManagerOfParkingLot(#parkingLotId)")
+    public ResponseEntity<?> getWalkInStaysByParkingLot(
+            @PathVariable Long parkingLotId,
+            @RequestParam(required = false) ReservationStatus status,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime from,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime to,
+            Pageable pageable) {
+        ReservationCriteria reservationCriteria = ReservationCriteria
+                .builder()
+                .parkingLotId(parkingLotId)
+                .status(status)
+                .range(DateTimeRange.from(from, to))
+                .build();
+
+        Page<ReservationResponse> response = reservationOrchestratorService.getWalkInStayReservations(reservationCriteria, pageable);
+        return ApiResponse.ok(response.getContent());
+    }
 
 }
 

@@ -8,7 +8,6 @@ import ar.edu.itba.parkingmanagmentapi.dto.enums.ReservationStatus;
 import ar.edu.itba.parkingmanagmentapi.exceptions.NotFoundException;
 import ar.edu.itba.parkingmanagmentapi.model.Spot;
 import ar.edu.itba.parkingmanagmentapi.model.UserVehicleAssignment;
-import ar.edu.itba.parkingmanagmentapi.model.Vehicle;
 import ar.edu.itba.parkingmanagmentapi.model.WalkInStay;
 import ar.edu.itba.parkingmanagmentapi.repository.ParkingPriceRepository;
 import ar.edu.itba.parkingmanagmentapi.repository.ScheduledReservationRepository;

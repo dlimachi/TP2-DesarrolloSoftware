@@ -8,6 +8,7 @@ import ar.edu.itba.parkingmanagmentapi.repository.UserRepository;
 import ar.edu.itba.parkingmanagmentapi.repository.UserVehicleAssignmentRepository;
 import ar.edu.itba.parkingmanagmentapi.repository.VehicleRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserVehicleAssigmentServiceImpl implements UserVehicleAssignmentService {
@@ -20,12 +21,6 @@ public class UserVehicleAssigmentServiceImpl implements UserVehicleAssignmentSer
         this.userVehicleAssignmentRepository = userVehicleAssignmentRepository;
         this.userRepository = userRepository;
         this.vehicleRepository = vehicleRepository;
-    }
-
-    public UserVehicleAssignment findByUserIdAndLicensePlate(Long userId, String licensePlate) {
-        return userVehicleAssignmentRepository
-                .findByUserIdAndVehicleLicensePlate(userId, licensePlate)
-                .orElseThrow(() -> new NotFoundException("This assignment does not exist"));
     }
 
     @Override

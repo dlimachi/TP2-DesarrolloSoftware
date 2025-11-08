@@ -16,14 +16,12 @@ public class CreateParkingLotRequestValidator {
     private final BlankFieldValidator blankFieldValidator;
     private final LengthRangeFieldInfoValidator lengthRangeFieldInfoValidator;
     private final AlphanumericWithCommaFieldValidator alphanumericValidator;
-    private final SpotRequestValidator spotRequestValidator;
 
-    public CreateParkingLotRequestValidator(MandatoryFieldValidator mandatoryFieldValidator, BlankFieldValidator blankFieldValidator, LengthRangeFieldInfoValidator lengthRangeFieldInfoValidator, AlphanumericWithCommaFieldValidator alphanumericValidator, SpotRequestValidator spotRequestValidator) {
+    public CreateParkingLotRequestValidator(MandatoryFieldValidator mandatoryFieldValidator, BlankFieldValidator blankFieldValidator, LengthRangeFieldInfoValidator lengthRangeFieldInfoValidator, AlphanumericWithCommaFieldValidator alphanumericValidator) {
         this.mandatoryFieldValidator = mandatoryFieldValidator;
         this.blankFieldValidator = blankFieldValidator;
         this.lengthRangeFieldInfoValidator = lengthRangeFieldInfoValidator;
         this.alphanumericValidator = alphanumericValidator;
-        this.spotRequestValidator = spotRequestValidator;
     }
 
     public void validate(ParkingLotRequest parkingLotRequest) {
@@ -48,10 +46,6 @@ public class CreateParkingLotRequestValidator {
         mandatoryFieldValidator.validate(parkingLotRequest.getLatitude(), "latitude");
 
         mandatoryFieldValidator.validate(parkingLotRequest.getLongitude(), "longitude");
-
-        if (Objects.nonNull(parkingLotRequest.getSpots())) {
-            parkingLotRequest.getSpots().forEach(spotRequestValidator::validate);
-        }
 
     }
 }

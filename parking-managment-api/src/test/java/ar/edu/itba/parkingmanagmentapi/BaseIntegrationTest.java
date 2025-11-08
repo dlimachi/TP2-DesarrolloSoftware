@@ -82,8 +82,8 @@ public abstract class BaseIntegrationTest {
         userRepository.deleteAll();
         parkingLotRepository.deleteAll();
         spotRepository.deleteAll();
-        vehicleRepository.deleteAll();
         userVehicleAssignmentRepository.deleteAll();
+        vehicleRepository.deleteAll();
         parkingPriceRepository.deleteAll();
         reservationRepository.deleteAll();
         walkInStayRepository.deleteAll();
@@ -155,14 +155,21 @@ public abstract class BaseIntegrationTest {
         spotEntity2.setParkingLot(existingParkingLot);
         otherSpot = spotRepository.save(spotEntity2);
 
+
         // Create vehicle for normal user
         Vehicle vehicleEntity = new Vehicle();
         vehicleEntity.setLicensePlate("XYZ123");
         vehicleEntity.setType(VehicleType.CAR.getName());
         vehicleEntity.setBrand("Toyota");
         vehicleEntity.setModel("Corolla");
-        vehicleEntity.setUserAssignments(List.of(new UserVehicleAssignment(normalUserEntity, vehicleEntity)));
+
+        UserVehicleAssignment assignment = new UserVehicleAssignment();
+        assignment.setUser(normalUserEntity);
+        assignment.setVehicle(vehicleEntity);
+
+        vehicleEntity.setUserAssignments(List.of(assignment));
         existingVehicle = vehicleRepository.save(vehicleEntity);
+        userVehicleAssignmentRepository.save(assignment);
 
         // Create parking price for parking lot
         ParkingPrice parkingPrice = new ParkingPrice();

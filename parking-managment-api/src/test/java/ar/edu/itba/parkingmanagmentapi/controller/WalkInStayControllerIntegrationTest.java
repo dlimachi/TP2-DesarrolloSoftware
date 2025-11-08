@@ -25,7 +25,7 @@ class WalkInStayControllerIntegrationTest extends BaseIntegrationTest {
     void testCreateWalkInStay_shouldReturn201_andPersisted() {
         WalkInStayRequest request = new WalkInStayRequest();
         request.setSpotId(otherSpot.getId());
-        request.setVehicleLicensePlate(existingVehicle.getLicensePlate());
+        request.setVehicleLicensePlate("ABC123");
         request.setExpectedDurationHours(4);
 
         HttpEntity<WalkInStayRequest> requestEntity = new HttpEntity<>(request, createAuthHeaders(managerUser));
@@ -47,6 +47,8 @@ class WalkInStayControllerIntegrationTest extends BaseIntegrationTest {
 
         Optional<WalkInStay> savedOpt = walkInStayRepository.findById(data.getId());
         assertTrue(savedOpt.isPresent());
+        assertEquals(ReservationStatus.ACTIVE, savedOpt.get().getStatus());
+        assertEquals(data.getId(), savedOpt.get().getSpot().getId());
     }
 
     @Test
@@ -125,5 +127,23 @@ class WalkInStayControllerIntegrationTest extends BaseIntegrationTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertTrue(response.getBody().getData().contains("Remaining"));
+    }
+
+    @Test
+    void testGetWalkInStay_shouldReturn200_andReservation() {
+        WalkInStay stay = existingWalkInStay;
+
+        ResponseEntity<ApiResponse<ReservationResponse>> response = restTemplate.exchange(
+                "/reservations/walk-in/" + stay.getId(),
+                HttpMethod.GET,
+                new HttpEntity<>(createAuthHeaders(normalUser)),
+                new ParameterizedTypeReference<>() {
+                }
+        );
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        ReservationResponse data = response.getBody().getData();
+        assertEquals(stay.getId(), data.getId());
+        assertEquals(stay.getUserVehicleAssignment().getVehicle().getLicensePlate(), data.getVehicleLicensePlate());
     }
 }
