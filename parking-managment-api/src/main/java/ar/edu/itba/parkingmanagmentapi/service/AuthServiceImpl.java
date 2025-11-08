@@ -1,5 +1,7 @@
 package ar.edu.itba.parkingmanagmentapi.service;
 
+import ar.edu.itba.parkingmanagmentapi.domain.UserDomain;
+import ar.edu.itba.parkingmanagmentapi.domain.enums.UserType;
 import ar.edu.itba.parkingmanagmentapi.dto.*;
 import ar.edu.itba.parkingmanagmentapi.exceptions.AlreadyExistsException;
 import ar.edu.itba.parkingmanagmentapi.exceptions.NotFoundException;
@@ -12,6 +14,7 @@ import ar.edu.itba.parkingmanagmentapi.security.provider.EmailBasedAuthenticatio
 import ar.edu.itba.parkingmanagmentapi.util.JwtUtil;
 import ar.edu.itba.parkingmanagmentapi.validators.LoginRequestValidator;
 import ar.edu.itba.parkingmanagmentapi.validators.RegisterRequestValidator;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,35 +28,16 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
     private static final Logger logger = LoggerFactory.getLogger(AuthServiceImpl.class);
-
     private final JwtUtil jwtUtil;
     private final EmailBasedAuthenticationProvider emailAuthProvider;
     private final UserRepository userRepository;
     private final ManagerRepository managerRepository;
     private final PasswordEncoder passwordEncoder;
-    private final RegisterRequestValidator registerRequestValidator;
     private final LoginRequestValidator loginRequestValidator;
     private final RefreshTokenService refreshTokenService;
-
-    public AuthServiceImpl(JwtUtil jwtUtil,
-                           EmailBasedAuthenticationProvider emailAuthProvider,
-                           UserRepository userRepository,
-                           ManagerRepository managerRepository,
-                           PasswordEncoder passwordEncoder,
-                           RegisterRequestValidator registerRequestValidator,
-                           LoginRequestValidator loginRequestValidator,
-                           RefreshTokenService refreshTokenService) {
-        this.jwtUtil = jwtUtil;
-        this.emailAuthProvider = emailAuthProvider;
-        this.userRepository = userRepository;
-        this.managerRepository = managerRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.registerRequestValidator = registerRequestValidator;
-        this.loginRequestValidator = loginRequestValidator;
-        this.refreshTokenService = refreshTokenService;
-    }
 
     /**
      * Authenticates a user and generates a JWT token with all user roles
@@ -85,40 +69,33 @@ public class AuthServiceImpl implements AuthService {
                 .email(loginRequest.getEmail())
                 .refreshToken(refreshToken.getToken())
                 .build();
-
     }
 
     /**
      * Registers a new user
      */
-    public RegisterResponse register(RegisterRequest registerRequest, boolean isManager) {
-        logger.info("Intento de registro para usuario: {} como manager: {}", registerRequest.getEmail(), isManager);
+    public RegisterResponse register(UserDomain userDomain, String password) {
+        logger.info("Intento de registro para usuario: {} como {}", userDomain.getEmail(), userDomain.getType());
 
-        registerRequestValidator.validate(registerRequest);
-
-        if (userRepository.existsByEmail(registerRequest.getEmail())) {
-            logger.warn("Intento de registro con email ya existente: {}", registerRequest.getEmail());
+        if (userRepository.existsByEmail(userDomain.getEmail())) {
+            logger.warn("Intento de registro con email ya existente: {}", userDomain.getEmail());
             throw new AlreadyExistsException("Email already registered");
         }
 
-        User user = new User();
-        user.setFirstName(registerRequest.getFirstName());
-        user.setLastName(registerRequest.getLastName());
-        user.setEmail(registerRequest.getEmail());
-        user.setPasswordHash(passwordEncoder.encode(registerRequest.getPassword()));
-        user.setUserDetail(new UserDetail());
-
+        User user = userDomain.fromUserDomain(userDomain, passwordEncoder.encode(password));
         User savedUser = userRepository.save(user);
 
-        if (isManager) {
-            Manager manager = new Manager(savedUser);
-            managerRepository.save(manager);
-            logger.info("Manager registrado exitosamente: {}", registerRequest.getEmail());
+        if (userDomain.getType() == UserType.MANAGER) {
+            saveManager(savedUser);
         }
 
-        logger.info("Usuario registrado exitosamente: {} como manager: {}", registerRequest.getEmail(), isManager);
-
+        logger.info("Usuario registrado exitosamente: {} como manager: {}", userDomain.getEmail(), userDomain.getType());
         return new RegisterResponse(savedUser.getEmail());
+    }
+
+    public void saveManager(User user) {
+        Manager manager = new Manager(user);
+        managerRepository.save(manager);
     }
 
     @Override

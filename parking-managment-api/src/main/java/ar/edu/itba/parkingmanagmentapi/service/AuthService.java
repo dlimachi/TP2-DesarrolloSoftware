@@ -1,5 +1,6 @@
 package ar.edu.itba.parkingmanagmentapi.service;
 
+import ar.edu.itba.parkingmanagmentapi.domain.UserDomain;
 import ar.edu.itba.parkingmanagmentapi.dto.LoginRequest;
 import ar.edu.itba.parkingmanagmentapi.dto.LoginResponse;
 import ar.edu.itba.parkingmanagmentapi.dto.RefreshTokenResponse;
@@ -19,7 +20,7 @@ public interface AuthService {
      * @param isManager whether to create the user as a manager
      * @return RegisterResponse with registration details
      */
-    RegisterResponse register(RegisterRequest registerRequest, boolean isManager);
+    RegisterResponse register(UserDomain userDomain, String password);
 
     /**
      * Refreshes a JWT token
