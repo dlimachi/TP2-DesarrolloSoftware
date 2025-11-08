@@ -74,21 +74,16 @@ public class ReservationOrchestratorService {
 
         Spot spot = spotService.findEntityById(scheduledReservation.getSpotId());
 
-        boolean isAvailable = spotService.isAvailable(spot.getId());
-        if (!isAvailable) {
-            throw new BadRequestException("spot.not.available", spot.getId());
-        }
+        var dateRange = DateTimeRange.from(scheduledReservation.getReservedStartTime(), scheduledReservation.getExpectedEndTime());
 
         List<ScheduledReservation> overlapping = scheduledReservationService.findBySpotIdAndOverlappingPeriod(
-                spot.getId(),
-                DateTimeRange.from(scheduledReservation.getReservedStartTime(), scheduledReservation.getExpectedEndTime())
-        );
+                spot.getId(), dateRange);
 
         if (!overlapping.isEmpty()) {
             throw new BadRequestException("spot.not.available", spot.getId());
         }
 
-        BigDecimal estimatedPrice = parkingPriceService.calculateEstimatedPrice(spot.getParkingLot().getId(), spot.getVehicleType(), DateTimeRange.from(scheduledReservation.getReservedStartTime(), scheduledReservation.getExpectedEndTime()));
+        BigDecimal estimatedPrice = parkingPriceService.calculateEstimatedPrice(spot.getParkingLot().getId(), spot.getVehicleType(), dateRange);
 
         UserVehicleAssignment assignment = userVehicleAssignmentService.findOrCreateByUserIdAndLicensePlate(scheduledReservation.getUserId(), scheduledReservation.getVehicleLicensePlate());
 
@@ -103,7 +98,6 @@ public class ReservationOrchestratorService {
         reservation.setSpot(spot);
         reservation.setUserVehicleAssignment(assignment);
 
-        spotService.toggleAvailability(spot.getId());
         scheduledReservationService.create(reservation);
 
         return ReservationResponse.fromScheduledReservation(reservation);
