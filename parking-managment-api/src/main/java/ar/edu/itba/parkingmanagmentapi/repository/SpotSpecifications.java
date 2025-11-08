@@ -1,5 +1,6 @@
 package ar.edu.itba.parkingmanagmentapi.repository;
 
+import ar.edu.itba.parkingmanagmentapi.dto.enums.VehicleType;
 import ar.edu.itba.parkingmanagmentapi.model.Spot;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
@@ -12,7 +13,7 @@ public class SpotSpecifications {
     public static Specification<Spot> withFilters(
             Long parkingLotId,
             Boolean available,
-            String vehicleType,
+            VehicleType vehicleType,
             Integer floor,
             Boolean isAccessible,
             Boolean isReservable

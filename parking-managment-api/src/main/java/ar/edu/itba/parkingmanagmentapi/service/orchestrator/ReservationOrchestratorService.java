@@ -64,9 +64,9 @@ public class ReservationOrchestratorService {
         stay.setUserVehicleAssignment(assignment);
 
         spotService.toggleAvailability(spot.getId());
-        walkInStayService.createReservation(stay);
+        WalkInStay savedWalkInStay = walkInStayService.createReservation(stay);
 
-        return ReservationResponse.fromWalkInStay(stay);
+        return ReservationResponse.fromWalkInStay(savedWalkInStay);
     }
 
     public ReservationResponse createScheduledReservation(final ScheduledReservationRequest scheduledReservation) {
@@ -76,7 +76,7 @@ public class ReservationOrchestratorService {
 
         boolean isAvailable = spotService.isAvailable(spot.getId());
         if (!isAvailable) {
-            throw new BadRequestException("spot.not.available");
+            throw new BadRequestException("spot.not.available", spot.getId());
         }
 
         List<ScheduledReservation> overlapping = scheduledReservationService.findBySpotIdAndOverlappingPeriod(
@@ -85,12 +85,12 @@ public class ReservationOrchestratorService {
         );
 
         if (!overlapping.isEmpty()) {
-            throw new BadRequestException("spot.not.available.in.time.range");
+            throw new BadRequestException("spot.not.available", spot.getId());
         }
 
-        BigDecimal estimatedPrice = parkingPriceService.calculateEstimatedPrice(spot.getId(), DateTimeRange.from(scheduledReservation.getReservedStartTime(), scheduledReservation.getExpectedEndTime()));
+        BigDecimal estimatedPrice = parkingPriceService.calculateEstimatedPrice(spot.getParkingLot().getId(), spot.getVehicleType(), DateTimeRange.from(scheduledReservation.getReservedStartTime(), scheduledReservation.getExpectedEndTime()));
 
-        UserVehicleAssignment assignment = userVehicleAssignmentService.findOrCreateByUserIdAndLicensePlate(AppConstants.DEFAULT_USER_ID, scheduledReservation.getVehicleLicensePlate());
+        UserVehicleAssignment assignment = userVehicleAssignmentService.findOrCreateByUserIdAndLicensePlate(scheduledReservation.getUserId(), scheduledReservation.getVehicleLicensePlate());
 
         LocalDateTime now = LocalDateTime.now();
         ScheduledReservation reservation = new ScheduledReservation();

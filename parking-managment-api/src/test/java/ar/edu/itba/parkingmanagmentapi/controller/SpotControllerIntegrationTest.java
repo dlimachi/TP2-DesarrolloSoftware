@@ -45,7 +45,7 @@ class SpotControllerIntegrationTest extends BaseIntegrationTest {
         Optional<Spot> savedSpot = spotRepository.findById(body.getId());
         assertTrue(savedSpot.isPresent(), "El spot debería estar en la base de datos");
         assertEquals("A", savedSpot.get().getCode());
-        assertEquals(VehicleType.CAR.getName(), savedSpot.get().getVehicleType());
+        assertEquals(VehicleType.CAR, savedSpot.get().getVehicleType());
         assertEquals(1, savedSpot.get().getFloor());
         assertTrue(savedSpot.get().getIsAvailable());
         assertFalse(savedSpot.get().getIsReservable());

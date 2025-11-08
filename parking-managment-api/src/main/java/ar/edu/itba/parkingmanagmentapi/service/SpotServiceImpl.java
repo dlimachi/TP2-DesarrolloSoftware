@@ -52,7 +52,7 @@ public class SpotServiceImpl implements SpotService {
         }
 
         Spot spot = new Spot();
-        spot.setVehicleType(VehicleType.valueOf(request.getVehicleType()));
+        spot.setVehicleType(VehicleType.fromName(request.getVehicleType()));
         spot.setFloor(request.getFloor());
         spot.setCode(request.getCode());
         spot.setIsAvailable(true);
@@ -84,7 +84,7 @@ public class SpotServiceImpl implements SpotService {
             throw new BadRequestException("spot.already.exists", request.getCode(), request.getFloor());
         }
 
-        spot.setVehicleType(VehicleType.valueOf(request.getVehicleType()));
+        spot.setVehicleType(VehicleType.fromName(request.getVehicleType()));
         spot.setCode(request.getCode());
         spot.setFloor(request.getFloor());
         spot.setIsReservable(request.getIsReservable());
@@ -127,7 +127,7 @@ public class SpotServiceImpl implements SpotService {
     }
 
     @Override
-    public Page<SpotResponse> findByFilters(Long parkingLotId, Boolean available, String vehicleType, Integer floor, Boolean isAccessible, Boolean isReservable, Pageable pageable) {
+    public Page<SpotResponse> findByFilters(Long parkingLotId, Boolean available, VehicleType vehicleType, Integer floor, Boolean isAccessible, Boolean isReservable, Pageable pageable) {
         return spotRepository.findAll(SpotSpecifications.withFilters(parkingLotId, available, vehicleType, floor, isAccessible, isReservable), pageable)
                 .map(ParkingLotMapper::toSpotResponse);
     }

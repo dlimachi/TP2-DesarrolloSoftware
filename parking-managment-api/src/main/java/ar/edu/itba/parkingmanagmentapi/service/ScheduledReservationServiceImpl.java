@@ -47,8 +47,12 @@ public class ScheduledReservationServiceImpl implements ScheduledReservationServ
 
     @Override
     public ScheduledReservation updateStatus(Long id, ReservationStatus status) {
-        return scheduledReservationRepository.findById(id)
+        ScheduledReservation scheduledReservation = scheduledReservationRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Reservation with id " + id + " not found"));
+
+        scheduledReservation.setStatus(status);
+
+        return scheduledReservationRepository.save(scheduledReservation);
     }
 
     @Override

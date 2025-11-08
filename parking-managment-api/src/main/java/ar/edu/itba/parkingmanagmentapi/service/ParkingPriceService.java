@@ -20,6 +20,8 @@ public interface ParkingPriceService {
 
     BigDecimal calculateEstimatedPrice(Long parkingLotId, DateTimeRange range);
 
+    BigDecimal calculateEstimatedPrice(Long parkingLotId, VehicleType vehicleType, DateTimeRange range);
+
     ParkingPrice findActivePriceBySpotIdAndVehicleType(Long parkingLotId, VehicleType vehicleType);
 
     List<ParkingPriceResponse> getByParkingLot(Long parkingLotId);
@@ -27,7 +29,7 @@ public interface ParkingPriceService {
     void delete(Long parkingLotId, Long id);
 
     List<ParkingPriceResponse> getByFilters(Long parkingLotId, BigDecimal min, BigDecimal max,
-                                            String vehicleType, LocalDateTime from, LocalDateTime to, String sort);
+                                            VehicleType vehicleType, LocalDateTime from, LocalDateTime to, String sort);
 
     boolean existsActiveByParkingLotIdAndVehicleType(Long parkingLotId, VehicleType vehicleType);
 

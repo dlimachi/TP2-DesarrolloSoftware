@@ -61,7 +61,7 @@ class ParkingPriceControllerIntegrationTest extends BaseIntegrationTest {
     @Test
     void testGetByParkingLot_shouldReturnAllPrices() {
         ParkingPrice price1 = existingParkingPrice;
-        ParkingPrice price2 = new ParkingPrice(VehicleType.MOTORCYCLE.getName(), new BigDecimal("30"), LocalDateTime.now(), LocalDateTime.now().plusDays(3), existingParkingLot);
+        ParkingPrice price2 = new ParkingPrice(VehicleType.MOTORCYCLE, new BigDecimal("30"), LocalDateTime.now(), LocalDateTime.now().plusDays(3), existingParkingLot);
         parkingPriceRepository.saveAll(List.of(price1, price2));
 
         ResponseEntity<ApiResponse<List<ParkingPriceResponse>>> response = restTemplate.exchange(
@@ -88,7 +88,7 @@ class ParkingPriceControllerIntegrationTest extends BaseIntegrationTest {
     })
     void testGetPrices_shouldReturnAllPricesInRange(String minStr, String maxStr, int expectedCount) {
         ParkingPrice price1 = existingParkingPrice;
-        ParkingPrice price2 = new ParkingPrice(VehicleType.MOTORCYCLE.getName(), new BigDecimal("30"), LocalDateTime.now(), LocalDateTime.now().plusDays(3), existingParkingLot);
+        ParkingPrice price2 = new ParkingPrice(VehicleType.MOTORCYCLE, new BigDecimal("30"), LocalDateTime.now(), LocalDateTime.now().plusDays(3), existingParkingLot);
         parkingPriceRepository.saveAll(List.of(price1, price2));
 
         BigDecimal min = new BigDecimal(minStr);
@@ -115,7 +115,7 @@ class ParkingPriceControllerIntegrationTest extends BaseIntegrationTest {
     })
     void testGetPrices_shouldReturnAllPricesSorted(String sort) {
         ParkingPrice price1 = existingParkingPrice;
-        ParkingPrice price2 = new ParkingPrice(VehicleType.MOTORCYCLE.getName(), new BigDecimal("30"), LocalDateTime.now(), LocalDateTime.now().plusDays(3), existingParkingLot);
+        ParkingPrice price2 = new ParkingPrice(VehicleType.MOTORCYCLE, new BigDecimal("30"), LocalDateTime.now(), LocalDateTime.now().plusDays(3), existingParkingLot);
         parkingPriceRepository.saveAll(List.of(price1, price2));
 
         ResponseEntity<ApiResponse<List<ParkingPriceResponse>>> response = restTemplate.exchange(

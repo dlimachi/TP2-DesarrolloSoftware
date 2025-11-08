@@ -41,7 +41,7 @@ public class ParkingPriceServiceImpl implements ParkingPriceService {
         validateNoOverlap(parkingLot, parkingLotId, request);
 
         ParkingPrice parkingPrice = new ParkingPrice();
-        parkingPrice.setVehicleType(request.getVehicleType());
+        parkingPrice.setVehicleType(VehicleType.fromName(request.getVehicleType()));
         parkingPrice.setPrice(request.getPrice());
         parkingPrice.setValidFrom(request.getValidFrom());
         parkingPrice.setValidTo(request.getValidTo());
@@ -62,7 +62,7 @@ public class ParkingPriceServiceImpl implements ParkingPriceService {
 
         validateNoOverlap(parkingLot, parkingLotId, request);
 
-        parkingPrice.setVehicleType(request.getVehicleType());
+        parkingPrice.setVehicleType(VehicleType.fromName(request.getVehicleType()));
         parkingPrice.setPrice(request.getPrice());
         parkingPrice.setValidFrom(request.getValidFrom());
         parkingPrice.setValidTo(request.getValidTo());
@@ -71,6 +71,7 @@ public class ParkingPriceServiceImpl implements ParkingPriceService {
         return toResponse(updated);
     }
 
+    @Override
     public BigDecimal calculateEstimatedPrice(Long parkingLotId, VehicleType vehicleType, DateTimeRange range) {
         ParkingPrice price = findActivePriceBySpotIdAndVehicleType(parkingLotId, vehicleType);
 
@@ -83,7 +84,7 @@ public class ParkingPriceServiceImpl implements ParkingPriceService {
     public ParkingPrice findActivePriceBySpotIdAndVehicleType(Long parkingLotId, VehicleType vehicleType) {
         List<ParkingPrice> prices = parkingPriceRepository.findByParkingLotIdAndVehicleType(
                 parkingLotId,
-                vehicleType.toString()
+                vehicleType
         );
 
         if (prices.isEmpty()) {
@@ -95,8 +96,9 @@ public class ParkingPriceServiceImpl implements ParkingPriceService {
     }
 
     private void validateNoOverlap(ParkingLot parkingLot, Long excludeId, ParkingPriceRequest request) {
+        VehicleType vehicleType = VehicleType.fromName(request.getVehicleType());
         List<ParkingPrice> existingPrices =
-                parkingPriceRepository.findByParkingLotAndVehicleType(parkingLot, request.getVehicleType());
+                parkingPriceRepository.findByParkingLotAndVehicleType(parkingLot, vehicleType);
 
         boolean overlaps = existingPrices.stream()
                 .filter(p -> !p.getId().equals(excludeId))
@@ -142,7 +144,7 @@ public class ParkingPriceServiceImpl implements ParkingPriceService {
 
     @Override
     public List<ParkingPriceResponse> getByFilters(Long parkingLotId, BigDecimal min, BigDecimal max,
-                                                   String vehicleType, LocalDateTime from, LocalDateTime to, String sort) {
+                                                   VehicleType vehicleType, LocalDateTime from, LocalDateTime to, String sort) {
         Specification<ParkingPrice> spec = ParkingPriceSpecifications.withFilters(parkingLotId, min, max, vehicleType, from, to);
 
         Sort sortSpec = "desc".equalsIgnoreCase(sort)
@@ -162,10 +164,10 @@ public class ParkingPriceServiceImpl implements ParkingPriceService {
 
     @Override
     public boolean existsActiveByParkingLotIdAndVehicleType(Long parkingLotId, VehicleType vehicleType) {
-        return !parkingPriceRepository.findByParkingLotIdAndVehicleType(parkingLotId, vehicleType.toString()).isEmpty();
+        return !parkingPriceRepository.findByParkingLotIdAndVehicleType(parkingLotId, vehicleType).isEmpty();
     }
 
     private ParkingPriceResponse toResponse(ParkingPrice entity) {
-        return new ParkingPriceResponse(entity.getId(), entity.getVehicleType(), entity.getPrice(), entity.getValidFrom(), entity.getValidTo());
+        return new ParkingPriceResponse(entity.getId(), entity.getVehicleType().getName(), entity.getPrice(), entity.getValidFrom(), entity.getValidTo());
     }
 }

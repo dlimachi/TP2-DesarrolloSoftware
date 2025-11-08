@@ -1,5 +1,6 @@
 package ar.edu.itba.parkingmanagmentapi;
 
+import ar.edu.itba.parkingmanagmentapi.config.AppConstants;
 import ar.edu.itba.parkingmanagmentapi.dto.ApiResponse;
 import ar.edu.itba.parkingmanagmentapi.dto.LoginRequest;
 import ar.edu.itba.parkingmanagmentapi.dto.LoginResponse;
@@ -174,7 +175,7 @@ public abstract class BaseIntegrationTest {
         // Create parking price for parking lot
         ParkingPrice parkingPrice = new ParkingPrice();
         parkingPrice.setParkingLot(existingParkingLot);
-        parkingPrice.setVehicleType(VehicleType.CAR.getName());
+        parkingPrice.setVehicleType(VehicleType.CAR);
         parkingPrice.setPrice(BigDecimal.valueOf(10));
         parkingPrice.setValidFrom(java.time.LocalDateTime.now().minusDays(10));
         parkingPrice.setValidTo(java.time.LocalDateTime.now().plusDays(10));
@@ -301,12 +302,29 @@ public abstract class BaseIntegrationTest {
     /**
      * Creates a user in the database for testing purposes.
      */
+    protected User createDefaultUser() {
+        User user = new User();
+        user.setId(AppConstants.DEFAULT_USER_ID);
+        user.setFirstName("defaultUser");
+        user.setLastName("defaultUser");
+        user.setEmail("defaultuser@defaultuser.com");
+        user.setPasswordHash(passwordEncoder.encode("defaultpassword"));
+        return userRepository.save(user);
+    }
+
+    /**
+     * Creates a user in the database for testing purposes.
+     */
     protected User createTestUser(String email, String password) {
         User user = new User();
         user.setFirstName("Test");
         user.setLastName("User");
         user.setEmail(email);
         user.setPasswordHash(passwordEncoder.encode(password));
+
+        if (email.equals("default@default.com"))
+            user.setId(AppConstants.DEFAULT_USER_ID);
+
         return userRepository.save(user);
     }
 
