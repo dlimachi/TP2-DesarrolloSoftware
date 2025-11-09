@@ -1,6 +1,7 @@
 package ar.edu.itba.parkingmanagmentapi.controller;
 
 import ar.edu.itba.parkingmanagmentapi.domain.DateTimeRange;
+import ar.edu.itba.parkingmanagmentapi.domain.Reservation;
 import ar.edu.itba.parkingmanagmentapi.domain.ReservationCriteria;
 import ar.edu.itba.parkingmanagmentapi.domain.ReservationOwner;
 import ar.edu.itba.parkingmanagmentapi.dto.*;
@@ -89,7 +90,7 @@ public class ParkingLotController {
                 .range(DateTimeRange.from(from, to))
                 .build();
 
-        Page<ReservationResponse> reservations = reservationOrchestratorService.getScheduledReservations(reservationCriteria, pageable);
+        Page<Reservation> reservations = reservationOrchestratorService.getScheduledReservations(reservationCriteria, pageable);
         return ApiResponse.ok(PageResponse.of(reservations));
     }
 
@@ -108,7 +109,7 @@ public class ParkingLotController {
                 .range(DateTimeRange.from(from, to))
                 .build();
 
-        Page<ReservationResponse> response = reservationOrchestratorService.getWalkInStayReservations(reservationCriteria, pageable);
+        Page<Reservation> response = reservationOrchestratorService.getWalkInStayReservations(reservationCriteria, pageable);
         return ApiResponse.ok(response.getContent());
     }
 
