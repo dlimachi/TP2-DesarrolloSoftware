@@ -8,6 +8,8 @@ import ar.edu.itba.parkingmanagmentapi.dto.enums.ReservationStatus;
 import ar.edu.itba.parkingmanagmentapi.service.ParkingLotService;
 import ar.edu.itba.parkingmanagmentapi.service.ScheduledReservationService;
 import ar.edu.itba.parkingmanagmentapi.service.orchestrator.ReservationOrchestratorService;
+import ar.edu.itba.parkingmanagmentapi.validators.CreateParkingLotRequestValidator;
+import ar.edu.itba.parkingmanagmentapi.validators.UpdateParkingLotRequestValidator;
 import ar.edu.itba.parkingmanagmentapi.service.WalkInStayService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -26,18 +28,26 @@ import java.util.List;
 public class ParkingLotController {
 
     private final ParkingLotService parkingLotService;
-
     private final ReservationOrchestratorService reservationOrchestratorService;
+    private final CreateParkingLotRequestValidator createParkingLotRequestValidator;
+    private final UpdateParkingLotRequestValidator updateParkingLotRequestValidator;
 
-    public ParkingLotController(ParkingLotService parkingLotService, ReservationOrchestratorService reservationOrchestratorService) {
+    public ParkingLotController(
+      ParkingLotService parkingLotService,
+      ReservationOrchestratorService reservationOrchestratorService,
+      CreateParkingLotRequestValidator createParkingLotRequestValidator,
+      UpdateParkingLotRequestValidator updateParkingLotRequestValidator
+    ) {
         this.parkingLotService = parkingLotService;
         this.reservationOrchestratorService = reservationOrchestratorService;
+        this.createParkingLotRequestValidator = createParkingLotRequestValidator;
+        this.updateParkingLotRequestValidator = updateParkingLotRequestValidator;
     }
 
     @PostMapping
-    public ResponseEntity<?> createParkingLot(
-            @Valid @RequestBody ParkingLotRequest request) {
-        ParkingLotResponse created = parkingLotService.createParkingLot(request);
+    public ResponseEntity<?> createParkingLot(@Valid @RequestBody ParkingLotRequest request) {
+        createParkingLotRequestValidator.validate(request);
+        ParkingLotResponse created = parkingLotService.createParkingLot(request.toDomain());
         return ApiResponse.created(created);
     }
 
@@ -62,9 +72,12 @@ public class ParkingLotController {
 
     @PutMapping("/{parkingLotId}")
     @PreAuthorize("@authorizationService.isCurrentUserManagerOfParkingLot(#parkingLotId)")
-    public ResponseEntity<?> updateParkingLot(@PathVariable Long parkingLotId,
-                                              @Valid @RequestBody UpdateParkingLotRequest request) {
-        ParkingLotResponse updated = parkingLotService.updateParkingLot(parkingLotId, request);
+    public ResponseEntity<?> updateParkingLot(
+      @PathVariable Long parkingLotId,
+      @Valid @RequestBody ParkingLotRequest request
+    ) {
+        updateParkingLotRequestValidator.validate(request);
+        ParkingLotResponse updated = parkingLotService.updateParkingLot(parkingLotId, request.toDomain());
         return ApiResponse.ok(updated);
     }
 

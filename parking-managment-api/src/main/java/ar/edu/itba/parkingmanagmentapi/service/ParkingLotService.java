@@ -1,10 +1,9 @@
 package ar.edu.itba.parkingmanagmentapi.service;
 
-import ar.edu.itba.parkingmanagmentapi.dto.ParkingLotRequest;
 import ar.edu.itba.parkingmanagmentapi.dto.ParkingLotResponse;
-import ar.edu.itba.parkingmanagmentapi.dto.UpdateParkingLotRequest;
 import ar.edu.itba.parkingmanagmentapi.model.ParkingLot;
 import ar.edu.itba.parkingmanagmentapi.model.User;
+import ar.edu.itba.parkingmanagmentapi.domain.ParkingLotDomain;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,12 +13,12 @@ public interface ParkingLotService {
     /**
      * Creates a new parking lot
      */
-    ParkingLotResponse createParkingLot(ParkingLotRequest parkingLotRequest);
+    ParkingLotResponse createParkingLot(ParkingLotDomain parkingLotRequest);
 
     /**
      * Updates an existing parking lot
      */
-    ParkingLotResponse updateParkingLot(Long id, UpdateParkingLotRequest parkingLotRequest);
+    ParkingLotResponse updateParkingLot(Long id, ParkingLotDomain parkingLotRequest);
 
     /**
      * Finds a parking lot by ID

@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+// TODO: Lombok? Constructor?
 @Entity
 @Table(name = "parking_lot")
 public class ParkingLot {

@@ -1,6 +1,6 @@
 package ar.edu.itba.parkingmanagmentapi.validators;
 
-import ar.edu.itba.parkingmanagmentapi.dto.UpdateParkingLotRequest;
+import ar.edu.itba.parkingmanagmentapi.dto.ParkingLotRequest;
 import ar.edu.itba.parkingmanagmentapi.exceptions.BadRequestException;
 import ar.edu.itba.parkingmanagmentapi.validators.common.AlphanumericWithCommaFieldValidator;
 import ar.edu.itba.parkingmanagmentapi.validators.common.BlankFieldValidator;
@@ -17,7 +17,7 @@ public class UpdateParkingLotRequestValidator {
     private final LengthRangeFieldInfoValidator lengthRangeFieldInfoValidator;
     private final AlphanumericWithCommaFieldValidator alphanumericValidator;
 
-    public void validate(UpdateParkingLotRequest parkingLotRequest) {
+    public void validate(ParkingLotRequest parkingLotRequest) {
         if (parkingLotRequest == null) {
             throw new BadRequestException("Parking lot request cannot be null");
         }

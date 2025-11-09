@@ -1,10 +1,12 @@
 package ar.edu.itba.parkingmanagmentapi.dto;
 
+import ar.edu.itba.parkingmanagmentapi.domain.ParkingLotDomain;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+// TODO: why not at record?
 @Getter
 @Setter
 @NoArgsConstructor
@@ -16,4 +18,8 @@ public class ParkingLotRequest {
     //TODO: serán agregadas por API?
     private Double latitude;
     private Double longitude;
+
+    public ParkingLotDomain toDomain() {
+      return new ParkingLotDomain(name, address, imageUrl, latitude, longitude);
+    }
 }

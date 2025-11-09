@@ -1,9 +1,7 @@
 package ar.edu.itba.parkingmanagmentapi.service;
 
-import ar.edu.itba.parkingmanagmentapi.dto.ParkingLotRequest;
+import ar.edu.itba.parkingmanagmentapi.domain.ParkingLotDomain;
 import ar.edu.itba.parkingmanagmentapi.dto.ParkingLotResponse;
-import ar.edu.itba.parkingmanagmentapi.dto.UpdateParkingLotRequest;
-import ar.edu.itba.parkingmanagmentapi.dto.enums.VehicleType;
 import ar.edu.itba.parkingmanagmentapi.exceptions.BadRequestException;
 import ar.edu.itba.parkingmanagmentapi.exceptions.NotFoundException;
 import ar.edu.itba.parkingmanagmentapi.model.Manager;
@@ -13,8 +11,6 @@ import ar.edu.itba.parkingmanagmentapi.repository.ParkingLotRepository;
 import ar.edu.itba.parkingmanagmentapi.repository.ScheduledReservationRepository;
 import ar.edu.itba.parkingmanagmentapi.security.service.SecurityService;
 import ar.edu.itba.parkingmanagmentapi.util.ParkingLotMapper;
-import ar.edu.itba.parkingmanagmentapi.validators.CreateParkingLotRequestValidator;
-import ar.edu.itba.parkingmanagmentapi.validators.UpdateParkingLotRequestValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.stereotype.Service;
@@ -29,42 +25,35 @@ import java.util.stream.Collectors;
 public class ParkingLotServiceImpl implements ParkingLotService {
 
     private final ParkingLotRepository parkingLotRepository;
-    private final CreateParkingLotRequestValidator createParkingLotRequestValidator;
-    private final UpdateParkingLotRequestValidator updateParkingLotRequestValidator;
     private final ScheduledReservationRepository scheduledReservationRepository;
     private final SecurityService securityService;
 
     @Override
-    public ParkingLotResponse createParkingLot(ParkingLotRequest request) {
-        createParkingLotRequestValidator.validate(request);
-
+    public ParkingLotResponse createParkingLot(ParkingLotDomain parkingLot) {
         Manager currentManager = securityService.getCurrentManager().get();
 
-        ParkingLot parkingLot = new ParkingLot();
-        parkingLot.setName(request.getName());
-        parkingLot.setAddress(request.getAddress());
-        parkingLot.setImageUrl(request.getImageUrl());
-        parkingLot.setLatitude(request.getLatitude());
-        parkingLot.setLongitude(request.getLongitude());
-        parkingLot.setManager(currentManager);
-
-        return ParkingLotMapper.toParkingLotResponse(parkingLotRepository.save(parkingLot));
+        // TODO: probably need a ParkingLotDomain::fromDto, for that we probably
+        // also need the Spot domain class though.
+        ParkingLot parkingLotDto = parkingLotRepository.save(parkingLot.toPersistence(currentManager));
+        return ParkingLotMapper.toParkingLotResponse(parkingLotDto);
     }
 
 
+    // TODO: no clue... Should I set the parkingLotDto values in the repository?
+    // But then I'd need to pass the parkingLotDomain or something to it.
     @Override
-    public ParkingLotResponse updateParkingLot(Long id, UpdateParkingLotRequest request) {
-        updateParkingLotRequestValidator.validate(request);
+    public ParkingLotResponse updateParkingLot(Long id, ParkingLotDomain request) {
         ParkingLot parkingLot = parkingLotRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("ParkingLot with id " + id + " not found"));
 
-        parkingLot.setName(request.getName());
-        parkingLot.setAddress(request.getAddress());
-        parkingLot.setImageUrl(request.getImageUrl());
-        parkingLot.setLatitude(request.getLatitude());
-        parkingLot.setLongitude(request.getLongitude());
+        parkingLot.setName(request.name());
+        parkingLot.setAddress(request.address());
+        parkingLot.setImageUrl(request.imageUrl());
+        parkingLot.setLatitude(request.latitude());
+        parkingLot.setLongitude(request.longitude());
 
-        return ParkingLotMapper.toParkingLotWithoutSpotsResponse(parkingLotRepository.save(parkingLot));
+        ParkingLot parkingLotDto = parkingLotRepository.save(parkingLot);
+        return ParkingLotMapper.toParkingLotWithoutSpotsResponse(parkingLotDto);
     }
 
     @Override
