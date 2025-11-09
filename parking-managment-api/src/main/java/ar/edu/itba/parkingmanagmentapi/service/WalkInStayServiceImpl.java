@@ -2,24 +2,16 @@ package ar.edu.itba.parkingmanagmentapi.service;
 
 import ar.edu.itba.parkingmanagmentapi.config.AppConstants;
 import ar.edu.itba.parkingmanagmentapi.domain.ReservationCriteria;
-import ar.edu.itba.parkingmanagmentapi.dto.ReservationResponse;
-import ar.edu.itba.parkingmanagmentapi.dto.WalkInStayRequest;
 import ar.edu.itba.parkingmanagmentapi.dto.enums.ReservationStatus;
 import ar.edu.itba.parkingmanagmentapi.exceptions.NotFoundException;
-import ar.edu.itba.parkingmanagmentapi.model.Spot;
-import ar.edu.itba.parkingmanagmentapi.model.UserVehicleAssignment;
 import ar.edu.itba.parkingmanagmentapi.model.WalkInStay;
-import ar.edu.itba.parkingmanagmentapi.repository.ParkingPriceRepository;
-import ar.edu.itba.parkingmanagmentapi.repository.ScheduledReservationRepository;
 import ar.edu.itba.parkingmanagmentapi.repository.WalkInStayRepository;
 import ar.edu.itba.parkingmanagmentapi.repository.WalkInStaySpecifications;
-import ar.edu.itba.parkingmanagmentapi.validators.WalkInStayRequestValidator;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;

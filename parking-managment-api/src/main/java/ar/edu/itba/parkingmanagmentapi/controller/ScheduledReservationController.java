@@ -2,7 +2,6 @@ package ar.edu.itba.parkingmanagmentapi.controller;
 
 import ar.edu.itba.parkingmanagmentapi.domain.DateTimeRange;
 import ar.edu.itba.parkingmanagmentapi.domain.ReservationCriteria;
-import ar.edu.itba.parkingmanagmentapi.domain.ReservationOwner;
 import ar.edu.itba.parkingmanagmentapi.dto.ApiResponse;
 import ar.edu.itba.parkingmanagmentapi.dto.PageResponse;
 import ar.edu.itba.parkingmanagmentapi.dto.ReservationResponse;

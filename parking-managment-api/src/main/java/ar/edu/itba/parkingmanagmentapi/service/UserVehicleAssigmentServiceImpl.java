@@ -8,7 +8,6 @@ import ar.edu.itba.parkingmanagmentapi.repository.UserRepository;
 import ar.edu.itba.parkingmanagmentapi.repository.UserVehicleAssignmentRepository;
 import ar.edu.itba.parkingmanagmentapi.repository.VehicleRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserVehicleAssigmentServiceImpl implements UserVehicleAssignmentService {

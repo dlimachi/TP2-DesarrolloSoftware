@@ -22,7 +22,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.Duration;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {

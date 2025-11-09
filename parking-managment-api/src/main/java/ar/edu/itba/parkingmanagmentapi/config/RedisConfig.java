@@ -8,7 +8,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
-import org.springframework.data.redis.connection.lettuce.LettucePoolingClientConfiguration;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.utility.DockerImageName;
 
@@ -21,6 +20,7 @@ public class RedisConfig {
     public LettuceConnectionFactory redisDevConnectionFactory() {
         logger.info("Starting Redis TestContainer for dev/test profile");
         
+        // FIXME: Resource leak: '<unassigned Closeable value>' is never closed
         GenericContainer<?> redisContainer = new GenericContainer<>(
                 DockerImageName.parse("redis:7-alpine")
         ).withExposedPorts(6379);

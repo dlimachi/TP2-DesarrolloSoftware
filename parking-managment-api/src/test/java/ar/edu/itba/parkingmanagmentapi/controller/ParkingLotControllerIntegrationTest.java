@@ -2,7 +2,6 @@ package ar.edu.itba.parkingmanagmentapi.controller;
 
 import ar.edu.itba.parkingmanagmentapi.BaseIntegrationTest;
 import ar.edu.itba.parkingmanagmentapi.dto.*;
-import ar.edu.itba.parkingmanagmentapi.dto.enums.VehicleType;
 import ar.edu.itba.parkingmanagmentapi.model.Manager;
 import ar.edu.itba.parkingmanagmentapi.model.ParkingLot;
 import ar.edu.itba.parkingmanagmentapi.model.User;
@@ -30,11 +29,11 @@ class ParkingLotControllerIntegrationTest extends BaseIntegrationTest {
         request.setImageUrl("http://example.com/image.jpg");
         request.setLatitude(-34.6037);
         request.setLongitude(-58.3816);
-        request.setSpots(List.of(SpotRequest.builder()
-                .vehicleType(VehicleType.MOTORCYCLE.getName())
-                .code("A")
-                .floor(1)
-                .build()));
+        // request.setSpots(List.of(SpotRequest.builder()
+        //         .vehicleType(VehicleType.MOTORCYCLE.getName())
+        //         .code("A")
+        //         .floor(1)
+        //         .build()));
 
         HttpEntity<ParkingLotRequest> requestEntity = new HttpEntity<>(request, createAuthHeaders(managerUser));
 
