@@ -49,8 +49,8 @@ public class WalkInStayController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getWalkInStay(@PathVariable Long id) {
-        Reservation response = reservationOrchestratorService.getWalkInStayReservationById(id);
-        return ApiResponse.ok(response);
+        Reservation reservation = reservationOrchestratorService.getWalkInStayReservationById(id);
+        return ApiResponse.created(walkInStayMapper.toDTO(reservation));
     }
 
     @GetMapping
@@ -88,8 +88,8 @@ public class WalkInStayController {
                 .range(DateTimeRange.from(from, to))
                 .build();
 
-        Page<Reservation> response = reservationOrchestratorService.getWalkInStayReservations(reservationCriteria, Pageable.unpaged());
-        return ApiResponse.ok();
+        Page<Reservation> reservations = reservationOrchestratorService.getWalkInStayReservations(reservationCriteria, Pageable.unpaged());
+        return ApiResponse.ok(reservations.getContent().stream().map(walkInStayMapper::toDTO));
     }
 
     @PatchMapping("/{id}/status")
@@ -107,7 +107,7 @@ public class WalkInStayController {
     public ResponseEntity<?> extend(
             @PathVariable Long id,
             @RequestParam int extraHours) {
-        return ApiResponse.ok(reservationOrchestratorService.extendWalkInReservation(id, extraHours));
+        return ApiResponse.ok(walkInStayMapper.toDTO(reservationOrchestratorService.extendWalkInReservation(id, extraHours)));
     }
 
     @GetMapping("/{id}/remaining-time")

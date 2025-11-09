@@ -49,7 +49,7 @@ public class ScheduledReservationController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getReservation(@PathVariable Long id) {
         Reservation response = reservationOrchestratorService.getScheduledReservationById(id);
-        return ApiResponse.ok(response);
+        return ApiResponse.ok(scheduledReservationMapper.toDTO(response));
     }
 
     @GetMapping
@@ -68,8 +68,8 @@ public class ScheduledReservationController {
                 .range(DateTimeRange.from(from, to))
                 .build();
 
-        Page<Reservation> responses = reservationOrchestratorService.getScheduledReservations(criteria, pageable);
-        return ApiResponse.ok(PageResponse.of(responses));
+        Page<Reservation> reservations = reservationOrchestratorService.getScheduledReservations(criteria, pageable);
+        return ApiResponse.ok(reservations.getContent().stream().map(scheduledReservationMapper::toDTO));
     }
 
     @PatchMapping("/{id}/status")
@@ -79,7 +79,7 @@ public class ScheduledReservationController {
             @RequestParam ReservationStatus status
     ) {
         Reservation response = reservationOrchestratorService.updateScheduledReservationStatus(id, status);
-        return ApiResponse.ok(response);
+        return ApiResponse.ok(scheduledReservationMapper.toDTO(response));
     }
 
 }
