@@ -5,7 +5,7 @@ import ar.edu.itba.parkingmanagmentapi.domain.Reservation;
 import ar.edu.itba.parkingmanagmentapi.model.WalkInStay;
 import org.springframework.stereotype.Component;
 
-@Component
+@Component("walkInStayPersistenceMapper")
 public class WalkInStayMapper {
 
     public Reservation toDomain(WalkInStay entity) {

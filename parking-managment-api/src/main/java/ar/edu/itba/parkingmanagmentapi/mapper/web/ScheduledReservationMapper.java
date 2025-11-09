@@ -6,7 +6,7 @@ import ar.edu.itba.parkingmanagmentapi.dto.ReservationResponse;
 import ar.edu.itba.parkingmanagmentapi.dto.ScheduledReservationRequest;
 import org.springframework.stereotype.Component;
 
-@Component
+@Component("scheduledReservationWebMapper")
 public class ScheduledReservationMapper {
 
     public Reservation toDomain(ScheduledReservationRequest request) {
