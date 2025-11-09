@@ -35,8 +35,6 @@ public interface WalkInStayRepository extends JpaRepository<WalkInStay, Long>, J
     @Query("SELECT r.userVehicleAssignment.user FROM ScheduledReservation r WHERE r.id = :reservationId")
     Optional<User> findOwnerByReservationId(@Param("reservationId") Long reservationId);
 
-    boolean existsBySpotAndCheckOutTimeIsNull(Spot spot);
-
     @Modifying
     @Query("""
                 UPDATE ScheduledReservation r

@@ -1,5 +1,6 @@
 package ar.edu.itba.parkingmanagmentapi.repository;
 
+import ar.edu.itba.parkingmanagmentapi.dto.enums.VehicleType;
 import ar.edu.itba.parkingmanagmentapi.model.ParkingLot;
 import ar.edu.itba.parkingmanagmentapi.model.ParkingPrice;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,9 +17,9 @@ public interface ParkingPriceRepository extends JpaRepository<ParkingPrice, Long
 
     List<ParkingPrice> findByParkingLotIdAndPriceBetween(Long parkingLotId, BigDecimal min, BigDecimal max);
 
-    List<ParkingPrice> findByParkingLotAndVehicleType(ParkingLot parkingLot, String vehicleType);
+    List<ParkingPrice> findByParkingLotAndVehicleType(ParkingLot parkingLot, VehicleType vehicleType);
 
-    List<ParkingPrice> findByParkingLotIdAndVehicleType(Long parkingLot, String vehicleType);
+    List<ParkingPrice> findByParkingLotIdAndVehicleType(Long parkingLot, VehicleType vehicleType);
 
 
 }

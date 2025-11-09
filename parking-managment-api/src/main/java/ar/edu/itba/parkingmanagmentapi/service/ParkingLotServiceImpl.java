@@ -3,6 +3,7 @@ package ar.edu.itba.parkingmanagmentapi.service;
 import ar.edu.itba.parkingmanagmentapi.dto.ParkingLotRequest;
 import ar.edu.itba.parkingmanagmentapi.dto.ParkingLotResponse;
 import ar.edu.itba.parkingmanagmentapi.dto.UpdateParkingLotRequest;
+import ar.edu.itba.parkingmanagmentapi.dto.enums.VehicleType;
 import ar.edu.itba.parkingmanagmentapi.exceptions.BadRequestException;
 import ar.edu.itba.parkingmanagmentapi.exceptions.NotFoundException;
 import ar.edu.itba.parkingmanagmentapi.model.Manager;

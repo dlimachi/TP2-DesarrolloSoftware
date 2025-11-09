@@ -72,7 +72,7 @@ class ScheduledReservationControllerIntegrationTest extends BaseIntegrationTest 
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertTrue(response.getBody().getMessage().toLowerCase().contains("already reserved"));
+        assertTrue(response.getBody().getMessage().toLowerCase().contains("is not available"));
     }
 
     @Test

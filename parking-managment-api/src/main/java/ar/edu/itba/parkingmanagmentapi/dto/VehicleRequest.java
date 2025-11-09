@@ -18,4 +18,5 @@ public class VehicleRequest {
     private String type;
 
     private Long userId;
+
 }

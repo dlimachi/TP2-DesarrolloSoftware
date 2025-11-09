@@ -1,5 +1,6 @@
 package ar.edu.itba.parkingmanagmentapi.model;
 
+import ar.edu.itba.parkingmanagmentapi.dto.enums.VehicleType;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -16,7 +17,7 @@ public class ParkingPrice {
     private Long id;
 
     @Column(name = "vehicle_type", nullable = false)
-    private String vehicleType;
+    private VehicleType vehicleType;
 
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
@@ -43,7 +44,7 @@ public class ParkingPrice {
     public ParkingPrice() {
     }
 
-    public ParkingPrice(String vehicleType, BigDecimal price, LocalDateTime validFrom, LocalDateTime validTo, ParkingLot parkingLot) {
+    public ParkingPrice(VehicleType vehicleType, BigDecimal price, LocalDateTime validFrom, LocalDateTime validTo, ParkingLot parkingLot) {
         this.vehicleType = vehicleType;
         this.price = price;
         this.validFrom = validFrom;
@@ -60,11 +61,11 @@ public class ParkingPrice {
         this.id = id;
     }
 
-    public String getVehicleType() {
+    public VehicleType getVehicleType() {
         return vehicleType;
     }
 
-    public void setVehicleType(String vehicleType) {
+    public void setVehicleType(VehicleType vehicleType) {
         this.vehicleType = vehicleType;
     }
 
