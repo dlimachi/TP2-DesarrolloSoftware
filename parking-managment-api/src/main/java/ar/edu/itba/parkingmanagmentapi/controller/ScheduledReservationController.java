@@ -69,7 +69,7 @@ public class ScheduledReservationController {
                 .build();
 
         Page<Reservation> reservations = reservationOrchestratorService.getScheduledReservations(criteria, pageable);
-        return ApiResponse.ok(reservations.getContent().stream().map(scheduledReservationMapper::toDTO));
+        return ApiResponse.ok(reservations.map(scheduledReservationMapper::toDTO));
     }
 
     @PatchMapping("/{id}/status")

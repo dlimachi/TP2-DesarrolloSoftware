@@ -50,7 +50,7 @@ public class WalkInStayController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getWalkInStay(@PathVariable Long id) {
         Reservation reservation = reservationOrchestratorService.getWalkInStayReservationById(id);
-        return ApiResponse.created(walkInStayMapper.toDTO(reservation));
+        return ApiResponse.ok(walkInStayMapper.toDTO(reservation));
     }
 
     @GetMapping

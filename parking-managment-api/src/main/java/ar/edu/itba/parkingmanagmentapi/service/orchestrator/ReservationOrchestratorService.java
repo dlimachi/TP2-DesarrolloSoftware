@@ -89,10 +89,8 @@ public class ReservationOrchestratorService {
         UserVehicleAssignment assignment = userVehicleAssignmentService.findOrCreateByUserIdAndLicensePlate(reservation.getUserId(), reservation.getVehicleLicensePlate());
 
         ScheduledReservation scheduledReservation = new ScheduledReservation();
-        scheduledReservation.setReservedStartTime(scheduledReservation.getReservedStartTime());
-        scheduledReservation.setCreatedAt(reservation.getRange().getStart());
-        scheduledReservation.setUpdatedAt(reservation.getRange().getEnd());
-        scheduledReservation.setExpectedEndTime(scheduledReservation.getExpectedEndTime());
+        scheduledReservation.setReservedStartTime(reservation.getRange().getStart());
+        scheduledReservation.setExpectedEndTime(reservation.getRange().getEnd());
         scheduledReservation.setEstimatedPrice(estimatedPrice);
         scheduledReservation.setStatus(ReservationStatus.PENDING);
         scheduledReservation.setSpot(spot);
