@@ -21,7 +21,6 @@ public class VehicleServiceImpl implements VehicleService {
         return vehicleRepository.save(request, vehicleAssignment);
     }
 
-
     @Override
     public VehicleDomain findByLicensePlate(String licensePlate) {
         return vehicleRepository.findByLicensePlate(licensePlate);

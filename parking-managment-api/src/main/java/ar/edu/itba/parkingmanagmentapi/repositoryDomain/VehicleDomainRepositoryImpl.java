@@ -7,9 +7,7 @@ import ar.edu.itba.parkingmanagmentapi.model.Vehicle;
 import ar.edu.itba.parkingmanagmentapi.repository.VehicleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
-
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -20,7 +18,9 @@ public class VehicleDomainRepositoryImpl implements VehicleDomainRepository {
     @Override
     public VehicleDomain save(VehicleDomain domain, UserVehicleAssignment vehicleAssignment) {
         var vehicle = domain.toEntity();
-        vehicle.getUserAssignments().add(vehicleAssignment);
+        if (vehicleAssignment != null) {
+            vehicle.getUserAssignments().add(vehicleAssignment);
+        }
         vehicle = vehicleRepository.save(vehicle);
 
         Vehicle saved = vehicleRepository.save(vehicle);

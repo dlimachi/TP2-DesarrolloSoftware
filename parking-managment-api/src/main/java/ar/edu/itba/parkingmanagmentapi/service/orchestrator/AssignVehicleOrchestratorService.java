@@ -19,6 +19,7 @@ public class AssignVehicleOrchestratorService {
             throw new BadRequestException("vehicle.already.exists", request.licensePlate());
         }
 
+        vehicleService.create(request, null);
         var assignment = userVehicleAssignmentService.create(request.userId(), request.licensePlate());
 
         return vehicleService.create(request, assignment);
