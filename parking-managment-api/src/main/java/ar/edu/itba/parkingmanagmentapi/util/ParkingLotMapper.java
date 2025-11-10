@@ -5,41 +5,43 @@ import ar.edu.itba.parkingmanagmentapi.dto.SpotResponse;
 import ar.edu.itba.parkingmanagmentapi.model.ParkingLot;
 import ar.edu.itba.parkingmanagmentapi.model.Spot;
 
-import java.util.Collections;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class ParkingLotMapper {
     public static ParkingLotResponse toParkingLotResponse(ParkingLot parkingLot) {
-        if (parkingLot == null) return null;
+        // if (parkingLot == null) return null;
 
-        ParkingLotResponse dto = new ParkingLotResponse();
-        dto.setId(parkingLot.getId());
-        dto.setName(parkingLot.getName());
-        dto.setAddress(parkingLot.getAddress());
-        dto.setImageUrl(parkingLot.getImageUrl());
+        // ParkingLotResponse dto = new ParkingLotResponse();
+        // dto.setId(parkingLot.getId());
+        // dto.setName(parkingLot.getName());
+        // dto.setAddress(parkingLot.getAddress());
+        // dto.setImageUrl(parkingLot.getImageUrl());
+        //
+        // if (parkingLot.getSpots() != null) {
+        //     dto.setSpots(parkingLot.getSpots().stream()
+        //             .map(ParkingLotMapper::toSpotResponse)
+        //             .collect(Collectors.toList()));
+        // } else {
+        //     dto.setSpots(Collections.emptyList());
+        // }
 
-        if (parkingLot.getSpots() != null) {
-            dto.setSpots(parkingLot.getSpots().stream()
-                    .map(ParkingLotMapper::toSpotResponse)
-                    .collect(Collectors.toList()));
-        } else {
-            dto.setSpots(Collections.emptyList());
-        }
+        // return dto
 
-        return dto;
+      throw new UnsupportedOperationException();
     }
 
     public static ParkingLotResponse toParkingLotWithoutSpotsResponse(ParkingLot parkingLot) {
-        if (parkingLot == null) return null;
+        // if (parkingLot == null) return null;
 
-        ParkingLotResponse dto = new ParkingLotResponse();
-        dto.setId(parkingLot.getId());
-        dto.setName(parkingLot.getName());
-        dto.setAddress(parkingLot.getAddress());
-        dto.setImageUrl(parkingLot.getImageUrl());
+        // ParkingLotResponse dto = new ParkingLotResponse();
+        // dto.setId(parkingLot.getId());
+        // dto.setName(parkingLot.getName());
+        // dto.setAddress(parkingLot.getAddress());
+        // dto.setImageUrl(parkingLot.getImageUrl());
 
-        return dto;
+        // return dto
+
+      throw new UnsupportedOperationException();
     }
 
     public static SpotResponse toSpotResponse(Spot spot) {

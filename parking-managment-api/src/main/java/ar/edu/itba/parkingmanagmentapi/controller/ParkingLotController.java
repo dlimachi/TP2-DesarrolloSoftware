@@ -1,16 +1,14 @@
 package ar.edu.itba.parkingmanagmentapi.controller;
 
 import ar.edu.itba.parkingmanagmentapi.domain.DateTimeRange;
+import ar.edu.itba.parkingmanagmentapi.domain.ParkingLotDomain;
 import ar.edu.itba.parkingmanagmentapi.domain.ReservationCriteria;
-import ar.edu.itba.parkingmanagmentapi.domain.ReservationOwner;
 import ar.edu.itba.parkingmanagmentapi.dto.*;
 import ar.edu.itba.parkingmanagmentapi.dto.enums.ReservationStatus;
 import ar.edu.itba.parkingmanagmentapi.service.ParkingLotService;
-import ar.edu.itba.parkingmanagmentapi.service.ScheduledReservationService;
 import ar.edu.itba.parkingmanagmentapi.service.orchestrator.ReservationOrchestratorService;
 import ar.edu.itba.parkingmanagmentapi.validators.CreateParkingLotRequestValidator;
 import ar.edu.itba.parkingmanagmentapi.validators.UpdateParkingLotRequestValidator;
-import ar.edu.itba.parkingmanagmentapi.service.WalkInStayService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -45,21 +43,21 @@ public class ParkingLotController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createParkingLot(@Valid @RequestBody ParkingLotRequest request) {
+    public ResponseEntity<ApiResponse<ParkingLotResponse>> createParkingLot(@Valid @RequestBody ParkingLotRequest request) {
         createParkingLotRequestValidator.validate(request);
-        ParkingLotResponse created = parkingLotService.createParkingLot(request.toDomain());
-        return ApiResponse.created(created);
+        ParkingLotDomain created = parkingLotService.createParkingLot(request.toDomain());
+        return ApiResponse.created(ParkingLotResponse.fromDomain(created));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getParkingLotById(@PathVariable Long id) {
-        ParkingLotResponse parkingLot = parkingLotService.findById(id);
+    public ResponseEntity<ApiResponse<ParkingLotResponse>> getParkingLotById(@PathVariable Long id) {
+        ParkingLotResponse parkingLot = ParkingLotResponse.fromDomain(parkingLotService.findById(id));
         return ApiResponse.ok(parkingLot);
     }
 
     @GetMapping
-    public ResponseEntity<?> getParkingLots() {
-        List<ParkingLotResponse> parkingLot = parkingLotService.findAll();
+    public ResponseEntity<ApiResponse<List<ParkingLotResponse>>> getParkingLots() {
+        var parkingLot = parkingLotService.findAll().stream().map(ParkingLotResponse::fromDomain).toList();
         return ApiResponse.ok(parkingLot);
     }
 
@@ -77,13 +75,16 @@ public class ParkingLotController {
       @Valid @RequestBody ParkingLotRequest request
     ) {
         updateParkingLotRequestValidator.validate(request);
-        ParkingLotResponse updated = parkingLotService.updateParkingLot(parkingLotId, request.toDomain());
-        return ApiResponse.ok(updated);
+        ParkingLotDomain updated = parkingLotService.updateParkingLot(request.toDomainWithId(parkingLotId));
+        return ApiResponse.ok(ParkingLotResponse.fromDomain(updated));
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<?> getParkingLotsByUserId(@PathVariable Long userId) {
-        List<ParkingLotResponse> parkingLots = parkingLotService.findByUserId(userId);
+    public ResponseEntity<ApiResponse<List<ParkingLotResponse>>> getParkingLotsByUserId(@PathVariable Long userId) {
+        var parkingLots = parkingLotService.findByUserId(userId)
+          .stream()
+          .map(ParkingLotResponse::fromDomain)
+          .toList();
         return ApiResponse.ok(parkingLots);
     }
 

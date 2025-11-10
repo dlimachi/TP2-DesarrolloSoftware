@@ -12,14 +12,20 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ParkingLotRequest {
-    private String name;
-    private String address;
-    private String imageUrl;
-    //TODO: serán agregadas por API?
-    private Double latitude;
-    private Double longitude;
+  private String name;
+  private String address;
+  private String imageUrl;
+  // TODO: serán agregadas por API?
+  private Double latitude;
+  private Double longitude;
 
-    public ParkingLotDomain toDomain() {
-      return new ParkingLotDomain(name, address, imageUrl, latitude, longitude);
-    }
+  public ParkingLotDomain toDomain() {
+    return new ParkingLotDomain(name, address, imageUrl, latitude, longitude);
+  }
+
+  public ParkingLotDomain toDomainWithId(Long id) {
+    var parkingLot = toDomain();
+    parkingLot.setId(id);
+    return parkingLot;
+  }
 }
