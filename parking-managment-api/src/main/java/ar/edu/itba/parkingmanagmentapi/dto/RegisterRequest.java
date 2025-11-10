@@ -22,11 +22,10 @@ public class RegisterRequest {
     private String password;
 
     public UserDomain fromManagerRegisterRequest(RegisterRequest registerRequest, boolean isManager) {
-        return UserDomain.builder()
-                .firstName(registerRequest.getFirstName())
-                .lastName(registerRequest.getLastName())
-                .email(registerRequest.getEmail())
-                .type(isManager ? UserType.MANAGER : UserType.USER)
-                .build();
+        return new UserDomain(
+                registerRequest.getFirstName(),
+                registerRequest.getLastName(),
+                registerRequest.getEmail(),
+                isManager ? UserType.MANAGER : UserType.USER);
     }
 } 

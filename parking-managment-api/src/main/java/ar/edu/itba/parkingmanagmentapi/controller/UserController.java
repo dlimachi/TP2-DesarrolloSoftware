@@ -21,15 +21,6 @@ public class UserController {
     private final SecurityService securityService;
     private final UserOrchestratorService userOrchestratorService;
 
-    /**
-     * Crea un nuevo usuario
-     */
-    @PostMapping
-    public ResponseEntity<?> createUser(@Valid @RequestBody CreateUserRequest user) {
-        UserResponse createdUser = userOrchestratorService.createUser(user);
-        return ApiResponse.created(createdUser);
-    }
-
     @PutMapping("/{id}")
     @PreAuthorize("@authorizationService.isCurrentUser(#id)")
     public ResponseEntity<?> updateUser(

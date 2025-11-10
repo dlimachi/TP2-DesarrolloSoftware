@@ -12,6 +12,6 @@ public class RegisterResponse {
     private String email;
 
     public RegisterResponse fromUserDomain(UserDomain userDomain) {
-        return new RegisterResponse(userDomain.getEmail());
+        return new RegisterResponse(userDomain.email());
     }
 } 

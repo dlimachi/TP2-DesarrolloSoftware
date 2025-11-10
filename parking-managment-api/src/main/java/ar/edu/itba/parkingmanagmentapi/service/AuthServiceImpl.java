@@ -7,13 +7,11 @@ import ar.edu.itba.parkingmanagmentapi.exceptions.AlreadyExistsException;
 import ar.edu.itba.parkingmanagmentapi.exceptions.NotFoundException;
 import ar.edu.itba.parkingmanagmentapi.model.Manager;
 import ar.edu.itba.parkingmanagmentapi.model.User;
-import ar.edu.itba.parkingmanagmentapi.model.UserDetail;
 import ar.edu.itba.parkingmanagmentapi.repository.ManagerRepository;
 import ar.edu.itba.parkingmanagmentapi.repository.UserRepository;
 import ar.edu.itba.parkingmanagmentapi.security.provider.EmailBasedAuthenticationProvider;
 import ar.edu.itba.parkingmanagmentapi.util.JwtUtil;
 import ar.edu.itba.parkingmanagmentapi.validators.LoginRequestValidator;
-import ar.edu.itba.parkingmanagmentapi.validators.RegisterRequestValidator;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,21 +73,21 @@ public class AuthServiceImpl implements AuthService {
      * Registers a new user
      */
     public RegisterResponse register(UserDomain userDomain, String password) {
-        logger.info("Intento de registro para usuario: {} como {}", userDomain.getEmail(), userDomain.getType());
+        logger.info("Intento de registro para usuario: {} como {}", userDomain.email(), userDomain.type());
 
-        if (userRepository.existsByEmail(userDomain.getEmail())) {
-            logger.warn("Intento de registro con email ya existente: {}", userDomain.getEmail());
+        if (userRepository.existsByEmail(userDomain.email())) {
+            logger.warn("Intento de registro con email ya existente: {}", userDomain.email());
             throw new AlreadyExistsException("Email already registered");
         }
 
-        User user = userDomain.fromUserDomain(userDomain, passwordEncoder.encode(password));
+        User user = userDomain.toEntity(passwordEncoder.encode(password));
         User savedUser = userRepository.save(user);
 
-        if (userDomain.getType() == UserType.MANAGER) {
+        if (userDomain.type() == UserType.MANAGER) {
             saveManager(savedUser);
         }
 
-        logger.info("Usuario registrado exitosamente: {} como manager: {}", userDomain.getEmail(), userDomain.getType());
+        logger.info("Usuario registrado exitosamente: {} como manager: {}", userDomain.email(), userDomain.type());
         return new RegisterResponse(savedUser.getEmail());
     }
 

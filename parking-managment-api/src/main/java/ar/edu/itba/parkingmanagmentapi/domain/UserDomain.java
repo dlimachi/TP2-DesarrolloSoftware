@@ -5,16 +5,15 @@ import ar.edu.itba.parkingmanagmentapi.model.User;
 import lombok.Builder;
 import lombok.Value;
 
-@Value
-@Builder
-public class UserDomain {
-    private String firstName;
-    private String lastName;
-    private String email;
+public record UserDomain(
+        String firstName,
+        String lastName,
+        String email,
+        UserType type
+) {
 
-    private UserType type;
-
-    public User fromUserDomain(UserDomain userDomain, String passwordHash) {
-        return new User(userDomain.email, userDomain.firstName, userDomain.lastName, passwordHash);
+    public User toEntity(String passwordHash) {
+        return new User(email, firstName, lastName, passwordHash);
     }
 }
+

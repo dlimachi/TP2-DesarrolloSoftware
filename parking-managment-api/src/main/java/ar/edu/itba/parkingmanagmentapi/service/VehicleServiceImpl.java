@@ -1,7 +1,9 @@
 package ar.edu.itba.parkingmanagmentapi.service;
 
+import ar.edu.itba.parkingmanagmentapi.domain.VehicleDomain;
 import ar.edu.itba.parkingmanagmentapi.dto.VehicleResponse;
 import ar.edu.itba.parkingmanagmentapi.exceptions.NotFoundException;
+import ar.edu.itba.parkingmanagmentapi.model.UserVehicleAssignment;
 import ar.edu.itba.parkingmanagmentapi.model.Vehicle;
 import ar.edu.itba.parkingmanagmentapi.repository.VehicleRepository;
 import ar.edu.itba.parkingmanagmentapi.util.VehicleMapper;
@@ -17,15 +19,20 @@ public class VehicleServiceImpl implements VehicleService {
     private final VehicleRepository vehicleRepository;
 
     @Override
-    public Vehicle create(Vehicle request) {
-        return vehicleRepository.save(request);
+    public VehicleDomain create(VehicleDomain request, UserVehicleAssignment vehicleAssignment) {
+        var vehicle = request.toEntity();
+        vehicle.getUserAssignments().add(vehicleAssignment);
+        vehicle = vehicleRepository.save(vehicle);
+
+        return VehicleDomain.fromEntity(vehicle);
     }
 
 
     @Override
-    public Vehicle findByLicensePlate(String licensePlate) {
-        return vehicleRepository.findById(licensePlate)
+    public VehicleDomain findByLicensePlate(String licensePlate) {
+        var vehicle = vehicleRepository.findById(licensePlate)
                 .orElseThrow(() -> new NotFoundException("vehicle.not.found", licensePlate));
+        return VehicleDomain.fromEntity(vehicle);
     }
 
     @Override
@@ -38,14 +45,17 @@ public class VehicleServiceImpl implements VehicleService {
 
     @Override
     @Transactional
-    public Vehicle update(String licensePlate, Vehicle request) {
-        Vehicle vehicle = findByLicensePlate(licensePlate);
+    public VehicleDomain update(String licensePlate, VehicleDomain request) {
+        VehicleDomain existing = findByLicensePlate(licensePlate);
 
-        vehicle.setBrand(request.getBrand());
-        vehicle.setModel(request.getModel());
-        vehicle.setType(request.getType());
-
-        return vehicleRepository.save(request);
+        VehicleDomain updated = new VehicleDomain(
+                existing.licensePlate(),
+                request.brand() != null ? request.brand() : existing.brand(),
+                request.model() != null ? request.model() : existing.model(),
+                request.type() != null ? request.type() : existing.type(),
+                existing.userId()
+        );
+        return VehicleDomain.fromEntity(vehicleRepository.save(updated.toEntity()));
     }
 
     @Override
