@@ -13,7 +13,7 @@ public record UserDomain(
 ) {
 
     public User toEntity(String passwordHash) {
-        return new User(email, firstName, lastName, passwordHash);
+        return new User(firstName, lastName, email, passwordHash);
     }
 }
 

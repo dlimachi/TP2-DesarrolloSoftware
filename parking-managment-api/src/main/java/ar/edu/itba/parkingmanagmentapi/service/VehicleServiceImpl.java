@@ -1,86 +1,53 @@
 package ar.edu.itba.parkingmanagmentapi.service;
 
 import ar.edu.itba.parkingmanagmentapi.domain.VehicleDomain;
-import ar.edu.itba.parkingmanagmentapi.dto.VehicleResponse;
 import ar.edu.itba.parkingmanagmentapi.exceptions.NotFoundException;
 import ar.edu.itba.parkingmanagmentapi.model.UserVehicleAssignment;
-import ar.edu.itba.parkingmanagmentapi.model.Vehicle;
-import ar.edu.itba.parkingmanagmentapi.repository.VehicleRepository;
-import ar.edu.itba.parkingmanagmentapi.util.VehicleMapper;
+import ar.edu.itba.parkingmanagmentapi.repositoryDomain.VehicleDomainRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
 public class VehicleServiceImpl implements VehicleService {
 
-    private final VehicleRepository vehicleRepository;
+    private final VehicleDomainRepository vehicleRepository;
 
     @Override
     public VehicleDomain create(VehicleDomain request, UserVehicleAssignment vehicleAssignment) {
-        var vehicle = request.toEntity();
-        vehicle.getUserAssignments().add(vehicleAssignment);
-        vehicle = vehicleRepository.save(vehicle);
-
-        return VehicleDomain.fromEntity(vehicle);
+        return vehicleRepository.save(request, vehicleAssignment);
     }
 
 
     @Override
     public VehicleDomain findByLicensePlate(String licensePlate) {
-        var vehicle = vehicleRepository.findById(licensePlate)
-                .orElseThrow(() -> new NotFoundException("vehicle.not.found", licensePlate));
-        return VehicleDomain.fromEntity(vehicle);
+        return vehicleRepository.findByLicensePlate(licensePlate);
     }
 
     @Override
-    public List<VehicleResponse> findAllVehiclesByUser(Long id) {
-        return vehicleRepository.findAllByUserId(id)
-                .stream()
-                .map(VehicleMapper::toResponse)
-                .toList();
+    public List<VehicleDomain> findAllVehiclesByUser(Long id) {
+        return vehicleRepository.findAllByUserId(id);
     }
 
     @Override
     @Transactional
-    public VehicleDomain update(String licensePlate, VehicleDomain request) {
-        VehicleDomain existing = findByLicensePlate(licensePlate);
-
-        VehicleDomain updated = new VehicleDomain(
-                existing.licensePlate(),
-                request.brand() != null ? request.brand() : existing.brand(),
-                request.model() != null ? request.model() : existing.model(),
-                request.type() != null ? request.type() : existing.type(),
-                existing.userId()
-        );
-        return VehicleDomain.fromEntity(vehicleRepository.save(updated.toEntity()));
+    public VehicleDomain update(VehicleDomain request) {
+        return vehicleRepository.update(request);
     }
 
     @Override
     public void delete(String licensePlate) {
-        if (!vehicleRepository.existsById(licensePlate)) {
+        if (Objects.isNull(findByLicensePlate(licensePlate))) {
             throw new NotFoundException("vehicle.not.found", licensePlate);
         }
         vehicleRepository.deleteById(licensePlate);
     }
 
     @Override
-    public Vehicle findEntityByLicensePlateOrCreate(Vehicle vehicle) {
-        if (vehicle == null || vehicle.getLicensePlate() == null) {
-            throw new IllegalArgumentException("Neither vehicle nor license plate can be null");
-        }
-
-        return vehicleRepository.findById(vehicle.getLicensePlate())
-                .orElseGet(() -> vehicleRepository.save(vehicle));
-    }
-
-    @Override
     public boolean isUserOwnerOfVehicle(Long userId, String licensePlate) {
-        return vehicleRepository.findById(licensePlate)
-                .map(vehicle -> vehicle.getUserAssignments().stream()
-                        .anyMatch(assignment -> assignment.getUser().getId().equals(userId)))
-                .orElse(false);
+        return vehicleRepository.findOwnerOfVehicle(userId, licensePlate);
     }
 }

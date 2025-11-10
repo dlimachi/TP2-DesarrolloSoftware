@@ -1,5 +1,6 @@
 package ar.edu.itba.parkingmanagmentapi.service.orchestrator;
 
+import ar.edu.itba.parkingmanagmentapi.domain.VehicleDomain;
 import ar.edu.itba.parkingmanagmentapi.dto.UserResponse;
 import ar.edu.itba.parkingmanagmentapi.dto.VehicleResponse;
 import ar.edu.itba.parkingmanagmentapi.model.User;
@@ -42,7 +43,7 @@ public class UserOrchestratorService {
         userService.deleteUser(id);
     }
 
-    public List<VehicleResponse> findAllVehiclesByUser(Long userId) {
+    public List<VehicleDomain> findAllVehiclesByUser(Long userId) {
         return vehicleService.findAllVehiclesByUser(userId);
     }
 

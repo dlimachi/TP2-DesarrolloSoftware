@@ -18,17 +18,14 @@ public class AssignVehicleOrchestratorService {
         if (Objects.nonNull(userVehicleAssignmentService.findByUserIdAndLicensePlate(request.userId(), request.licensePlate()))) {
             throw new BadRequestException("vehicle.already.exists", request.licensePlate());
         }
+
         var assignment = userVehicleAssignmentService.create(request.userId(), request.licensePlate());
 
         return vehicleService.create(request, assignment);
     }
 
     public VehicleDomain updateVehicleForUser(String licensePlate, VehicleDomain request) {
-        var toReturn = vehicleService.findByLicensePlate(licensePlate);
-        if (toReturn != null) {
-            toReturn = vehicleService.update(licensePlate, request);
-        }
-        return toReturn;
+        return vehicleService.update(request);
     }
 
     public VehicleDomain findByLicensePlate(String licensePlate) {

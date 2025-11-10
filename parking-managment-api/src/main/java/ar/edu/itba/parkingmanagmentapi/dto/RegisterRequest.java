@@ -21,11 +21,11 @@ public class RegisterRequest {
 
     private String password;
 
-    public UserDomain fromManagerRegisterRequest(RegisterRequest registerRequest, boolean isManager) {
+    public UserDomain toDomain(boolean isManager) {
         return new UserDomain(
-                registerRequest.getFirstName(),
-                registerRequest.getLastName(),
-                registerRequest.getEmail(),
+                this.firstName,
+                this.lastName,
+                this.email,
                 isManager ? UserType.MANAGER : UserType.USER);
     }
 } 

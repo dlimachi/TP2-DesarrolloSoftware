@@ -28,7 +28,7 @@ public class UserVehicleAssigmentServiceImpl implements UserVehicleAssignmentSer
         User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("This user does not exist"));
         Vehicle vehicle = vehicleRepository.findByLicensePlate(licensePlate).orElseThrow(() -> new NotFoundException("This vehicle does not exist"));
 
-        return userVehicleAssignmentRepository.save(new UserVehicleAssignment(user, vehicle));
+        return new UserVehicleAssignment(user, vehicle);
     }
 
     @Override

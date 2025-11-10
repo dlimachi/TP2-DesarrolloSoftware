@@ -36,7 +36,7 @@ public class AuthController {
         registerRequestValidator.validate(registerRequest);
 
         RegisterResponse response = authService.register(
-                registerRequest.fromManagerRegisterRequest(registerRequest, isManager),
+                registerRequest.toDomain(isManager),
                 registerRequest.getPassword());
 
         return ApiResponse.created(response);

@@ -73,7 +73,7 @@ class AuthControllerIntegrationTest extends BaseIntegrationTest {
         var request = TestDataBuilder.createValidRegisterRequest();
 
 
-        HttpEntity<RegisterRequest> requestEntity = new HttpEntity<>(request, createAuthHeaders(adminUser));
+        HttpEntity<RegisterRequest> requestEntity = new HttpEntity<>(request, createAuthHeaders(managerUser));
         ResponseEntity<String> response = restTemplate.exchange(
                 "/auth/register?manager=true",
                 HttpMethod.POST,
@@ -164,11 +164,13 @@ class AuthControllerIntegrationTest extends BaseIntegrationTest {
 
     @ParameterizedTest
     @CsvSource({
-            "invalid-email, password123, email",
+            ", password123, validation.field.mandatory",
             "'', password123, email",
+            "invalid-email, password123, email",
+            "test@example.com, , validation.field.mandatory",
             "test@example.com, '', password"
     })
-    void testRegister_withInvalidInput_shouldReturn400(String email, String password, String expectedField) {
+    void testCreateUser_withInvalidInput_shouldReturn400(String email, String password, String expectedField) {
         RegisterRequest request = new RegisterRequest();
         request.setEmail(email);
         request.setPassword(password);
@@ -185,5 +187,33 @@ class AuthControllerIntegrationTest extends BaseIntegrationTest {
         ApiResponse<Void> apiResponse = parseApiResponse(response, Void.class);
         assertNotNull(apiResponse);
         assertTrue(apiResponse.getMessage().contains(expectedField));
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "plainaddress, validPassword123",
+            "'@no-local.com', validPassword123",
+            "'missingatsign.com', validPassword123",
+            "'missing.domain@.com', validPassword123",
+            "'two@@signs.com', validPassword123",
+            "'Outlook Contact <outlook-contact@domain.com>', validPassword123"
+    })
+    void testRegister_withMalformedEmail_shouldReturn400(String email, String password) {
+        CreateUserRequest request = new CreateUserRequest();
+        request.setEmail(email);
+        request.setPassword(password);
+
+        HttpEntity<CreateUserRequest> requestEntity = new HttpEntity<>(request, createAuthHeaders(adminUser));
+        ResponseEntity<ApiResponse<UserResponse>> response = restTemplate.exchange(
+                "/auth/register",
+                HttpMethod.POST,
+                requestEntity,
+                new ParameterizedTypeReference<>() {
+                }
+        );
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertTrue(response.getBody().getMessage().toLowerCase().contains("is not an alphanumeric value"));
     }
 }

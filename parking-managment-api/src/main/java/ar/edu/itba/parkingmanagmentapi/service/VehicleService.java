@@ -12,9 +12,9 @@ public interface VehicleService {
 
     VehicleDomain  findByLicensePlate(String licensePlate);
 
-    List<VehicleResponse> findAllVehiclesByUser(Long id);
+    List<VehicleDomain> findAllVehiclesByUser(Long id);
 
-    VehicleDomain update(String licensePlate, VehicleDomain request);
+    VehicleDomain update(VehicleDomain request);
 
     void delete(String licensePlate);
 
@@ -22,6 +22,5 @@ public interface VehicleService {
 
     // -------------------------- RAW ENTITIES --------------------------
 
-    Vehicle findEntityByLicensePlateOrCreate(Vehicle vehicle);
 
 }

@@ -48,7 +48,9 @@ public class UserController {
 
     @GetMapping("/{id}/vehicles")
     public ResponseEntity<?> getAllVehicles(@PathVariable Long id) {
-        List<VehicleResponse> response = userOrchestratorService.findAllVehiclesByUser(id);
+        List<VehicleResponse> response = userOrchestratorService.findAllVehiclesByUser(id).stream()
+                .map(VehicleResponse::fromDomain)
+                .toList();
         return ApiResponse.ok(response);
     }
 
