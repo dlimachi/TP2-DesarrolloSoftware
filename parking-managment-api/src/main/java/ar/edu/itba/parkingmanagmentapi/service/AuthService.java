@@ -1,10 +1,8 @@
 package ar.edu.itba.parkingmanagmentapi.service;
 
 import ar.edu.itba.parkingmanagmentapi.domain.UserDomain;
-import ar.edu.itba.parkingmanagmentapi.dto.LoginRequest;
 import ar.edu.itba.parkingmanagmentapi.dto.LoginResponse;
 import ar.edu.itba.parkingmanagmentapi.dto.RefreshTokenResponse;
-import ar.edu.itba.parkingmanagmentapi.dto.RegisterRequest;
 import ar.edu.itba.parkingmanagmentapi.dto.RegisterResponse;
 
 public interface AuthService {

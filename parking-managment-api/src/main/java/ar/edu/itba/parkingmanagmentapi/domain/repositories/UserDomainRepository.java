@@ -35,4 +35,10 @@ public interface UserDomainRepository {
   boolean existsManagerByUserId(Long userId);
 
   Optional<UserDomain> findManagerByUser(UserDomain user);
+
+  UserDomain updateUser(UserDomain user);
+
+  void deleteUserById(Long id);
+
+  void saveUser(UserDomain user);
 }

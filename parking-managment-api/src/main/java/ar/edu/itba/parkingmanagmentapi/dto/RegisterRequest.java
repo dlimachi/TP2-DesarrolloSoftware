@@ -13,20 +13,17 @@ import lombok.Setter;
 @AllArgsConstructor
 public class RegisterRequest {
 
-    private String firstName;
+  private String firstName;
+  private String lastName;
+  private String email;
+  private String password;
 
-    private String lastName;
-
-    private String email;
-
-    private String password;
-
-    public UserDomain toDomain(boolean isManager) {
-        return new UserDomain(
-                null,
-                firstName,
-                lastName,
-                email,
-                isManager ? UserType.MANAGER : UserType.USER);
-    }
-} 
+  public UserDomain toDomain(boolean isManager) {
+    var user = new UserDomain(
+        firstName,
+        lastName,
+        email,
+        isManager ? UserType.MANAGER : UserType.USER);
+    return user;
+  }
+}

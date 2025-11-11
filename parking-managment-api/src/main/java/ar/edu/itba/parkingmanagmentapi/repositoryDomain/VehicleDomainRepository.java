@@ -4,7 +4,6 @@ import ar.edu.itba.parkingmanagmentapi.domain.VehicleDomain;
 import ar.edu.itba.parkingmanagmentapi.model.UserVehicleAssignment;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface VehicleDomainRepository {
     VehicleDomain save(VehicleDomain vehicle, UserVehicleAssignment vehicleAssignment);

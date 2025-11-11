@@ -1,6 +1,5 @@
 package ar.edu.itba.parkingmanagmentapi.dto;
 
-import ar.edu.itba.parkingmanagmentapi.domain.UserDomain;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

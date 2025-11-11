@@ -4,8 +4,13 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import ar.edu.itba.parkingmanagmentapi.domain.UserDomain;
+import ar.edu.itba.parkingmanagmentapi.domain.enums.UserType;
+import ar.edu.itba.parkingmanagmentapi.exceptions.NotFoundException;
+import ar.edu.itba.parkingmanagmentapi.model.Manager;
+import ar.edu.itba.parkingmanagmentapi.model.User;
 import ar.edu.itba.parkingmanagmentapi.repository.ManagerRepository;
 import ar.edu.itba.parkingmanagmentapi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +28,7 @@ public class UserDomainRepositoryImpl implements UserDomainRepository {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public Optional<UserDomain> findUserByEmail(String email) {
     return userRepository.findByEmail(email).map(UserDomain::fromUserEntity);
   }
@@ -55,4 +61,34 @@ public class UserDomainRepositoryImpl implements UserDomainRepository {
     return managerRepository.findByUser(user.toEntityNoPass()).map(UserDomain::fromManagerEntity);
   }
 
+  @Override
+  public UserDomain updateUser(UserDomain user) {
+    User userSaved = userRepository.findById(user.getId())
+        .orElseThrow(() -> new NotFoundException("user.not.found"));
+
+    userSaved.setFirstName(user.getFirstName());
+    userSaved.setLastName(user.getLastName());
+    userSaved.setImageUrl(user.getImageUrl());
+    userSaved.getUserDetail().setPhone(user.getPhone());
+    userSaved.getUserDetail().setAddress(user.getAddress());
+    userSaved.getUserDetail().setLang(user.getLang());
+
+    return UserDomain.fromUserEntity(userSaved);
+  }
+
+  @Override
+  public void deleteUserById(Long id) {
+    User userSaved = userRepository.findById(id).orElseThrow(() -> new NotFoundException("user.not.found"));
+
+    userRepository.delete(userSaved);
+  }
+
+  @Override
+  public void saveUser(UserDomain user) {
+    var savedUser = UserDomain.fromUserEntity(userRepository.save(user.toEntity()));
+    if (user.getType() == UserType.MANAGER) {
+      Manager manager = new Manager(savedUser.toEntity());
+      managerRepository.save(manager);
+    }
+  }
 }

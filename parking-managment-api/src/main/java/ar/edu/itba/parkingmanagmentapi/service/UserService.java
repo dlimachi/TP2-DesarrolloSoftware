@@ -1,27 +1,23 @@
 package ar.edu.itba.parkingmanagmentapi.service;
 
-import ar.edu.itba.parkingmanagmentapi.dto.CreateUserRequest;
-import ar.edu.itba.parkingmanagmentapi.dto.UpdateUserRequest;
-import ar.edu.itba.parkingmanagmentapi.dto.UserResponse;
-import ar.edu.itba.parkingmanagmentapi.model.User;
-import java.util.Optional;
+import ar.edu.itba.parkingmanagmentapi.domain.UserDomain;
 
 public interface UserService {
 
     /**
      * Creates a new user
      */
-    UserResponse createUser(CreateUserRequest user, String encodedPassword);
+    // UserResponse createUser(UserDomain user, String encodedPassword);
 
     /**
      * Updates an existing user
      */
-    UserResponse updateUser(Long id, UpdateUserRequest userDetails);
+    UserDomain updateUser(UserDomain user);
 
     /**
      * Finds a user by ID
      */
-    User findById(Long id);
+    UserDomain findById(Long id);
 
     /**
      * Deletes a user
@@ -33,14 +29,7 @@ public interface UserService {
     /**
      * Finds a user by Email
      */
-    UserResponse findByEmail(String email);
+    UserDomain findByEmail(String email);
 
     // -------------------------- RAW EXTENSIONS --------------------------
-
-    /**
-     * Finds a raw user by Email
-     */
-    Optional<User> findEntityByEmail(String email);
-
-
 }

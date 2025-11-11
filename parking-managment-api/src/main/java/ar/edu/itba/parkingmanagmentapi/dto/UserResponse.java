@@ -17,7 +17,14 @@ public class UserResponse {
   private UserDetailDTO userDetail;
 
   public static UserResponse fromDomain(UserDomain user) {
-    // FIXME: we're missing properties in UserDomain to be able to create the response...
-    return new UserResponse(user.id(), user.email(), user.firstName(), user.lastName(), null, null);
+    // FIXME: we're missing properties in UserDomain to be able to create the
+    // response...
+    return new UserResponse(
+        user.getId(),
+        user.getEmail(),
+        user.getFirstName(),
+        user.getLastName(),
+        user.getImageUrl(),
+        null);
   }
 }

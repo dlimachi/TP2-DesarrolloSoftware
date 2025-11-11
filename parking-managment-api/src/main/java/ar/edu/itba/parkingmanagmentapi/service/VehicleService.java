@@ -1,9 +1,7 @@
 package ar.edu.itba.parkingmanagmentapi.service;
 
 import ar.edu.itba.parkingmanagmentapi.domain.VehicleDomain;
-import ar.edu.itba.parkingmanagmentapi.dto.VehicleResponse;
 import ar.edu.itba.parkingmanagmentapi.model.UserVehicleAssignment;
-import ar.edu.itba.parkingmanagmentapi.model.Vehicle;
 import java.util.List;
 
 public interface VehicleService {

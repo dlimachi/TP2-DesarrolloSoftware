@@ -1,12 +1,9 @@
 package ar.edu.itba.parkingmanagmentapi.controller;
 
-import ar.edu.itba.parkingmanagmentapi.dto.ReservationResponse;
 import ar.edu.itba.parkingmanagmentapi.service.ScheduledReservationService;
 import ar.edu.itba.parkingmanagmentapi.service.WalkInStayService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component
 public class ReservationJob {

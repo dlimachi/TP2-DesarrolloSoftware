@@ -1,10 +1,13 @@
 package ar.edu.itba.parkingmanagmentapi.controller;
 
+import ar.edu.itba.parkingmanagmentapi.domain.UserDomain;
 import ar.edu.itba.parkingmanagmentapi.dto.*;
 import ar.edu.itba.parkingmanagmentapi.exceptions.AuthenticationFailedException;
 import ar.edu.itba.parkingmanagmentapi.security.service.SecurityService;
 import ar.edu.itba.parkingmanagmentapi.service.orchestrator.UserOrchestratorService;
 import ar.edu.itba.parkingmanagmentapi.util.UserMapper;
+import ar.edu.itba.parkingmanagmentapi.validators.CreateUserRequestValidator;
+import ar.edu.itba.parkingmanagmentapi.validators.UpdatedUserRequestedValidator;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,21 +22,24 @@ import java.util.List;
 public class UserController {
 
     private final SecurityService securityService;
+    // private final CreateUserRequestValidator createUserRequestValidator;
+    private final UpdatedUserRequestedValidator updatedUserRequestValidator;
     private final UserOrchestratorService userOrchestratorService;
 
     @PutMapping("/{id}")
     @PreAuthorize("@authorizationService.isCurrentUser(#id)")
-    public ResponseEntity<?> updateUser(
+    public ResponseEntity<ApiResponse<UserResponse>> updateUser(
             @PathVariable Long id,
             @Valid @RequestBody UpdateUserRequest userDetails) {
-        UserResponse updatedUser = userOrchestratorService.updateUser(id, userDetails);
-        return ApiResponse.ok(updatedUser);
+        updatedUserRequestValidator.validate(userDetails);
+        UserDomain user = userOrchestratorService.updateUser(userDetails.toDomain());
+        return ApiResponse.ok(UserResponse.fromDomain(user));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getUserById(@PathVariable Long id) {
-        UserResponse user = userOrchestratorService.getUserById(id);
-        return ApiResponse.ok(user);
+    public ResponseEntity<ApiResponse<UserResponse>> getUserById(@PathVariable Long id) {
+        UserDomain user = userOrchestratorService.getUserById(id);
+        return ApiResponse.ok(UserResponse.fromDomain(user));
     }
 
 
@@ -56,7 +62,7 @@ public class UserController {
 
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<?> getCurrentUser() {
+    public ResponseEntity<ApiResponse<UserResponse>> getCurrentUser() {
         // FIXME: The UserResponse mapping should be done at service layer.
         UserResponse currentUser = securityService.getCurrentUser()
                 .map(UserResponse::fromDomain)
@@ -65,9 +71,9 @@ public class UserController {
     }
 
     @GetMapping("/email/{email}")
-    public ResponseEntity<?> getUserByEmail(@PathVariable String email) {
-        UserResponse user = userOrchestratorService.findByEmail(email);
-        return ApiResponse.ok(user);
+    public ResponseEntity<ApiResponse<UserResponse>> getUserByEmail(@PathVariable String email) {
+        UserDomain user = userOrchestratorService.findByEmail(email);
+        return ApiResponse.ok(UserResponse.fromDomain(user));
     }
 
 }
