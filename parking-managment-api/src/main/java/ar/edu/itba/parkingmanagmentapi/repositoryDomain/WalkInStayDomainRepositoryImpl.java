@@ -4,6 +4,8 @@ import ar.edu.itba.parkingmanagmentapi.domain.Reservation;
 import ar.edu.itba.parkingmanagmentapi.domain.ReservationCriteria;
 import ar.edu.itba.parkingmanagmentapi.dto.enums.ReservationStatus;
 import ar.edu.itba.parkingmanagmentapi.exceptions.NotFoundException;
+import ar.edu.itba.parkingmanagmentapi.model.Spot;
+import ar.edu.itba.parkingmanagmentapi.model.UserVehicleAssignment;
 import ar.edu.itba.parkingmanagmentapi.model.WalkInStay;
 import ar.edu.itba.parkingmanagmentapi.repository.WalkInStayRepository;
 import ar.edu.itba.parkingmanagmentapi.repository.WalkInStaySpecifications;
@@ -22,9 +24,15 @@ public class WalkInStayDomainRepositoryImpl implements WalkInStayDomainRepositor
     private final WalkInStayRepository walkInStayRepository;
 
     @Override
-    public Reservation save(Reservation reservation) {
-        WalkInStay entity = reservation.toWalkInStayEntity(reservation);
-        return Reservation.toDomain(walkInStayRepository.save(entity));
+    public Reservation save(Reservation reservation, Spot spot, UserVehicleAssignment assignment) {
+        WalkInStay stay = new WalkInStay();
+        stay.setCheckInTime(reservation.getRange().getStart());
+        stay.setExpectedEndTime(reservation.getRange().getEnd());
+        stay.setStatus(ReservationStatus.ACTIVE);
+        stay.setSpot(spot);
+        stay.setCheckOutTime(null);
+        stay.setUserVehicleAssignment(assignment);
+        return Reservation.toDomain(walkInStayRepository.save(stay));
     }
 
     @Override
@@ -74,5 +82,19 @@ public class WalkInStayDomainRepositoryImpl implements WalkInStayDomainRepositor
                 .stream()
                 .map(Reservation::toDomain)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Reservation update(Reservation reservation) {
+        WalkInStay stay = walkInStayRepository.findById(reservation.getId())
+                .orElseThrow(() -> new NotFoundException("Walk-in stay with id " + reservation.getId() + " not found"));
+
+        stay.setCheckInTime(reservation.getRange().getStart());
+        stay.setExpectedEndTime(reservation.getRange().getEnd());
+        stay.setStatus(reservation.getStatus());
+
+        stay = walkInStayRepository.save(stay);
+
+        return Reservation.toDomain(stay);
     }
 }

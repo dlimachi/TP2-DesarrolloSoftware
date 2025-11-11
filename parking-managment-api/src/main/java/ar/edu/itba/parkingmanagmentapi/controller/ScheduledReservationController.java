@@ -43,7 +43,7 @@ public class ScheduledReservationController {
 
         Reservation createdReservation = reservationOrchestratorService.createScheduledReservation(scheduledReservationMapper.toDomain(request));
 
-        return ApiResponse.created(scheduledReservationMapper.toDTO(createdReservation));
+        return ApiResponse.created(ReservationResponse.fromDomain(createdReservation));
     }
 
     @GetMapping("/{id}")

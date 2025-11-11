@@ -36,17 +36,9 @@ public class ReservationOrchestratorService {
 
         UserVehicleAssignment assignment = userVehicleAssignmentService.findOrCreateByUserIdAndLicensePlate(AppConstants.DEFAULT_USER_ID, reservation.getVehicleLicensePlate());
 
-        WalkInStay stay = new WalkInStay();
-        stay.setCheckInTime(reservation.getRange().getStart());
-        stay.setExpectedEndTime(reservation.getRange().getEnd());
-        stay.setStatus(ReservationStatus.ACTIVE);
-        stay.setSpot(spot);
-        stay.setCheckOutTime(null);
-        stay.setUserVehicleAssignment(assignment);
-
         spotService.toggleAvailability(spot.getId());
 
-        return walkInStayService.createReservation(reservation);
+        return walkInStayService.createReservation(reservation, spot, assignment);
     }
 
     public Reservation createScheduledReservation(final Reservation reservation) {
