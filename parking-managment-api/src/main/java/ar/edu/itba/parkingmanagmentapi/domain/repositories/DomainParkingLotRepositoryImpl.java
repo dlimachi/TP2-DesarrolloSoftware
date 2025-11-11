@@ -4,9 +4,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import ar.edu.itba.parkingmanagmentapi.domain.ParkingLotDomain;
+import ar.edu.itba.parkingmanagmentapi.domain.SpotDomain;
 import ar.edu.itba.parkingmanagmentapi.exceptions.BadRequestException;
 import ar.edu.itba.parkingmanagmentapi.exceptions.NotFoundException;
 import ar.edu.itba.parkingmanagmentapi.model.ParkingLot;
+import ar.edu.itba.parkingmanagmentapi.model.Spot;
 import ar.edu.itba.parkingmanagmentapi.repository.ParkingLotRepository;
 import ar.edu.itba.parkingmanagmentapi.repository.ScheduledReservationRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Repository;
 public class DomainParkingLotRepositoryImpl implements DomainParkingLotRepository {
 
   private final ParkingLotRepository parkingLotRepository;
+  private final DomainSpotRepository domainSpotRepository;
   private final ScheduledReservationRepository scheduledReservationRepository;
 
   private ParkingLot findEntityById(Long id) {
@@ -63,6 +66,12 @@ public class DomainParkingLotRepositoryImpl implements DomainParkingLotRepositor
 
   @Override
   public ParkingLotDomain save(ParkingLotDomain parkingLot) {
+      ParkingLot entity = parkingLot.toEntity();
+      List<SpotDomain> spotsDomain = domainSpotRepository.findAll(parkingLot.getId());
+
+      List<Spot> spots = spotsDomain.stream().map(spotDomain -> spotDomain.toEntity(entity)).toList();
+      entity.setSpots(spots);
+
     return ParkingLotDomain.fromEntity(parkingLotRepository.save(parkingLot.toEntity()));
   }
 

@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -42,7 +43,7 @@ public class SpotServiceImpl implements SpotService {
             throw new BadRequestException("spot.already.exists", spotDomain.getCode(), spotDomain.getFloor());
         }
 
-        spotDomain.setParkingLot(parkingLotDomain);
+        spotDomain.setParkingLotId(parkingLotDomain.getId());
         spotDomain.setIsReservable(spotDomain.getIsReservable());
 
         return domainSpotRepository.save(spotDomain);
@@ -51,7 +52,7 @@ public class SpotServiceImpl implements SpotService {
     @Override
     public SpotDomain findById(Long parkingLotId, Long id) {
         return domainSpotRepository.findById(id)
-                .filter(spot -> spot.getParkingLot().getId().equals(parkingLotId))
+                .filter(spot -> spot.getParkingLotId().equals(parkingLotId))
                 .orElseThrow(() -> new NotFoundException("spot.not.found", id));
     }
 
@@ -60,7 +61,7 @@ public class SpotServiceImpl implements SpotService {
     public SpotDomain updateSpot(Long parkingLotId, Long id, SpotDomain updateSpot) {
 
         SpotDomain spot = domainSpotRepository.findById(id)
-                .filter(s -> s.getParkingLot().getId().equals(parkingLotId))
+                .filter(s -> s.getParkingLotId().equals(parkingLotId))
                 .orElseThrow(() -> new NotFoundException("spot.not.found", id));
 
         if (domainSpotRepository.existsByParkingLotAndFloorAndCodeAndIdNot(parkingLotService.findById(parkingLotId), updateSpot.getFloor(), updateSpot.getCode(), id)) {
@@ -82,6 +83,7 @@ public class SpotServiceImpl implements SpotService {
     public void deleteSpot(Long parkingLotId, Long id) {
         SpotDomain spotDomain = domainSpotRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("spot.not.found", id));
+        ParkingLotDomain parkingLotDomain = parkingLotService.findById(parkingLotId);
 
         boolean hasFutureScheduledReservations = scheduledReservationRepository.existsBySpotIdAndReservedStartTimeAfter(spotDomain.getId(), LocalDateTime.now());
         if (hasFutureScheduledReservations || !spotDomain.getIsAvailable()) {
@@ -95,14 +97,14 @@ public class SpotServiceImpl implements SpotService {
                 spotDomain.getId(), spotDomain.getCode(), spotDomain.getFloor()
         );
 
-        domainSpotRepository.delete(spotDomain);
+        domainSpotRepository.delete(spotDomain,parkingLotDomain);
     }
 
     @Override
     public Optional<User> getManagerOfSpot(Long spotId) {
         return Optional.of(domainSpotRepository.findById(spotId)
                         .map(spot -> {
-                            ParkingLotDomain parkingLotDomain = spot.getParkingLot();
+                            ParkingLotDomain parkingLotDomain = parkingLotService.findById(spot.getParkingLotId());
                             if (parkingLotDomain == null) return null;
                             Manager manager = parkingLotDomain.getManager();
                             return manager != null ? manager.getUser() : null;
@@ -113,6 +115,11 @@ public class SpotServiceImpl implements SpotService {
     @Override
     public Page<SpotDomain> findByFilters(Long parkingLotId, Boolean available, VehicleType vehicleType, Integer floor, Boolean isAccessible, Boolean isReservable, Pageable pageable) {
         return domainSpotRepository.findAll(parkingLotId, available, vehicleType, floor, isAccessible, isReservable, pageable);
+    }
+
+    @Override
+    public List<SpotDomain> findAll(Long parkingLotId) {
+        return domainSpotRepository.findAll(parkingLotId);
     }
 
     // -------------------------- RAW ENTITIES --------------------------

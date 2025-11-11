@@ -2,6 +2,7 @@ package ar.edu.itba.parkingmanagmentapi.domain;
 
 import ar.edu.itba.parkingmanagmentapi.dto.enums.VehicleType;
 
+import ar.edu.itba.parkingmanagmentapi.model.ParkingLot;
 import ar.edu.itba.parkingmanagmentapi.model.Spot;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,9 +22,9 @@ public class SpotDomain {
     private Boolean isAvailable;
     private Boolean isAccessible;
     private Boolean isReservable;
-    private ParkingLotDomain parkingLot;
+    private Long parkingLotId;
 
-    public Spot toEntity(){
+    public Spot toEntity(ParkingLot parkingLot){
         Spot spot = new Spot();
         if(id != null)
             spot.setId(id);
@@ -33,7 +34,7 @@ public class SpotDomain {
         spot.setIsAccessible(isAccessible);
         spot.setIsAvailable(isAvailable);
         spot.setIsReservable(isReservable);
-        spot.setParkingLot(parkingLot.toEntity());
+        spot.setParkingLot(parkingLot);
         return spot;
     }
 
@@ -46,7 +47,7 @@ public class SpotDomain {
                 spot.getIsAvailable(),
                 spot.getIsAccessible(),
                 spot.getIsReservable(),
-                ParkingLotDomain.fromEntity(spot.getParkingLot()));
+                spot.getParkingLot().getId());
     }
 
 }

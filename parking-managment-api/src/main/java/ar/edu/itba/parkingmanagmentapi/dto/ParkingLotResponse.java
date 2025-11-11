@@ -1,5 +1,6 @@
 package ar.edu.itba.parkingmanagmentapi.dto;
 
+import ar.edu.itba.parkingmanagmentapi.domain.SpotDomain;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -35,7 +36,7 @@ public class ParkingLotResponse {
   }
 
   // TODO: should be in SpotResponse or something. And should use SpotDomain
-  private static SpotResponse toSpotResponse(Spot spot) {
+  private static SpotResponse toSpotResponse(SpotDomain spot) {
     SpotResponse dto = new SpotResponse();
     dto.setId(spot.getId());
     dto.setVehicleType(spot.getVehicleType().getName());

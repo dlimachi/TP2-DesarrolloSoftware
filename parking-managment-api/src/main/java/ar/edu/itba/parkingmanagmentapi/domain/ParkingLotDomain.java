@@ -4,7 +4,6 @@ import java.util.List;
 
 import ar.edu.itba.parkingmanagmentapi.model.Manager;
 import ar.edu.itba.parkingmanagmentapi.model.ParkingLot;
-import ar.edu.itba.parkingmanagmentapi.model.Spot;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -22,8 +21,7 @@ public class ParkingLotDomain {
   private final Double longitude;
   // TODO: should be ManagerDomain!!!
   private Manager manager;
-  // TODO: should be SpotDomain!!!
-  private List<Spot> spots = List.of();
+  private List<SpotDomain> spots = List.of();
 
 
   public ParkingLot toEntity() {
@@ -37,12 +35,14 @@ public class ParkingLotDomain {
     parkingLot.setLongitude(longitude);
     // TODO: should map to entity
     parkingLot.setManager(manager);
-    parkingLot.setSpots(spots);
     return parkingLot;
   }
 
   public static ParkingLotDomain fromEntity(ParkingLot entity) {
-    ParkingLotDomain domain = new ParkingLotDomain(
+
+      List<SpotDomain> spotDomains = entity.getSpots().stream().map(SpotDomain::fromEntity).toList();
+
+      ParkingLotDomain domain = new ParkingLotDomain(
         entity.getId(),
         entity.getName(),
         entity.getAddress(),
@@ -51,7 +51,7 @@ public class ParkingLotDomain {
         entity.getLongitude(),
         // TODO: should map to domain
         entity.getManager(),
-        entity.getSpots()
+        spotDomains
     );
     return domain;
   }
@@ -64,7 +64,7 @@ public class ParkingLotDomain {
     this.manager = manager;
   }
 
-  public void setSpots(List<Spot> spots) {
+  public void setSpots(List<SpotDomain> spots) {
     this.spots = spots;
   }
 }

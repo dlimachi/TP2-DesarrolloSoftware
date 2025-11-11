@@ -7,6 +7,7 @@ import ar.edu.itba.parkingmanagmentapi.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface SpotService {
@@ -22,6 +23,8 @@ public interface SpotService {
     Optional<User> getManagerOfSpot(Long spotId);
 
     Page<SpotDomain> findByFilters(Long parkingLotId, Boolean available, VehicleType vehicleType, Integer floor, Boolean isAccessible, Boolean isReservable, Pageable pageable);
+
+    List<SpotDomain> findAll(Long parkingLotId);
 
     // -------------------------- RAW ENTITIES --------------------------
 
