@@ -4,13 +4,15 @@ import ar.edu.itba.parkingmanagmentapi.model.ParkingLot;
 import ar.edu.itba.parkingmanagmentapi.model.ParkingPrice;
 import ar.edu.itba.parkingmanagmentapi.dto.enums.VehicleType;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
+@Setter
 @RequiredArgsConstructor
 @AllArgsConstructor
 public class ParkingPriceDomain {
@@ -42,8 +44,4 @@ public class ParkingPriceDomain {
                 entity.getParkingLot() != null ? ParkingLotDomain.fromEntity(entity.getParkingLot()) : null
         );
     }
-
-    public void setId(Long id) { this.id = id; }
-
-    public void setParkingLot(ParkingLotDomain parkingLot) { this.parkingLot = parkingLot; }
 }

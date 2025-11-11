@@ -1,10 +1,12 @@
 package ar.edu.itba.parkingmanagmentapi.controller;
 
+import ar.edu.itba.parkingmanagmentapi.domain.ParkingPriceDomain;
 import ar.edu.itba.parkingmanagmentapi.dto.ApiResponse;
 import ar.edu.itba.parkingmanagmentapi.dto.ParkingPriceRequest;
 import ar.edu.itba.parkingmanagmentapi.dto.ParkingPriceResponse;
 import ar.edu.itba.parkingmanagmentapi.dto.enums.VehicleType;
 import ar.edu.itba.parkingmanagmentapi.service.ParkingPriceService;
+import ar.edu.itba.parkingmanagmentapi.util.ParkingPriceFilter;
 import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -30,8 +32,11 @@ public class ParkingPriceController {
     @PreAuthorize("@authorizationService.isCurrentUserManagerOfParkingLot(#parkingLotId)")
     public ResponseEntity<?> create(
             @PathVariable Long parkingLotId,
-            @Valid @RequestBody ParkingPriceRequest request) {
-        ParkingPriceResponse response = parkingPriceService.create(parkingLotId, request);
+            @Valid @RequestBody ParkingPriceRequest request
+    ) {
+        ParkingPriceDomain domain = ParkingPriceRequest.toDomain(request);
+        ParkingPriceDomain created = parkingPriceService.create(parkingLotId, domain);
+        ParkingPriceResponse response = ParkingPriceResponse.fromDomain(created);
         return ApiResponse.created(response);
     }
 
@@ -42,7 +47,9 @@ public class ParkingPriceController {
             @PathVariable Long id,
             @Valid @RequestBody ParkingPriceRequest request
     ) {
-        ParkingPriceResponse response = parkingPriceService.update(parkingLotId, id, request);
+        ParkingPriceDomain domain = ParkingPriceRequest.toDomain(request);
+        ParkingPriceDomain updated = parkingPriceService.update(parkingLotId, id, domain);
+        ParkingPriceResponse response = ParkingPriceResponse.fromDomain(updated);
         return ApiResponse.ok(response);
     }
 
@@ -66,10 +73,17 @@ public class ParkingPriceController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to,
             @RequestParam(defaultValue = "asc") String sort
     ) {
-        VehicleType vehicleTypeEnum = vehicleType != null && !vehicleType.isBlank() 
-                ? VehicleType.fromName(vehicleType) 
+        VehicleType vehicleTypeEnum = vehicleType != null && !vehicleType.isBlank()
+                ? VehicleType.fromName(vehicleType)
                 : null;
-        List<ParkingPriceResponse> responses = parkingPriceService.getByFilters(parkingLotId, min, max, vehicleTypeEnum, from, to, sort);
+
+        ParkingPriceFilter filter = new ParkingPriceFilter(min, max, vehicleTypeEnum, from, to, sort);
+
+        List<ParkingPriceDomain> domains = parkingPriceService.getByFilters(parkingLotId, filter);
+        List<ParkingPriceResponse> responses = domains.stream()
+                .map(ParkingPriceResponse::fromDomain)
+                .toList();
+
         return ApiResponse.ok(responses);
     }
 }

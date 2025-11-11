@@ -20,6 +20,4 @@ public interface ParkingPriceRepository extends JpaRepository<ParkingPrice, Long
     List<ParkingPrice> findByParkingLotAndVehicleType(ParkingLot parkingLot, VehicleType vehicleType);
 
     List<ParkingPrice> findByParkingLotIdAndVehicleType(Long parkingLot, VehicleType vehicleType);
-
-
 }
