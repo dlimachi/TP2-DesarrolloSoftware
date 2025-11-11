@@ -4,7 +4,8 @@ import ar.edu.itba.parkingmanagmentapi.domain.VehicleDomain;
 import ar.edu.itba.parkingmanagmentapi.exceptions.BadRequestException;
 import ar.edu.itba.parkingmanagmentapi.service.UserVehicleAssignmentService;
 import ar.edu.itba.parkingmanagmentapi.service.VehicleService;
-import java.util.Objects;
+import java.util.Optional;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,9 +16,10 @@ public class AssignVehicleOrchestratorService {
     private final UserVehicleAssignmentService userVehicleAssignmentService;
 
     public VehicleDomain assignVehicleToUser(VehicleDomain request) {
-        if (Objects.nonNull(userVehicleAssignmentService.findByUserIdAndLicensePlate(request.userId(), request.licensePlate()))) {
-            throw new BadRequestException("vehicle.already.exists", request.licensePlate());
-        }
+        Optional.ofNullable(userVehicleAssignmentService.findByUserIdAndLicensePlate(request.userId(), request.licensePlate()))
+                .ifPresent(v -> {
+                    throw new BadRequestException("vehicle.already.exists", request.licensePlate());
+                });
 
         vehicleService.create(request, null);
         var assignment = userVehicleAssignmentService.create(request.userId(), request.licensePlate());
