@@ -26,6 +26,8 @@ public class SpotDomain {
 
     public Spot toEntity(){
         Spot spot = new Spot();
+        if(id != null)
+            spot.setId(id);
         spot.setVehicleType(vehicleType);
         spot.setFloor(floor);
         spot.setCode(code);
@@ -33,12 +35,6 @@ public class SpotDomain {
         spot.setIsAvailable(isAvailable);
         spot.setIsReservable(isReservable);
         spot.setParkingLot(parkingLot);
-        return spot;
-    }
-    //TODO: Fix this solution
-    public Spot toEntityWithId(){
-        Spot spot = toEntity();
-        spot.setId(id);
         return spot;
     }
 

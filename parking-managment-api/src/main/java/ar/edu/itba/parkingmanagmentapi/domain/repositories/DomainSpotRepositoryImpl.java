@@ -43,7 +43,7 @@ public class DomainSpotRepositoryImpl implements DomainSpotRepository{
 
     @Override
     public void delete(SpotDomain spotDomain) {
-        spotRepository.delete(spotDomain.toEntityWithId());
+        spotRepository.delete(spotDomain.toEntity());
     }
 
     @Override

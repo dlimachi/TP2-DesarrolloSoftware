@@ -29,8 +29,8 @@ public class SpotRequest {
                 spotRequest.getFloor(),
                 spotRequest.getCode(),
                 spotRequest.getIsAvailable(),
-                spotRequest.getIsReservable(),
                 spotRequest.getIsAccessible(),
+                spotRequest.getIsReservable(),
                 null);
     }
 
