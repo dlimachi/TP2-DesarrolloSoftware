@@ -91,7 +91,7 @@ public class ParkingPriceServiceImpl implements ParkingPriceService {
                     " and vehicle type " + vehicleType);
         }
 
-        return prices.getFirst();
+        return prices.get(0);
     }
 
     private void validateNoOverlap(ParkingLot parkingLot, Long excludeId, ParkingPriceRequest request) {
