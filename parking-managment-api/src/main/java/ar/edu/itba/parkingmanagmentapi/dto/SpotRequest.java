@@ -24,9 +24,7 @@ public class SpotRequest {
 
     public SpotDomain toDomain(SpotRequest spotRequest) {
         VehicleType vehicleType = VehicleType.fromName(spotRequest.getVehicleType());
-        // Asumo que en el dominio, un ID en cero se interpreta como no asignado.
-        // TODO: Al crear el Spot como manejo el ParkingLot? pongo solo el ID en 0 o la entidad y le pongo null al principio?
-        return new SpotDomain(0L,
+        return new SpotDomain(null,
                 vehicleType,
                 spotRequest.getFloor(),
                 spotRequest.getCode(),
@@ -34,5 +32,11 @@ public class SpotRequest {
                 spotRequest.getIsReservable(),
                 spotRequest.getIsAccessible(),
                 null);
+    }
+
+    public SpotDomain toDomainWithId(Long id, SpotRequest spotRequest){
+        SpotDomain spotDomain = toDomain(spotRequest);
+        spotDomain.setId(id);
+        return spotDomain;
     }
 }

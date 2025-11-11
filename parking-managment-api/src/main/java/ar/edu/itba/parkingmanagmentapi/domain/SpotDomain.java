@@ -14,6 +14,7 @@ import lombok.Setter;
 @RequiredArgsConstructor
 @AllArgsConstructor
 public class SpotDomain {
+
     private Long id;
     private VehicleType vehicleType;
     private Integer floor;
@@ -32,6 +33,12 @@ public class SpotDomain {
         spot.setIsAvailable(isAvailable);
         spot.setIsReservable(isReservable);
         spot.setParkingLot(parkingLot);
+        return spot;
+    }
+    //TODO: Fix this solution
+    public Spot toEntityWithId(){
+        Spot spot = toEntity();
+        spot.setId(id);
         return spot;
     }
 

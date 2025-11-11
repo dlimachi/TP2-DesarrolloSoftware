@@ -58,22 +58,22 @@ public class SpotServiceImpl implements SpotService {
 
     @Override
     @Transactional
-    public SpotDomain updateSpot(Long parkingLotId, Long id, SpotDomain spotDomain) {
+    public SpotDomain updateSpot(Long parkingLotId, Long id, SpotDomain updateSpot) {
 
         SpotDomain spot = domainSpotRepository.findById(id)
                 .filter(s -> s.getParkingLot().getId().equals(parkingLotId))
                 .orElseThrow(() -> new NotFoundException("spot.not.found", id));
 
-        if (domainSpotRepository.existsByParkingLotAndFloorAndCodeAndIdNot(parkingLotService.findEntityById(parkingLotId), spotDomain.getFloor(), spotDomain.getCode(), id)) {
-            throw new BadRequestException("spot.already.exists", spotDomain.getCode(), spotDomain.getFloor());
+        if (domainSpotRepository.existsByParkingLotAndFloorAndCodeAndIdNot(parkingLotService.findEntityById(parkingLotId), updateSpot.getFloor(), updateSpot.getCode(), id)) {
+            throw new BadRequestException("spot.already.exists", updateSpot.getCode(), updateSpot.getFloor());
         }
 
         //TODO: Porque pueden cambiar todos los campos, porque cambiarias el tipo de vehículo que podes estacionar o el código del spot?
-        spot.setVehicleType(VehicleType.fromName(spotDomain.getVehicleType().getName()));
-        spot.setCode(spotDomain.getCode());
-        spot.setFloor(spotDomain.getFloor());
-        spot.setIsReservable(spotDomain.getIsReservable());
-        spot.setIsAccessible(spotDomain.getIsAccessible());
+        spot.setVehicleType(VehicleType.fromName(updateSpot.getVehicleType().getName()));
+        spot.setCode(updateSpot.getCode());
+        spot.setFloor(updateSpot.getFloor());
+        spot.setIsReservable(updateSpot.getIsReservable());
+        spot.setIsAccessible(updateSpot.getIsAccessible());
 
         return domainSpotRepository.save(spot);
     }

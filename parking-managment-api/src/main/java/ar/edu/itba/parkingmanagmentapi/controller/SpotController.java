@@ -43,8 +43,8 @@ public class SpotController {
 
     @PutMapping("/{id}")
     @PreAuthorize("@authorizationService.isCurrentUserManagerOfSpot(#id)")
-    public ResponseEntity<?> updateSpot(@PathVariable Long parkingLotId, @PathVariable Long id, @RequestBody SpotDomain spotDomain) {
-        SpotDomain updatedSpotDomain = spotService.updateSpot(parkingLotId, id, spotDomain);
+    public ResponseEntity<?> updateSpot(@PathVariable Long parkingLotId, @PathVariable Long id, @RequestBody SpotRequest spotRequest) {
+        SpotDomain updatedSpotDomain = spotService.updateSpot(parkingLotId, id, spotRequest.toDomainWithId(id,spotRequest));
         SpotResponse spotResponse = SpotResponse.fromDomain(updatedSpotDomain);
         return ApiResponse.ok(spotResponse);
     }
@@ -70,7 +70,7 @@ public class SpotController {
                 : null;
         Page<SpotDomain> spots = spotService.findByFilters(parkingLotId, available, vehicleTypeEnum, floor, isAccessible, isReservable, pageable);
         Page<SpotResponse> spotResponses = spots.map(SpotResponse::fromDomain);
-        return ApiResponse.ok(PageResponse.of(spots));
+        return ApiResponse.ok(PageResponse.of(spotResponses));
     }
 }
 
