@@ -1,6 +1,7 @@
 package ar.edu.itba.parkingmanagmentapi.service;
 
 import ar.edu.itba.parkingmanagmentapi.domain.ParkingLotDomain;
+import ar.edu.itba.parkingmanagmentapi.domain.UserDomain;
 import ar.edu.itba.parkingmanagmentapi.domain.repositories.DomainParkingLotRepository;
 import ar.edu.itba.parkingmanagmentapi.exceptions.NotFoundException;
 import ar.edu.itba.parkingmanagmentapi.model.Manager;
@@ -26,7 +27,7 @@ public class ParkingLotServiceImpl implements ParkingLotService {
 
     @Override
     public ParkingLotDomain createParkingLot(ParkingLotDomain parkingLot) {
-        Manager currentManager = securityService.getCurrentManager().get();
+        UserDomain currentManager = securityService.getCurrentManager().get();
         parkingLot.setManager(currentManager);
 
         ParkingLotDomain entity = parkingLotRepository.save(parkingLot);
@@ -62,10 +63,10 @@ public class ParkingLotServiceImpl implements ParkingLotService {
     }
 
     @Override
-    public Optional<User> getManagerOfParkingLot(Long parkingLotId) {
+    public Optional<UserDomain> getManagerOfParkingLot(Long parkingLotId) {
         try {
           var parkingLot = parkingLotRepository.findById(parkingLotId);
-          return Optional.of(parkingLot.getManager().getUser());
+          return Optional.of(parkingLot.getManager());
         } catch (NotFoundException e) {
           return Optional.empty();
         }

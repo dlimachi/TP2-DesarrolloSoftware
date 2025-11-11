@@ -1,15 +1,14 @@
 package ar.edu.itba.parkingmanagmentapi.security.service;
 
-import ar.edu.itba.parkingmanagmentapi.model.Manager;
-import ar.edu.itba.parkingmanagmentapi.model.User;
+import ar.edu.itba.parkingmanagmentapi.domain.UserDomain;
 
 import java.util.Optional;
 
 public interface SecurityService {
-    Optional<User> getCurrentUser();
+    Optional<UserDomain> getCurrentUser();
 
     //boolean isCurrentUserAdmin();
     Optional<String> getCurrentUserEmail();
 
-    Optional<Manager> getCurrentManager();
+    Optional<UserDomain> getCurrentManager();
 }

@@ -1,8 +1,8 @@
 package ar.edu.itba.parkingmanagmentapi.service;
 
 import ar.edu.itba.parkingmanagmentapi.model.ParkingLot;
-import ar.edu.itba.parkingmanagmentapi.model.User;
 import ar.edu.itba.parkingmanagmentapi.domain.ParkingLotDomain;
+import ar.edu.itba.parkingmanagmentapi.domain.UserDomain;
 
 import java.util.List;
 import java.util.Optional;
@@ -40,7 +40,7 @@ public interface ParkingLotService {
     /**
      * Gets the manager (User) of a parking lot by its ID
      */
-    Optional<User> getManagerOfParkingLot(Long parkingLotId);
+    Optional<UserDomain> getManagerOfParkingLot(Long parkingLotId);
 
     /**
      * Finds all parking lots owned by a specific user ID

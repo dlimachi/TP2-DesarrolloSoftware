@@ -1,5 +1,7 @@
 package ar.edu.itba.parkingmanagmentapi.security.service;
 
+import ar.edu.itba.parkingmanagmentapi.domain.UserDomain;
+import ar.edu.itba.parkingmanagmentapi.domain.repositories.UserDomainRepositoryImpl;
 import ar.edu.itba.parkingmanagmentapi.exceptions.AuthenticationFailedException;
 import ar.edu.itba.parkingmanagmentapi.model.Manager;
 import ar.edu.itba.parkingmanagmentapi.model.User;
@@ -17,9 +19,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class SecurityServiceImpl implements SecurityService {
 
-    private final UserRepository userRepository;
-
-    private final ManagerRepository managerRepository;
+    private final UserDomainRepositoryImpl userRepository;
 
     @Override
     public Optional<String> getCurrentUserEmail() {
@@ -33,24 +33,24 @@ public class SecurityServiceImpl implements SecurityService {
 
     @Cacheable
     @Override
-    public Optional<User> getCurrentUser() {
+    public Optional<UserDomain> getCurrentUser() {
         final Optional<String> mayBeEmail = getCurrentUserEmail();
 
         if (mayBeEmail.isEmpty()) {
             throw new AuthenticationFailedException("User is not authorized to access this resource.");
         }
 
-        return userRepository.findByEmail(mayBeEmail.get());
+        return userRepository.findUserByEmail(mayBeEmail.get());
     }
 
     @Override
     @Cacheable
-    public Optional<Manager> getCurrentManager() {
-        Optional<User> currentUserOpt = getCurrentUser();
-        User currentUser = currentUserOpt
+    public Optional<UserDomain> getCurrentManager() {
+        Optional<UserDomain> currentUserOpt = getCurrentUser();
+        UserDomain currentUser = currentUserOpt
                 .orElseThrow(() -> new AuthenticationFailedException("No authenticated user found"));
 
-        return managerRepository.findByUser(currentUser);
+        return userRepository.findManagerByUser(currentUser);
     }
 
 }

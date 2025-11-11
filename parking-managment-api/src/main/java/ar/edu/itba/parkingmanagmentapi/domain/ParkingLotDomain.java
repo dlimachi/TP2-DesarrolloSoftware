@@ -2,7 +2,6 @@ package ar.edu.itba.parkingmanagmentapi.domain;
 
 import java.util.List;
 
-import ar.edu.itba.parkingmanagmentapi.model.Manager;
 import ar.edu.itba.parkingmanagmentapi.model.ParkingLot;
 import ar.edu.itba.parkingmanagmentapi.model.Spot;
 import lombok.AllArgsConstructor;
@@ -20,11 +19,9 @@ public class ParkingLotDomain {
   private final String imageUrl;
   private final Double latitude;
   private final Double longitude;
-  // TODO: should be ManagerDomain!!!
-  private Manager manager;
+  private UserDomain manager;
   // TODO: should be SpotDomain!!!
   private List<Spot> spots = List.of();
-
 
   public ParkingLot toEntity() {
     ParkingLot parkingLot = new ParkingLot();
@@ -33,8 +30,8 @@ public class ParkingLotDomain {
     parkingLot.setImageUrl(imageUrl);
     parkingLot.setLatitude(latitude);
     parkingLot.setLongitude(longitude);
+    parkingLot.setManager(manager.toEntityManager());
     // TODO: should map to entity
-    parkingLot.setManager(manager);
     parkingLot.setSpots(spots);
     return parkingLot;
   }
@@ -47,10 +44,9 @@ public class ParkingLotDomain {
         entity.getImageUrl(),
         entity.getLatitude(),
         entity.getLongitude(),
+        UserDomain.fromManagerEntity(entity.getManager()),
         // TODO: should map to domain
-        entity.getManager(),
-        entity.getSpots()
-    );
+        entity.getSpots());
     return domain;
   }
 
@@ -58,7 +54,7 @@ public class ParkingLotDomain {
     this.id = id;
   }
 
-  public void setManager(Manager manager) {
+  public void setManager(UserDomain manager) {
     this.manager = manager;
   }
 
