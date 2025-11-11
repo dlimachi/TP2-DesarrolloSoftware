@@ -113,8 +113,6 @@ public class ParkingPrice {
         return parkingLot;
     }
 
-    public void setParkingLot(ParkingLot parkingLot) {
-        this.parkingLot = parkingLot;
-    }
+    public void setParkingLot(ParkingLot parkingLot) { this.parkingLot = parkingLot; }
 
 } 

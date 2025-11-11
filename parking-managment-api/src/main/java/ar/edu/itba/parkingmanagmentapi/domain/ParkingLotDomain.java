@@ -28,6 +28,7 @@ public class ParkingLotDomain {
 
   public ParkingLot toEntity() {
     ParkingLot parkingLot = new ParkingLot();
+    parkingLot.setId(id);
     parkingLot.setName(name);
     parkingLot.setAddress(address);
     parkingLot.setImageUrl(imageUrl);

@@ -2,15 +2,19 @@ package ar.edu.itba.parkingmanagmentapi.domain.repositories;
 
 import ar.edu.itba.parkingmanagmentapi.domain.ParkingPriceDomain;
 import ar.edu.itba.parkingmanagmentapi.dto.enums.VehicleType;
+import ar.edu.itba.parkingmanagmentapi.exceptions.BadRequestException;
 import ar.edu.itba.parkingmanagmentapi.exceptions.NotFoundException;
 import ar.edu.itba.parkingmanagmentapi.model.ParkingPrice;
 import ar.edu.itba.parkingmanagmentapi.repository.ParkingPriceRepository;
 import ar.edu.itba.parkingmanagmentapi.repository.ParkingPriceSpecifications;
 import ar.edu.itba.parkingmanagmentapi.util.ParkingPriceFilter;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 import lombok.RequiredArgsConstructor;
+
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -29,12 +33,17 @@ public class DomainParkingPriceRepositoryImpl implements DomainParkingPriceRepos
     @Override
     public ParkingPriceDomain save(ParkingPriceDomain domain) {
         ParkingPrice entity = domain.toEntity();
+        entity.setCreatedAt(LocalDateTime.now());
         ParkingPrice saved = parkingPriceRepository.save(entity);
         return ParkingPriceDomain.fromEntity(saved);
     }
 
     @Override
     public ParkingPriceDomain update(ParkingPriceDomain domain) {
+        if (domain.getId() == null) {
+            throw new IllegalArgumentException("ParkingPrice id cannot be null for update");
+        }
+
         ParkingPrice existing = this.findEntityById(domain.getId());
 
         existing.setVehicleType(domain.getVehicleType());
@@ -42,6 +51,7 @@ public class DomainParkingPriceRepositoryImpl implements DomainParkingPriceRepos
         existing.setValidFrom(domain.getValidFrom());
         existing.setValidTo(domain.getValidTo());
         existing.setParkingLot(domain.getParkingLot().toEntity());
+
         ParkingPrice updated = parkingPriceRepository.save(existing);
 
         return ParkingPriceDomain.fromEntity(updated);

@@ -8,12 +8,8 @@ import ar.edu.itba.parkingmanagmentapi.domain.repositories.DomainParkingPriceRep
 import ar.edu.itba.parkingmanagmentapi.dto.enums.VehicleType;
 import ar.edu.itba.parkingmanagmentapi.exceptions.BadRequestException;
 import ar.edu.itba.parkingmanagmentapi.exceptions.NotFoundException;
-import ar.edu.itba.parkingmanagmentapi.model.ParkingPrice;
-import ar.edu.itba.parkingmanagmentapi.repository.ParkingPriceSpecifications;
 import ar.edu.itba.parkingmanagmentapi.util.ParkingPriceFilter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,11 +41,13 @@ public class ParkingPriceServiceImpl implements ParkingPriceService {
     @Transactional
     public ParkingPriceDomain update(Long parkingLotId, Long id, ParkingPriceDomain domain) {
         ParkingLotDomain parkingLot = parkingLotService.findById(parkingLotId);
-        ParkingPriceDomain existing = domainParkingPriceRepository.findById(id);
 
         validateNoOverlap(parkingLot, id, domain);
 
-        return domainParkingPriceRepository.update(existing);
+        domain.setId(id);
+        domain.setParkingLot(parkingLot);
+
+        return domainParkingPriceRepository.update(domain);
     }
 
     // TODO! REMOVE arg parkingLotId
