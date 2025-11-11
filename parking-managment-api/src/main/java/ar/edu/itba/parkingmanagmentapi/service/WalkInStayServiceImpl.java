@@ -4,6 +4,8 @@ import ar.edu.itba.parkingmanagmentapi.config.AppConstants;
 import ar.edu.itba.parkingmanagmentapi.domain.Reservation;
 import ar.edu.itba.parkingmanagmentapi.domain.ReservationCriteria;
 import ar.edu.itba.parkingmanagmentapi.dto.enums.ReservationStatus;
+import ar.edu.itba.parkingmanagmentapi.model.Spot;
+import ar.edu.itba.parkingmanagmentapi.model.UserVehicleAssignment;
 import ar.edu.itba.parkingmanagmentapi.repositoryDomain.WalkInStayDomainRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -22,12 +24,12 @@ public class WalkInStayServiceImpl implements WalkInStayService {
 
     @Override
     public Reservation updateReservation(Reservation reservation) {
-        return walkInStayDomainRepository.save(reservation);
+        return walkInStayDomainRepository.update(reservation);
     }
 
     @Override
-    public Reservation createReservation(Reservation reservation) {
-        return walkInStayDomainRepository.save(reservation);
+    public Reservation createReservation(Reservation reservation, Spot spot, UserVehicleAssignment assignment) {
+        return walkInStayDomainRepository.save(reservation, spot, assignment);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package ar.edu.itba.parkingmanagmentapi.dto;
 
+import ar.edu.itba.parkingmanagmentapi.domain.Reservation;
 import ar.edu.itba.parkingmanagmentapi.dto.enums.ReservationStatus;
 import ar.edu.itba.parkingmanagmentapi.model.ScheduledReservation;
 import ar.edu.itba.parkingmanagmentapi.model.WalkInStay;
@@ -33,5 +34,18 @@ public class ReservationResponse {
     private String userLastName;
     private String vehicleInfo;
     private String type;
+
+    public static ReservationResponse fromDomain(Reservation reservation) {
+        return ReservationResponse.builder()
+                .id(reservation.getId())
+                .reservedStartTime(reservation.getRange().getStart())
+                .expectedEndTime(reservation.getRange().getEnd())
+                .status(reservation.getStatus())
+                .price(reservation.getPrice())
+                .spotId(reservation.getSpotId())
+                .vehicleLicensePlate(reservation.getVehicleLicensePlate())
+                .userId(reservation.getUserId())
+                .build();
+    }
 
 }
