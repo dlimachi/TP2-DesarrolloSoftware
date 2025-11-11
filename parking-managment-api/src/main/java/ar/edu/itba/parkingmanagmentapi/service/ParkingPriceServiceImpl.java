@@ -2,7 +2,6 @@ package ar.edu.itba.parkingmanagmentapi.service;
 
 import ar.edu.itba.parkingmanagmentapi.config.AppConstants;
 import ar.edu.itba.parkingmanagmentapi.domain.DateTimeRange;
-import ar.edu.itba.parkingmanagmentapi.dto.ParkingLotRequest;
 import ar.edu.itba.parkingmanagmentapi.dto.ParkingPriceRequest;
 import ar.edu.itba.parkingmanagmentapi.dto.ParkingPriceResponse;
 import ar.edu.itba.parkingmanagmentapi.dto.enums.VehicleType;
@@ -134,6 +133,7 @@ public class ParkingPriceServiceImpl implements ParkingPriceService {
 
     @Override
     public void delete(Long parkingLotId, Long id) {
+        // WARNING: unused variable?
         ParkingLot parkingLot = parkingLotService.findEntityById(parkingLotId);
 
         ParkingPrice price = parkingPriceRepository.findById(id)

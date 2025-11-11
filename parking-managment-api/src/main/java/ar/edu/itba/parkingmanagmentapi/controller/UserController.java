@@ -57,7 +57,7 @@ public class UserController {
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> getCurrentUser() {
-        //FIXME: The UserResponse mapping should be done at service layer.
+        // FIXME: The UserResponse mapping should be done at service layer.
         UserResponse currentUser = securityService.getCurrentUser()
                 .map(UserMapper::toUserResponse)
                 .orElseThrow(() -> new AuthenticationFailedException("No authenticated user found"));

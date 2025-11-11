@@ -5,8 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
-
 @Getter
 @Setter
 @NoArgsConstructor
@@ -18,5 +16,4 @@ public class ParkingLotRequest {
     //TODO: serán agregadas por API?
     private Double latitude;
     private Double longitude;
-    private List<SpotRequest> spots;
 }

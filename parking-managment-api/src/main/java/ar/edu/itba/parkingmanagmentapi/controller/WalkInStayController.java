@@ -1,13 +1,16 @@
 package ar.edu.itba.parkingmanagmentapi.controller;
 
 import ar.edu.itba.parkingmanagmentapi.domain.DateTimeRange;
+import ar.edu.itba.parkingmanagmentapi.domain.Reservation;
 import ar.edu.itba.parkingmanagmentapi.domain.ReservationCriteria;
 import ar.edu.itba.parkingmanagmentapi.dto.ApiResponse;
 import ar.edu.itba.parkingmanagmentapi.dto.PageResponse;
 import ar.edu.itba.parkingmanagmentapi.dto.ReservationResponse;
 import ar.edu.itba.parkingmanagmentapi.dto.WalkInStayRequest;
 import ar.edu.itba.parkingmanagmentapi.dto.enums.ReservationStatus;
+import ar.edu.itba.parkingmanagmentapi.mapper.web.WalkInStayMapper;
 import ar.edu.itba.parkingmanagmentapi.service.orchestrator.ReservationOrchestratorService;
+import ar.edu.itba.parkingmanagmentapi.validators.WalkInStayRequestValidator;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,22 +28,29 @@ import java.time.LocalDateTime;
 public class WalkInStayController {
 
     private final ReservationOrchestratorService reservationOrchestratorService;
+    private final WalkInStayMapper walkInStayMapper;
+    private final WalkInStayRequestValidator walkInStayRequestValidator;
 
-    public WalkInStayController(ReservationOrchestratorService reservationOrchestratorService) {
+    public WalkInStayController(ReservationOrchestratorService reservationOrchestratorService, WalkInStayMapper walkInStayMapper, WalkInStayRequestValidator walkInStayRequestValidator) {
         this.reservationOrchestratorService = reservationOrchestratorService;
+        this.walkInStayMapper = walkInStayMapper;
+        this.walkInStayRequestValidator = walkInStayRequestValidator;
     }
 
     @PostMapping
     @PreAuthorize("@authorizationService.isCurrentUserManagerOfSpot(#request.spotId)")
     public ResponseEntity<?> createWalkInStay(@Valid @RequestBody WalkInStayRequest request) {
-        ReservationResponse response = reservationOrchestratorService.createWalkInStayReservation(request);
-        return ApiResponse.created(response);
+        walkInStayRequestValidator.validate(request);
+
+        Reservation createdReservation = reservationOrchestratorService.createWalkInStayReservation(walkInStayMapper.toDomain(request));
+
+        return ApiResponse.created(walkInStayMapper.toDTO(createdReservation));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getWalkInStay(@PathVariable Long id) {
-        ReservationResponse response = reservationOrchestratorService.getWalkInStayReservationById(id);
-        return ApiResponse.ok(response);
+        Reservation reservation = reservationOrchestratorService.getWalkInStayReservationById(id);
+        return ApiResponse.ok(walkInStayMapper.toDTO(reservation));
     }
 
     @GetMapping
@@ -78,18 +88,18 @@ public class WalkInStayController {
                 .range(DateTimeRange.from(from, to))
                 .build();
 
-        Page<ReservationResponse> response = reservationOrchestratorService.getWalkInStayReservations(reservationCriteria, Pageable.unpaged());
-        return ApiResponse.ok(response.getContent());
+        Page<Reservation> reservations = reservationOrchestratorService.getWalkInStayReservations(reservationCriteria, Pageable.unpaged());
+        return ApiResponse.ok(reservations.getContent().stream().map(walkInStayMapper::toDTO));
     }
 
     @PatchMapping("/{id}/status")
     @PreAuthorize("@authorizationService.isCurrentUserManagerOfReservation(#id)")
-    public ResponseEntity<?> updateWalkInStayStatus(
+    public ResponseEntity<ApiResponse<ReservationResponse>> updateWalkInStayStatus(
             @PathVariable Long id,
             @RequestParam ReservationStatus status
     ) {
-        ReservationResponse response = reservationOrchestratorService.updateWalkInReservationStatus(id, status);
-        return ApiResponse.ok(response);
+        Reservation updatedReservation = reservationOrchestratorService.updateWalkInReservationStatus(id, status);
+        return ApiResponse.ok(walkInStayMapper.toDTO(updatedReservation));
     }
 
     @PatchMapping("/{id}/extend")
@@ -97,7 +107,7 @@ public class WalkInStayController {
     public ResponseEntity<?> extend(
             @PathVariable Long id,
             @RequestParam int extraHours) {
-        return ApiResponse.ok(reservationOrchestratorService.extendWalkInReservation(id, extraHours));
+        return ApiResponse.ok(walkInStayMapper.toDTO(reservationOrchestratorService.extendWalkInReservation(id, extraHours)));
     }
 
     @GetMapping("/{id}/remaining-time")

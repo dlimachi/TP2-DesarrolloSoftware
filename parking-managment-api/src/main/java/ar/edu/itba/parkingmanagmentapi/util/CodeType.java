@@ -1,7 +1,6 @@
 package ar.edu.itba.parkingmanagmentapi.util;
 
 import java.util.UUID;
-import java.util.function.Function;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Supplier;
 

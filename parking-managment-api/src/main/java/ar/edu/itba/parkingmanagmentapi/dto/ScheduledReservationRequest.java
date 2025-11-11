@@ -1,5 +1,8 @@
 package ar.edu.itba.parkingmanagmentapi.dto;
 
+import ar.edu.itba.parkingmanagmentapi.config.AppConstants;
+import ar.edu.itba.parkingmanagmentapi.domain.DateTimeRange;
+import ar.edu.itba.parkingmanagmentapi.domain.Reservation;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;

@@ -1,14 +1,17 @@
 package ar.edu.itba.parkingmanagmentapi.controller;
 
 import ar.edu.itba.parkingmanagmentapi.domain.DateTimeRange;
+import ar.edu.itba.parkingmanagmentapi.domain.Reservation;
 import ar.edu.itba.parkingmanagmentapi.domain.ReservationCriteria;
-import ar.edu.itba.parkingmanagmentapi.domain.ReservationOwner;
 import ar.edu.itba.parkingmanagmentapi.dto.ApiResponse;
 import ar.edu.itba.parkingmanagmentapi.dto.PageResponse;
 import ar.edu.itba.parkingmanagmentapi.dto.ReservationResponse;
 import ar.edu.itba.parkingmanagmentapi.dto.ScheduledReservationRequest;
 import ar.edu.itba.parkingmanagmentapi.dto.enums.ReservationStatus;
+import ar.edu.itba.parkingmanagmentapi.mapper.web.ScheduledReservationMapper;
+import ar.edu.itba.parkingmanagmentapi.mapper.web.WalkInStayMapper;
 import ar.edu.itba.parkingmanagmentapi.service.orchestrator.ReservationOrchestratorService;
+import ar.edu.itba.parkingmanagmentapi.validators.ScheduledReservationRequestValidator;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,21 +28,28 @@ import java.time.LocalDateTime;
 public class ScheduledReservationController {
 
     private final ReservationOrchestratorService reservationOrchestratorService;
+    private final ScheduledReservationMapper scheduledReservationMapper;
+    private final ScheduledReservationRequestValidator scheduledReservationRequestValidator;
 
-    public ScheduledReservationController(ReservationOrchestratorService reservationOrchestratorService) {
+    public ScheduledReservationController(ReservationOrchestratorService reservationOrchestratorService, ScheduledReservationMapper scheduledReservationMapper, ScheduledReservationRequestValidator scheduledReservationRequestValidator) {
         this.reservationOrchestratorService = reservationOrchestratorService;
+        this.scheduledReservationMapper = scheduledReservationMapper;
+        this.scheduledReservationRequestValidator = scheduledReservationRequestValidator;
     }
 
     @PostMapping
     public ResponseEntity<?> createReservation(@Valid @RequestBody ScheduledReservationRequest request) {
-        ReservationResponse response = reservationOrchestratorService.createScheduledReservation(request);
-        return ApiResponse.created(response);
+        scheduledReservationRequestValidator.validate(request);
+
+        Reservation createdReservation = reservationOrchestratorService.createScheduledReservation(scheduledReservationMapper.toDomain(request));
+
+        return ApiResponse.created(scheduledReservationMapper.toDTO(createdReservation));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getReservation(@PathVariable Long id) {
-        ReservationResponse response = reservationOrchestratorService.getScheduledReservationById(id);
-        return ApiResponse.ok(response);
+        Reservation response = reservationOrchestratorService.getScheduledReservationById(id);
+        return ApiResponse.ok(scheduledReservationMapper.toDTO(response));
     }
 
     @GetMapping
@@ -58,8 +68,8 @@ public class ScheduledReservationController {
                 .range(DateTimeRange.from(from, to))
                 .build();
 
-        Page<ReservationResponse> responses = reservationOrchestratorService.getScheduledReservations(criteria, pageable);
-        return ApiResponse.ok(PageResponse.of(responses));
+        Page<Reservation> reservations = reservationOrchestratorService.getScheduledReservations(criteria, pageable);
+        return ApiResponse.ok(reservations.map(scheduledReservationMapper::toDTO));
     }
 
     @PatchMapping("/{id}/status")
@@ -68,8 +78,8 @@ public class ScheduledReservationController {
             @PathVariable Long id,
             @RequestParam ReservationStatus status
     ) {
-        ReservationResponse response = reservationOrchestratorService.updateScheduledReservationStatus(id, status);
-        return ApiResponse.ok(response);
+        Reservation response = reservationOrchestratorService.updateScheduledReservationStatus(id, status);
+        return ApiResponse.ok(scheduledReservationMapper.toDTO(response));
     }
 
 }

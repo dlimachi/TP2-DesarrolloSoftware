@@ -1,6 +1,5 @@
 package ar.edu.itba.parkingmanagmentapi.repository;
 
-import ar.edu.itba.parkingmanagmentapi.model.Spot;
 import ar.edu.itba.parkingmanagmentapi.model.User;
 import ar.edu.itba.parkingmanagmentapi.model.WalkInStay;
 import org.springframework.data.jpa.repository.JpaRepository;
