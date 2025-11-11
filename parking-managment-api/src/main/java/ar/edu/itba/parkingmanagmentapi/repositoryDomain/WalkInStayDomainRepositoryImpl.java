@@ -97,4 +97,9 @@ public class WalkInStayDomainRepositoryImpl implements WalkInStayDomainRepositor
 
         return Reservation.toDomain(stay);
     }
+
+    @Override
+    public void updateSpotSnapshot(Long spotId, String code, Integer floor) {
+        walkInStayRepository.updateSpotSnapshot(spotId, code, floor);
+    }
 }

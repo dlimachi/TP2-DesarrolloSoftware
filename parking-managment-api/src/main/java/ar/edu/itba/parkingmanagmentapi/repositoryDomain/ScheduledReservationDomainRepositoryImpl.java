@@ -74,4 +74,14 @@ public class ScheduledReservationDomainRepositoryImpl implements ScheduledReserv
                 .map(Reservation::toDomain)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public boolean existsBySpotIdAndReservedStartTimeAfter(Long spotId, LocalDateTime time) {
+        return scheduledReservationRepository.existsBySpotIdAndReservedStartTimeAfter(spotId, time);
+    }
+
+    @Override
+    public void updateSpotSnapshot(Long spotId, String code, Integer floor) {
+        scheduledReservationRepository.updateSpotSnapshot(spotId, code, floor);
+    }
 }

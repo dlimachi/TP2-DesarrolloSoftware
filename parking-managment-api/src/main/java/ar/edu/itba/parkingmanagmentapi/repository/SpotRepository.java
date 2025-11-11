@@ -8,7 +8,8 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface SpotRepository extends JpaRepository<Spot, Long>, JpaSpecificationExecutor<Spot> {
-    boolean existsByParkingLotAndFloorAndCode(ParkingLot parkingLot, int floor, String code);
+    boolean existsByParkingLotAndFloorAndCode(ParkingLot parkingLot,
+                                              int floor, String code);
 
     boolean existsByParkingLotAndFloorAndCodeAndIdNot(
             ParkingLot parkingLot,
