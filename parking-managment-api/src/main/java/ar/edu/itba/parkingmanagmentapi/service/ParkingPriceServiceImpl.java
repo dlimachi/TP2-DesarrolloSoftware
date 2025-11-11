@@ -24,7 +24,6 @@ public class ParkingPriceServiceImpl implements ParkingPriceService {
 
     private final DomainParkingPriceRepository domainParkingPriceRepository;
     private final ParkingLotService parkingLotService;
-    // private final ParkingPriceRequestValidator validator;
 
     @Override
     public ParkingPriceDomain create(Long parkingLotId, ParkingPriceDomain domain) {
