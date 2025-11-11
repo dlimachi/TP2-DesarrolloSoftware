@@ -66,7 +66,6 @@ public class SpotServiceImpl implements SpotService {
             throw new BadRequestException("spot.already.exists", updateSpot.getCode(), updateSpot.getFloor());
         }
 
-        //TODO: Porque pueden cambiar todos los campos, porque cambiarias el tipo de vehículo que podes estacionar o el código del spot?
         spot.setVehicleType(VehicleType.fromName(updateSpot.getVehicleType().getName()));
         spot.setCode(updateSpot.getCode());
         spot.setFloor(updateSpot.getFloor());
