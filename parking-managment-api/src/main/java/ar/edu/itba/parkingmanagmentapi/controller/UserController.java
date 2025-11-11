@@ -59,7 +59,7 @@ public class UserController {
     public ResponseEntity<?> getCurrentUser() {
         // FIXME: The UserResponse mapping should be done at service layer.
         UserResponse currentUser = securityService.getCurrentUser()
-                .map(UserMapper::toUserResponse)
+                .map(UserResponse::fromDomain)
                 .orElseThrow(() -> new AuthenticationFailedException("No authenticated user found"));
         return ApiResponse.ok(currentUser);
     }

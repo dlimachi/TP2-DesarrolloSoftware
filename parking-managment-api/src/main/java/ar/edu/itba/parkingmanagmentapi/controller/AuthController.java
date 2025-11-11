@@ -2,6 +2,7 @@ package ar.edu.itba.parkingmanagmentapi.controller;
 
 import ar.edu.itba.parkingmanagmentapi.dto.*;
 import ar.edu.itba.parkingmanagmentapi.service.AuthService;
+import ar.edu.itba.parkingmanagmentapi.validators.LoginRequestValidator;
 import ar.edu.itba.parkingmanagmentapi.validators.RegisterRequestValidator;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,12 +20,13 @@ public class AuthController {
     private final AuthService authService;
 
     private final RegisterRequestValidator registerRequestValidator;
+    private final LoginRequestValidator loginRequestValidator;
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest) {
-        logger.info("Procesando login para usuario: {}", loginRequest.getEmail());
+        loginRequestValidator.validate(loginRequest);
 
-        LoginResponse response = authService.login(loginRequest);
+        LoginResponse response = authService.login(loginRequest.getEmail(), loginRequest.getPassword());
 
         return ApiResponse.ok(response);
     }

@@ -35,19 +35,19 @@ public class AuthorizationService {
 
     public boolean isCurrentUserAdmin() {
         return securityService.getCurrentUser()
-                .flatMap(user -> adminRepository.findByUserId(user.getId()))
+                .flatMap(user -> adminRepository.findByUserId(user.id()))
                 .isPresent();
     }
 
     public boolean isCurrentUserManager() {
         return securityService.getCurrentUser()
-                .map(user -> managerService.isUserManager(user.getId()))
+                .map(user -> managerService.isUserManager(user.id()))
                 .orElse(false);
     }
 
     private boolean isCurrentUserRole() {
         return securityService.getCurrentUser()
-                .map(user -> userRepository.existsById(user.getId()))
+                .map(user -> userRepository.existsById(user.id()))
                 .orElse(false);
     }
 
@@ -56,7 +56,7 @@ public class AuthorizationService {
             return false;
         }
         return securityService.getCurrentUser()
-                .map(user -> user.getId().equals(userId))
+                .map(user -> userId.equals(user.id()))
                 .orElse(false);
     }
 
@@ -64,20 +64,20 @@ public class AuthorizationService {
     public boolean isCurrentUserManagerOfParkingLot(Long parkingLotId) {
         return securityService.getCurrentUser()
                 .flatMap(user -> parkingLotService.getManagerOfParkingLot(parkingLotId)
-                        .map(manager -> manager.getId().equals(user.getId())))
+                        .map(manager -> Objects.equals(manager.id(), user.id())))
                 .orElse(false);
     }
 
     public boolean isCurrentUserManagerOfSpot(Long spotId) {
         return securityService.getCurrentUser()
                 .flatMap(user -> spotService.getManagerOfSpot(spotId)
-                        .map(managerUser -> managerUser.getId().equals(user.getId())))
+                        .map(managerUser -> managerUser.getId().equals(user.id())))
                 .orElse(false);
     }
 
     public boolean isCurrentUserOwnerOfVehicle(String licensePlate) {
         return securityService.getCurrentUser()
-                .map(user -> vehicleService.isUserOwnerOfVehicle(user.getId(), licensePlate))
+                .map(user -> vehicleService.isUserOwnerOfVehicle(user.id(), licensePlate))
                 .orElse(false);
     }
 
@@ -85,10 +85,10 @@ public class AuthorizationService {
         return securityService.getCurrentUser()
                 .map(currentUser -> {
                     boolean isOwner = scheduledReservationRepository.findOwnerByReservationId(reservationId)
-                            .map(owner -> owner.getId().equals(currentUser.getId()))
+                            .map(owner -> owner.getId().equals(currentUser.id()))
                             .orElse(false);
                     boolean isManager = scheduledReservationRepository.findManagerByReservationId(reservationId)
-                            .map(manager -> manager.getId().equals(currentUser.getId()))
+                            .map(manager -> manager.getId().equals(currentUser.id()))
                             .orElse(false);
                     return isOwner || isManager;
                 })
@@ -99,10 +99,10 @@ public class AuthorizationService {
         return securityService.getCurrentUser()
                 .map(currentUser -> {
                     boolean isOwner = walkInStayRepository.findOwnerByReservationId(reservationId)
-                            .map(owner -> owner.getId().equals(currentUser.getId()))
+                            .map(owner -> owner.getId().equals(currentUser.id()))
                             .orElse(false);
                     boolean isManager = walkInStayRepository.findManagerByReservationId(reservationId)
-                            .map(manager -> manager.getId().equals(currentUser.getId()))
+                            .map(manager -> manager.getId().equals(currentUser.id()))
                             .orElse(false);
                     return isOwner || isManager;
                 })
@@ -112,7 +112,7 @@ public class AuthorizationService {
     public boolean isCurrentUserManagerOfReservation(Long reservationId) {
         return securityService.getCurrentUser()
                 .map(currentUser -> walkInStayRepository.findManagerByReservationId(reservationId)
-                        .map(manager -> manager.getId().equals(currentUser.getId()))
+                        .map(manager -> manager.getId().equals(currentUser.id()))
                         .orElse(false))
                 .orElse(false);
     }

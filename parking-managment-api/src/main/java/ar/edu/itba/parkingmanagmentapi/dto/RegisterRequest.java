@@ -23,9 +23,10 @@ public class RegisterRequest {
 
     public UserDomain toDomain(boolean isManager) {
         return new UserDomain(
-                this.firstName,
-                this.lastName,
-                this.email,
+                null,
+                firstName,
+                lastName,
+                email,
                 isManager ? UserType.MANAGER : UserType.USER);
     }
 } 

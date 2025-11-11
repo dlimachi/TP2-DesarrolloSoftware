@@ -34,18 +34,16 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final ManagerRepository managerRepository;
     private final PasswordEncoder passwordEncoder;
-    private final LoginRequestValidator loginRequestValidator;
     private final RefreshTokenService refreshTokenService;
 
     /**
      * Authenticates a user and generates a JWT token with all user roles
      */
-    public LoginResponse login(LoginRequest loginRequest) {
-        logger.info("Intento de login para usuario: {}", loginRequest.getEmail());
+    public LoginResponse login(String email, String password) {
+        logger.info("Intento de login para usuario: {}", email);
 
-        loginRequestValidator.validate(loginRequest);
         Authentication authentication = emailAuthProvider.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
+                new UsernamePasswordAuthenticationToken(email, password)
         );
 
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
@@ -57,14 +55,14 @@ public class AuthServiceImpl implements AuthService {
         ).collect(Collectors.toList());
 
         // Generate access token and refresh token
-        String token = jwtUtil.generateTokenWithRoles(loginRequest.getEmail(), roles);
+        String token = jwtUtil.generateTokenWithRoles(email, roles);
         var refreshToken = refreshTokenService.createRefreshToken(user, true);
 
-        logger.info("Login exitoso para usuario: {} con roles: {}", loginRequest.getEmail(), roles);
+        logger.info("Login exitoso para usuario: {} con roles: {}", email, roles);
 
         return LoginResponse.builder()
                 .token(token)
-                .email(loginRequest.getEmail())
+                .email(email)
                 .refreshToken(refreshToken.getToken())
                 .build();
     }

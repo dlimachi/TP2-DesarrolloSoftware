@@ -12,14 +12,8 @@ public interface AuthService {
     /**
      * Authenticates a user and generates a JWT token
      */
-    LoginResponse login(LoginRequest loginRequest);
-    
-    /**
-     * Registers a new user
-     * @param registerRequest the registration data
-     * @param isManager whether to create the user as a manager
-     * @return RegisterResponse with registration details
-     */
+    LoginResponse login(String email, String password);
+
     RegisterResponse register(UserDomain userDomain, String password);
 
     /**
