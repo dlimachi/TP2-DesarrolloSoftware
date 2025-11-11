@@ -6,11 +6,10 @@ import ar.edu.itba.parkingmanagmentapi.domain.repositories.DomainSpotRepository;
 import ar.edu.itba.parkingmanagmentapi.exceptions.BadRequestException;
 import ar.edu.itba.parkingmanagmentapi.exceptions.NotFoundException;
 import ar.edu.itba.parkingmanagmentapi.model.Manager;
-import ar.edu.itba.parkingmanagmentapi.model.ParkingLot;
+import ar.edu.itba.parkingmanagmentapi.domain.ParkingLotDomain;
 import ar.edu.itba.parkingmanagmentapi.model.User;
 import ar.edu.itba.parkingmanagmentapi.repository.ScheduledReservationRepository;
 import ar.edu.itba.parkingmanagmentapi.repository.SpotRepository;
-import ar.edu.itba.parkingmanagmentapi.repository.SpotSpecifications;
 import ar.edu.itba.parkingmanagmentapi.repository.WalkInStayRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -37,7 +36,7 @@ public class SpotServiceImpl implements SpotService {
     @Override
     public SpotDomain createSpot(Long parkingLotId, SpotDomain spotDomain) {
 
-        ParkingLot parkingLotDomain = parkingLotService.findEntityById(parkingLotId);
+        ParkingLotDomain parkingLotDomain = parkingLotService.findById(parkingLotId);
 
         if (domainSpotRepository.existsByParkingLotAndFloorAndCode(parkingLotDomain, spotDomain.getFloor(), spotDomain.getCode())) {
             throw new BadRequestException("spot.already.exists", spotDomain.getCode(), spotDomain.getFloor());
@@ -64,7 +63,7 @@ public class SpotServiceImpl implements SpotService {
                 .filter(s -> s.getParkingLot().getId().equals(parkingLotId))
                 .orElseThrow(() -> new NotFoundException("spot.not.found", id));
 
-        if (domainSpotRepository.existsByParkingLotAndFloorAndCodeAndIdNot(parkingLotService.findEntityById(parkingLotId), updateSpot.getFloor(), updateSpot.getCode(), id)) {
+        if (domainSpotRepository.existsByParkingLotAndFloorAndCodeAndIdNot(parkingLotService.findById(parkingLotId), updateSpot.getFloor(), updateSpot.getCode(), id)) {
             throw new BadRequestException("spot.already.exists", updateSpot.getCode(), updateSpot.getFloor());
         }
 
@@ -103,7 +102,7 @@ public class SpotServiceImpl implements SpotService {
     public Optional<User> getManagerOfSpot(Long spotId) {
         return Optional.of(domainSpotRepository.findById(spotId)
                         .map(spot -> {
-                            ParkingLot parkingLotDomain = spot.getParkingLot();
+                            ParkingLotDomain parkingLotDomain = spot.getParkingLot();
                             if (parkingLotDomain == null) return null;
                             Manager manager = parkingLotDomain.getManager();
                             return manager != null ? manager.getUser() : null;

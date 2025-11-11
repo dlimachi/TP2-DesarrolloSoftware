@@ -1,8 +1,8 @@
 package ar.edu.itba.parkingmanagmentapi.domain.repositories;
 
+import ar.edu.itba.parkingmanagmentapi.domain.ParkingLotDomain;
 import ar.edu.itba.parkingmanagmentapi.domain.SpotDomain;
 import ar.edu.itba.parkingmanagmentapi.dto.enums.VehicleType;
-import ar.edu.itba.parkingmanagmentapi.model.ParkingLot;
 import ar.edu.itba.parkingmanagmentapi.model.Spot;
 import ar.edu.itba.parkingmanagmentapi.repository.SpotRepository;
 import ar.edu.itba.parkingmanagmentapi.repository.SpotSpecifications;
@@ -21,14 +21,14 @@ public class DomainSpotRepositoryImpl implements DomainSpotRepository{
 
     //TODO: Use ParkingLotDomain class
     @Override
-    public boolean existsByParkingLotAndFloorAndCode(ParkingLot parkingLotDomain, int floor, String code) {
-        return spotRepository.existsByParkingLotAndFloorAndCode(parkingLotDomain, floor, code);
+    public boolean existsByParkingLotAndFloorAndCode(ParkingLotDomain parkingLotDomain, int floor, String code) {
+        return spotRepository.existsByParkingLotAndFloorAndCode(parkingLotDomain.toEntity(), floor, code);
     }
 
     //TODO: Use ParkingLotDomain class
     @Override
-    public boolean existsByParkingLotAndFloorAndCodeAndIdNot(ParkingLot parkingLotDomain, Integer floor, String code, Long id) {
-        return spotRepository.existsByParkingLotAndFloorAndCodeAndIdNot(parkingLotDomain, floor, code, id);
+    public boolean existsByParkingLotAndFloorAndCodeAndIdNot(ParkingLotDomain parkingLotDomain, Integer floor, String code, Long id) {
+        return spotRepository.existsByParkingLotAndFloorAndCodeAndIdNot(parkingLotDomain.toEntity(), floor, code, id);
     }
 
     @Override
