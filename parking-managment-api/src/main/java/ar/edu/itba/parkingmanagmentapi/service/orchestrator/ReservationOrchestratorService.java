@@ -4,28 +4,21 @@ import ar.edu.itba.parkingmanagmentapi.config.AppConstants;
 import ar.edu.itba.parkingmanagmentapi.domain.DateTimeRange;
 import ar.edu.itba.parkingmanagmentapi.domain.Reservation;
 import ar.edu.itba.parkingmanagmentapi.domain.ReservationCriteria;
-import ar.edu.itba.parkingmanagmentapi.dto.ReservationResponse;
-import ar.edu.itba.parkingmanagmentapi.dto.ScheduledReservationRequest;
-import ar.edu.itba.parkingmanagmentapi.dto.WalkInStayRequest;
 import ar.edu.itba.parkingmanagmentapi.dto.enums.ReservationStatus;
 import ar.edu.itba.parkingmanagmentapi.exceptions.BadRequestException;
 import ar.edu.itba.parkingmanagmentapi.exceptions.NotFoundException;
-import ar.edu.itba.parkingmanagmentapi.mapper.persistence.ScheduledReservationMapper;
-import ar.edu.itba.parkingmanagmentapi.mapper.persistence.WalkInStayMapper;
 import ar.edu.itba.parkingmanagmentapi.model.*;
 import ar.edu.itba.parkingmanagmentapi.service.*;
-import ar.edu.itba.parkingmanagmentapi.validators.ScheduledReservationRequestValidator;
-import ar.edu.itba.parkingmanagmentapi.validators.WalkInStayRequestValidator;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
 import java.math.BigDecimal;
 import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class ReservationOrchestratorService {
 
     private final ScheduledReservationService scheduledReservationService;
@@ -33,14 +26,6 @@ public class ReservationOrchestratorService {
     private final SpotService spotService;
     private final ParkingPriceService parkingPriceService;
     private final UserVehicleAssignmentService userVehicleAssignmentService;
-
-    public ReservationOrchestratorService(ScheduledReservationService scheduledReservationService, WalkInStayService walkInStayService, SpotService spotService, ParkingPriceService parkingPriceService, UserVehicleAssignmentService userVehicleAssignmentService) {
-        this.scheduledReservationService = scheduledReservationService;
-        this.walkInStayService = walkInStayService;
-        this.spotService = spotService;
-        this.parkingPriceService = parkingPriceService;
-        this.userVehicleAssignmentService = userVehicleAssignmentService;
-    }
 
     public Reservation createWalkInStayReservation(final Reservation reservation) {
         Spot spot = spotService.findEntityById(reservation.getSpotId());
@@ -67,21 +52,18 @@ public class ReservationOrchestratorService {
     public Reservation createScheduledReservation(final Reservation reservation) {
         Spot spot = spotService.findEntityById(reservation.getSpotId());
 
-        var dateRange = DateTimeRange.from(scheduledReservation.getReservedStartTime(), scheduledReservation.getExpectedEndTime());
+        var dateRange = DateTimeRange.from(reservation.getRange().getStart(), reservation.getRange().getEnd());
 
         List<Reservation> overlapping = scheduledReservationService.findBySpotIdAndOverlappingPeriod(
                 spot.getId(),
-                DateTimeRange.from(
-                        reservation.getRange().getStart(),
-                        reservation.getRange().getEnd()
-                )
+                dateRange
         );
 
         if (!overlapping.isEmpty()) {
             throw new BadRequestException("spot.not.available", spot.getId());
         }
 
-        BigDecimal estimatedPrice = parkingPriceService.calculateEstimatedPrice(spot.getParkingLot().getId(), spot.getVehicleType(), DateTimeRange.from(reservation.getRange().getStart(), reservation.getRange().getEnd()));
+        BigDecimal estimatedPrice = parkingPriceService.calculateEstimatedPrice(spot.getParkingLot().getId(), spot.getVehicleType(), dateRange);
 
         UserVehicleAssignment assignment = userVehicleAssignmentService.findOrCreateByUserIdAndLicensePlate(reservation.getUserId(), reservation.getVehicleLicensePlate());
 
