@@ -43,7 +43,7 @@ public class Reservation {
         return entity;
     }
 
-    public Reservation toDomain(WalkInStay entity) {
+    public static Reservation toDomain(WalkInStay entity) {
         return Reservation.builder()
                 .id(entity.getId())
                 .userId(entity.getUserVehicleAssignment().getUser().getId())

@@ -1,4 +1,4 @@
-package ar.edu.itba.parkingmanagmentapi.service;
+package ar.edu.itba.parkingmanagmentapi.repositoryDomain;
 
 import ar.edu.itba.parkingmanagmentapi.domain.Reservation;
 import ar.edu.itba.parkingmanagmentapi.domain.ReservationCriteria;
@@ -6,16 +6,14 @@ import ar.edu.itba.parkingmanagmentapi.dto.enums.ReservationStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
-public interface WalkInStayService {
+public interface WalkInStayDomainRepository {
 
-    Reservation createReservation(Reservation reservation);
+    Reservation save(Reservation reservation);
 
-    Reservation updateReservation(Reservation walkInStay);
-
-    Reservation findById(Long walkInStayId);
+    Reservation findById(Long id);
 
     Reservation updateStatus(Long id, ReservationStatus status);
 
@@ -23,7 +21,5 @@ public interface WalkInStayService {
 
     Reservation extend(Long id, int extraHours);
 
-    Duration getRemainingTime(Long id);
-
-     List<Reservation> getExpiringReservations();
+    List<Reservation> getExpiringReservations(LocalDateTime limitTime);
 }
