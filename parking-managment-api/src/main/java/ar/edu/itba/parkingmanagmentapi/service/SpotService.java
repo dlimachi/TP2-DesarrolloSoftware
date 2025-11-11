@@ -1,9 +1,8 @@
 package ar.edu.itba.parkingmanagmentapi.service;
 
-import ar.edu.itba.parkingmanagmentapi.dto.SpotRequest;
-import ar.edu.itba.parkingmanagmentapi.dto.SpotResponse;
+import ar.edu.itba.parkingmanagmentapi.domain.SpotDomain;
+
 import ar.edu.itba.parkingmanagmentapi.dto.enums.VehicleType;
-import ar.edu.itba.parkingmanagmentapi.model.Spot;
 import ar.edu.itba.parkingmanagmentapi.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -11,23 +10,24 @@ import org.springframework.data.domain.Pageable;
 import java.util.Optional;
 
 public interface SpotService {
-    SpotResponse createSpot(Long parkingLotId, SpotRequest request);
+    SpotDomain createSpot(Long parkingLotId , SpotDomain spotDomain);
 
-    SpotResponse findById(Long parkingLotId, Long id);
+    SpotDomain findById(Long parkingLotId, Long id);
 
-    SpotResponse updateSpot(Long parkingLotId, Long id, SpotRequest request);
+    SpotDomain updateSpot(Long parkingLotId, Long id, SpotDomain spotDomain);
 
     void deleteSpot(Long parkingLotId, Long id);
 
+    //TODO: Chango to use UserDomain!!
     Optional<User> getManagerOfSpot(Long spotId);
 
-    Page<SpotResponse> findByFilters(Long parkingLotId, Boolean available, VehicleType vehicleType, Integer floor, Boolean isAccessible, Boolean isReservable, Pageable pageable);
+    Page<SpotDomain> findByFilters(Long parkingLotId, Boolean available, VehicleType vehicleType, Integer floor, Boolean isAccessible, Boolean isReservable, Pageable pageable);
 
     // -------------------------- RAW ENTITIES --------------------------
 
-    Spot findEntityById(Long spotId);
+    SpotDomain findEntityById(Long spotId);
 
-    Spot updateEntity(Spot spot);
+    SpotDomain updateEntity(SpotDomain spotDomain);
 
     boolean toggleAvailability(Long spotId);
 
