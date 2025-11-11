@@ -1,20 +1,18 @@
 package ar.edu.itba.parkingmanagmentapi.service;
 
-import ar.edu.itba.parkingmanagmentapi.dto.SpotRequest;
-import ar.edu.itba.parkingmanagmentapi.dto.SpotResponse;
+import ar.edu.itba.parkingmanagmentapi.domain.SpotDomain;
 import ar.edu.itba.parkingmanagmentapi.dto.enums.VehicleType;
+import ar.edu.itba.parkingmanagmentapi.domain.repositories.DomainSpotRepository;
 import ar.edu.itba.parkingmanagmentapi.exceptions.BadRequestException;
 import ar.edu.itba.parkingmanagmentapi.exceptions.NotFoundException;
 import ar.edu.itba.parkingmanagmentapi.model.Manager;
 import ar.edu.itba.parkingmanagmentapi.model.ParkingLot;
-import ar.edu.itba.parkingmanagmentapi.model.Spot;
 import ar.edu.itba.parkingmanagmentapi.model.User;
 import ar.edu.itba.parkingmanagmentapi.repository.ScheduledReservationRepository;
 import ar.edu.itba.parkingmanagmentapi.repository.SpotRepository;
 import ar.edu.itba.parkingmanagmentapi.repository.SpotSpecifications;
 import ar.edu.itba.parkingmanagmentapi.repository.WalkInStayRepository;
-import ar.edu.itba.parkingmanagmentapi.util.ParkingLotMapper;
-import ar.edu.itba.parkingmanagmentapi.validators.SpotRequestValidator;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.authorization.AuthorizationDeniedException;
@@ -25,136 +23,122 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class SpotServiceImpl implements SpotService {
 
     private final SpotRepository spotRepository;
+    private final DomainSpotRepository domainSpotRepository;
     private final ParkingLotService parkingLotService;
-    private final SpotRequestValidator spotRequestValidator;
     private final ScheduledReservationRepository scheduledReservationRepository;
     private final WalkInStayRepository walkInStayRepository;
 
-    public SpotServiceImpl(SpotRepository spotRepository, ParkingLotService parkingLotService, SpotRequestValidator spotRequestValidator, ScheduledReservationRepository scheduledReservationRepository, WalkInStayRepository walkInStayRepository) {
-        this.spotRepository = spotRepository;
-        this.parkingLotService = parkingLotService;
-        this.spotRequestValidator = spotRequestValidator;
-        this.scheduledReservationRepository = scheduledReservationRepository;
-        this.walkInStayRepository = walkInStayRepository;
-    }
+
 
     @Override
-    public SpotResponse createSpot(Long parkingLotId, SpotRequest request) {
-        spotRequestValidator.validate(request);
+    public SpotDomain createSpot(Long parkingLotId, SpotDomain spotDomain) {
 
-        ParkingLot parkingLot = parkingLotService.findEntityById(parkingLotId);
+        ParkingLot parkingLotDomain = parkingLotService.findEntityById(parkingLotId);
 
-        if (spotRepository.existsByParkingLotAndFloorAndCode(parkingLot, request.getFloor(), request.getCode())) {
-            throw new BadRequestException("spot.already.exists", request.getCode(), request.getFloor());
+        if (domainSpotRepository.existsByParkingLotAndFloorAndCode(parkingLotDomain, spotDomain.getFloor(), spotDomain.getCode())) {
+            throw new BadRequestException("spot.already.exists", spotDomain.getCode(), spotDomain.getFloor());
         }
 
-        Spot spot = new Spot();
-        spot.setVehicleType(VehicleType.fromName(request.getVehicleType()));
-        spot.setFloor(request.getFloor());
-        spot.setCode(request.getCode());
-        spot.setIsAvailable(true);
-        spot.setIsReservable(request.getIsReservable());
-        spot.setIsAccessible(request.getIsAccessible());
-        spot.setParkingLot(parkingLot);
-        spot.setIsReservable(request.getIsReservable());
+        spotDomain.setParkingLot(parkingLotDomain);
+        spotDomain.setIsReservable(spotDomain.getIsReservable());
 
-        return ParkingLotMapper.toSpotResponse(spotRepository.save(spot));
+        return domainSpotRepository.save(spotDomain);
     }
 
     @Override
-    public SpotResponse findById(Long parkingLotId, Long id) {
-        return spotRepository.findById(id)
+    public SpotDomain findById(Long parkingLotId, Long id) {
+        return domainSpotRepository.findById(id)
                 .filter(spot -> spot.getParkingLot().getId().equals(parkingLotId))
-                .map(ParkingLotMapper::toSpotResponse)
                 .orElseThrow(() -> new NotFoundException("spot.not.found", id));
     }
 
     @Override
     @Transactional
-    public SpotResponse updateSpot(Long parkingLotId, Long id, SpotRequest request) {
+    public SpotDomain updateSpot(Long parkingLotId, Long id, SpotDomain spotDomain) {
 
-        Spot spot = spotRepository.findById(id)
+        SpotDomain spot = domainSpotRepository.findById(id)
                 .filter(s -> s.getParkingLot().getId().equals(parkingLotId))
                 .orElseThrow(() -> new NotFoundException("spot.not.found", id));
 
-        if (spotRepository.existsByParkingLotAndFloorAndCodeAndIdNot(parkingLotService.findEntityById(parkingLotId), request.getFloor(), request.getCode(), id)) {
-            throw new BadRequestException("spot.already.exists", request.getCode(), request.getFloor());
+        if (domainSpotRepository.existsByParkingLotAndFloorAndCodeAndIdNot(parkingLotService.findEntityById(parkingLotId), spotDomain.getFloor(), spotDomain.getCode(), id)) {
+            throw new BadRequestException("spot.already.exists", spotDomain.getCode(), spotDomain.getFloor());
         }
 
-        spot.setVehicleType(VehicleType.fromName(request.getVehicleType()));
-        spot.setCode(request.getCode());
-        spot.setFloor(request.getFloor());
-        spot.setIsReservable(request.getIsReservable());
-        spot.setIsAccessible(request.getIsAccessible());
+        //TODO: Porque pueden cambiar todos los campos, porque cambiarias el tipo de vehículo que podes estacionar o el código del spot?
+        spot.setVehicleType(VehicleType.fromName(spotDomain.getVehicleType().getName()));
+        spot.setCode(spotDomain.getCode());
+        spot.setFloor(spotDomain.getFloor());
+        spot.setIsReservable(spotDomain.getIsReservable());
+        spot.setIsAccessible(spotDomain.getIsAccessible());
 
-        return ParkingLotMapper.toSpotResponse(spotRepository.save(spot));
+        return domainSpotRepository.save(spot);
     }
 
     @Transactional
     @Override
     public void deleteSpot(Long parkingLotId, Long id) {
-        Spot spot = spotRepository.findById(id)
+        SpotDomain spotDomain = domainSpotRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("spot.not.found", id));
 
-        boolean hasFutureScheduledReservations = scheduledReservationRepository.existsBySpotIdAndReservedStartTimeAfter(spot.getId(), LocalDateTime.now());
-        if (hasFutureScheduledReservations || !spot.getIsAvailable()) {
+        boolean hasFutureScheduledReservations = scheduledReservationRepository.existsBySpotIdAndReservedStartTimeAfter(spotDomain.getId(), LocalDateTime.now());
+        if (hasFutureScheduledReservations || !spotDomain.getIsAvailable()) {
             throw new IllegalStateException("Cannot delete spot: it has future scheduled reservations or is currently occupied");
         }
         // Actualizar los snapshots de las reservas antes de eliminarlo
         scheduledReservationRepository.updateSpotSnapshot(
-                spot.getId(), spot.getCode(), spot.getFloor()
+                spotDomain.getId(), spotDomain.getCode(), spotDomain.getFloor()
         );
         walkInStayRepository.updateSpotSnapshot(
-                spot.getId(), spot.getCode(), spot.getFloor()
+                spotDomain.getId(), spotDomain.getCode(), spotDomain.getFloor()
         );
 
-        spotRepository.delete(spot);
+        domainSpotRepository.delete(spotDomain);
     }
 
     @Override
     public Optional<User> getManagerOfSpot(Long spotId) {
-        return Optional.of(spotRepository.findById(spotId)
+        return Optional.of(domainSpotRepository.findById(spotId)
                         .map(spot -> {
-                            ParkingLot parkingLot = spot.getParkingLot();
-                            if (parkingLot == null) return null;
-                            Manager manager = parkingLot.getManager();
+                            ParkingLot parkingLotDomain = spot.getParkingLot();
+                            if (parkingLotDomain == null) return null;
+                            Manager manager = parkingLotDomain.getManager();
                             return manager != null ? manager.getUser() : null;
                         }))
                 .orElseThrow(() -> new AuthorizationDeniedException("Manager is not authorized to access this spot"));
     }
 
     @Override
-    public Page<SpotResponse> findByFilters(Long parkingLotId, Boolean available, VehicleType vehicleType, Integer floor, Boolean isAccessible, Boolean isReservable, Pageable pageable) {
-        return spotRepository.findAll(SpotSpecifications.withFilters(parkingLotId, available, vehicleType, floor, isAccessible, isReservable), pageable)
-                .map(ParkingLotMapper::toSpotResponse);
+    public Page<SpotDomain> findByFilters(Long parkingLotId, Boolean available, VehicleType vehicleType, Integer floor, Boolean isAccessible, Boolean isReservable, Pageable pageable) {
+        return domainSpotRepository.findAll(parkingLotId, available, vehicleType, floor, isAccessible, isReservable, pageable);
     }
 
     // -------------------------- RAW ENTITIES --------------------------
 
 
     @Override
-    public Spot findEntityById(Long spotId) {
-        return spotRepository.findById(spotId).orElseThrow(() -> new NotFoundException("spot.not.found", spotId));
+    public SpotDomain findEntityById(Long spotId) {
+        return domainSpotRepository.findById(spotId).orElseThrow(() -> new NotFoundException("spot.not.found", spotId));
     }
 
     @Override
-    public Spot updateEntity(Spot spot) {
-        return spotRepository.save(spot);
+    public SpotDomain updateEntity(SpotDomain spotDomain) {
+        return domainSpotRepository.save(spotDomain);
     }
 
     @Override
     public boolean toggleAvailability(Long spotId) {
-        Spot spot = findEntityById(spotId);
-        spot.setIsAvailable(!spot.getIsAvailable());
-        return spotRepository.save(spot).getIsAvailable();
+        SpotDomain spotDomain = findEntityById(spotId);
+        spotDomain.setIsAvailable(!spotDomain.getIsAvailable());
+        return domainSpotRepository.save(spotDomain).getIsAvailable();
     }
 
     @Override
     public boolean isAvailable(Long spotId) {
-        return spotRepository.findById(spotId).orElseThrow(() -> new NotFoundException("spot.not.found", spotId)).getIsAvailable();
+        return domainSpotRepository.findById(spotId).orElseThrow(() -> new NotFoundException("spot.not.found", spotId)).getIsAvailable();
     }
 
 }

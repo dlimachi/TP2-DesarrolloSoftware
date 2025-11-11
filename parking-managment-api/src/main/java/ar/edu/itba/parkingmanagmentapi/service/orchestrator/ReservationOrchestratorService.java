@@ -4,6 +4,7 @@ import ar.edu.itba.parkingmanagmentapi.config.AppConstants;
 import ar.edu.itba.parkingmanagmentapi.domain.DateTimeRange;
 import ar.edu.itba.parkingmanagmentapi.domain.Reservation;
 import ar.edu.itba.parkingmanagmentapi.domain.ReservationCriteria;
+import ar.edu.itba.parkingmanagmentapi.domain.SpotDomain;
 import ar.edu.itba.parkingmanagmentapi.dto.enums.ReservationStatus;
 import ar.edu.itba.parkingmanagmentapi.exceptions.BadRequestException;
 import ar.edu.itba.parkingmanagmentapi.exceptions.NotFoundException;
@@ -28,7 +29,7 @@ public class ReservationOrchestratorService {
     private final UserVehicleAssignmentService userVehicleAssignmentService;
 
     public Reservation createWalkInStayReservation(final Reservation reservation) {
-        Spot spot = spotService.findEntityById(reservation.getSpotId());
+        SpotDomain spot = spotService.findEntityById(reservation.getSpotId());
 
         if (!parkingPriceService.existsActiveByParkingLotIdAndVehicleType(spot.getParkingLot().getId(), spot.getVehicleType())) {
             throw new NotFoundException("There are no active prices for this type of vehicle in the parking lot");
@@ -40,7 +41,7 @@ public class ReservationOrchestratorService {
         stay.setCheckInTime(reservation.getRange().getStart());
         stay.setExpectedEndTime(reservation.getRange().getEnd());
         stay.setStatus(ReservationStatus.ACTIVE);
-        stay.setSpot(spot);
+        stay.setSpot(spot.toEntity());
         stay.setCheckOutTime(null);
         stay.setUserVehicleAssignment(assignment);
 
@@ -50,7 +51,7 @@ public class ReservationOrchestratorService {
     }
 
     public Reservation createScheduledReservation(final Reservation reservation) {
-        Spot spot = spotService.findEntityById(reservation.getSpotId());
+        SpotDomain spot = spotService.findEntityById(reservation.getSpotId());
 
         var dateRange = DateTimeRange.from(reservation.getRange().getStart(), reservation.getRange().getEnd());
 
@@ -72,7 +73,7 @@ public class ReservationOrchestratorService {
         scheduledReservation.setExpectedEndTime(reservation.getRange().getEnd());
         scheduledReservation.setEstimatedPrice(estimatedPrice);
         scheduledReservation.setStatus(ReservationStatus.PENDING);
-        scheduledReservation.setSpot(spot);
+        scheduledReservation.setSpot(spot.toEntity());
         scheduledReservation.setUserVehicleAssignment(assignment);
 
         return scheduledReservationService.create(scheduledReservation);

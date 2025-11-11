@@ -1,11 +1,14 @@
 package ar.edu.itba.parkingmanagmentapi.controller;
 
+import ar.edu.itba.parkingmanagmentapi.domain.SpotDomain;
 import ar.edu.itba.parkingmanagmentapi.dto.ApiResponse;
 import ar.edu.itba.parkingmanagmentapi.dto.PageResponse;
 import ar.edu.itba.parkingmanagmentapi.dto.SpotRequest;
 import ar.edu.itba.parkingmanagmentapi.dto.SpotResponse;
 import ar.edu.itba.parkingmanagmentapi.dto.enums.VehicleType;
 import ar.edu.itba.parkingmanagmentapi.service.SpotService;
+import ar.edu.itba.parkingmanagmentapi.validators.SpotRequestValidator;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -15,32 +18,35 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/parking-lots/{parkingLotId}/spots")
 @CrossOrigin(origins = "*")
+@RequiredArgsConstructor
 public class SpotController {
 
     private final SpotService spotService;
-
-    public SpotController(SpotService spotService) {
-        this.spotService = spotService;
-    }
+    private final SpotRequestValidator spotRequestValidator;
 
     @PostMapping
     @PreAuthorize("@authorizationService.isCurrentUserManagerOfParkingLot(#parkingLotId)")
-    public ResponseEntity<?> createSpot(@PathVariable Long parkingLotId, @RequestBody SpotRequest spot) {
-        SpotResponse createdSpot = spotService.createSpot(parkingLotId, spot);
+    public ResponseEntity<?> createSpot(@PathVariable Long parkingLotId, @RequestBody SpotRequest spotRequest) {
+        spotRequestValidator.validate(spotRequest);
+        SpotDomain spotDomain = spotRequest.toDomain(spotRequest);
+        SpotDomain result = spotService.createSpot(parkingLotId, spotDomain);
+        SpotResponse createdSpot = SpotResponse.fromDomain(result);
         return ApiResponse.created(createdSpot);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getSpotById(@PathVariable Long parkingLotId, @PathVariable Long id) {
-        SpotResponse spot = spotService.findById(parkingLotId, id);
-        return ApiResponse.ok(spot);
+        SpotDomain spotDomain = spotService.findById(parkingLotId, id);
+        SpotResponse spotResponse = SpotResponse.fromDomain(spotDomain);
+        return ApiResponse.ok(spotResponse);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("@authorizationService.isCurrentUserManagerOfSpot(#id)")
-    public ResponseEntity<?> updateSpot(@PathVariable Long parkingLotId, @PathVariable Long id, @RequestBody SpotRequest spot) {
-        SpotResponse updatedSpot = spotService.updateSpot(parkingLotId, id, spot);
-        return ApiResponse.ok(updatedSpot);
+    public ResponseEntity<?> updateSpot(@PathVariable Long parkingLotId, @PathVariable Long id, @RequestBody SpotDomain spotDomain) {
+        SpotDomain updatedSpotDomain = spotService.updateSpot(parkingLotId, id, spotDomain);
+        SpotResponse spotResponse = SpotResponse.fromDomain(updatedSpotDomain);
+        return ApiResponse.ok(spotResponse);
     }
 
     @DeleteMapping("/{id}")
@@ -59,10 +65,11 @@ public class SpotController {
             @RequestParam(required = false) Boolean isAccessible,
             @RequestParam(required = false) Boolean isReservable,
             Pageable pageable) {
-        VehicleType vehicleTypeEnum = vehicleType != null && !vehicleType.isBlank() 
-                ? VehicleType.fromName(vehicleType) 
+        VehicleType vehicleTypeEnum = vehicleType != null && !vehicleType.isBlank()
+                ? VehicleType.fromName(vehicleType)
                 : null;
-        Page<SpotResponse> spots = spotService.findByFilters(parkingLotId, available, vehicleTypeEnum, floor, isAccessible, isReservable, pageable);
+        Page<SpotDomain> spots = spotService.findByFilters(parkingLotId, available, vehicleTypeEnum, floor, isAccessible, isReservable, pageable);
+        Page<SpotResponse> spotResponses = spots.map(SpotResponse::fromDomain);
         return ApiResponse.ok(PageResponse.of(spots));
     }
 }
