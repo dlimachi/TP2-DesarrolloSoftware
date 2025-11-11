@@ -5,9 +5,7 @@ import ar.edu.itba.parkingmanagmentapi.domain.SpotDomain;
 import ar.edu.itba.parkingmanagmentapi.dto.enums.VehicleType;
 import ar.edu.itba.parkingmanagmentapi.model.ParkingLot;
 import ar.edu.itba.parkingmanagmentapi.model.Spot;
-import ar.edu.itba.parkingmanagmentapi.repository.ParkingLotRepository;
-import ar.edu.itba.parkingmanagmentapi.repository.SpotRepository;
-import ar.edu.itba.parkingmanagmentapi.repository.SpotSpecifications;
+import ar.edu.itba.parkingmanagmentapi.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,6 +20,8 @@ public class DomainSpotRepositoryImpl implements DomainSpotRepository{
 
     private final SpotRepository spotRepository;
     private final ParkingLotRepository parkingLotRepository;
+    private final ScheduledReservationRepository scheduledReservationRepository;
+    private final WalkInStayRepository walkInStayRepository;
 
     @Override
     public boolean existsByParkingLotAndFloorAndCode(ParkingLotDomain parkingLotDomain, int floor, String code) {

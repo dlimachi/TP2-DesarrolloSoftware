@@ -22,4 +22,6 @@ public interface WalkInStayDomainRepository {
     Reservation extend(Long id, int extraHours);
 
     List<Reservation> getExpiringReservations(LocalDateTime limitTime);
+
+    void updateSpotSnapshot(Long spotId, String code, Integer floor);
 }

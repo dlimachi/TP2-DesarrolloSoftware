@@ -75,4 +75,9 @@ public class WalkInStayDomainRepositoryImpl implements WalkInStayDomainRepositor
                 .map(Reservation::toDomain)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public void updateSpotSnapshot(Long spotId, String code, Integer floor) {
+        walkInStayRepository.updateSpotSnapshot(spotId, code, floor);
+    }
 }

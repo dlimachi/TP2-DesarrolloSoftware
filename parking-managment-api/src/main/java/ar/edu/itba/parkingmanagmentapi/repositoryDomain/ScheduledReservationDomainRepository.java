@@ -22,4 +22,8 @@ public interface ScheduledReservationDomainRepository {
 
     List<Reservation> checkInReservation(LocalDateTime checkInTime);
 
+    boolean existsBySpotIdAndReservedStartTimeAfter(Long spotId, LocalDateTime time);
+
+    void updateSpotSnapshot(Long spotId, String code, Integer floor);
+
 }

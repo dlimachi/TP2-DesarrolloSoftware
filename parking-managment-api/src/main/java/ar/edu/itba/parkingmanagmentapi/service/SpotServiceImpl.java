@@ -8,9 +8,8 @@ import ar.edu.itba.parkingmanagmentapi.exceptions.NotFoundException;
 import ar.edu.itba.parkingmanagmentapi.model.Manager;
 import ar.edu.itba.parkingmanagmentapi.domain.ParkingLotDomain;
 import ar.edu.itba.parkingmanagmentapi.model.User;
-import ar.edu.itba.parkingmanagmentapi.repository.ScheduledReservationRepository;
-import ar.edu.itba.parkingmanagmentapi.repository.SpotRepository;
-import ar.edu.itba.parkingmanagmentapi.repository.WalkInStayRepository;
+import ar.edu.itba.parkingmanagmentapi.repositoryDomain.ScheduledReservationDomainRepositoryImpl;
+import ar.edu.itba.parkingmanagmentapi.repositoryDomain.WalkInStayDomainRepositoryImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,11 +25,10 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class SpotServiceImpl implements SpotService {
 
-    private final SpotRepository spotRepository;
     private final DomainSpotRepository domainSpotRepository;
+    private final ScheduledReservationDomainRepositoryImpl scheduledReservationDomainRepository;
+    private final WalkInStayDomainRepositoryImpl walkInStayDomainRepository;
     private final ParkingLotService parkingLotService;
-    private final ScheduledReservationRepository scheduledReservationRepository;
-    private final WalkInStayRepository walkInStayRepository;
 
 
 
@@ -85,15 +83,15 @@ public class SpotServiceImpl implements SpotService {
                 .orElseThrow(() -> new NotFoundException("spot.not.found", id));
         ParkingLotDomain parkingLotDomain = parkingLotService.findById(parkingLotId);
 
-        boolean hasFutureScheduledReservations = scheduledReservationRepository.existsBySpotIdAndReservedStartTimeAfter(spotDomain.getId(), LocalDateTime.now());
+        boolean hasFutureScheduledReservations = scheduledReservationDomainRepository.existsBySpotIdAndReservedStartTimeAfter(spotDomain.getId(), LocalDateTime.now());
         if (hasFutureScheduledReservations || !spotDomain.getIsAvailable()) {
             throw new IllegalStateException("Cannot delete spot: it has future scheduled reservations or is currently occupied");
         }
         // Actualizar los snapshots de las reservas antes de eliminarlo
-        scheduledReservationRepository.updateSpotSnapshot(
+        scheduledReservationDomainRepository.updateSpotSnapshot(
                 spotDomain.getId(), spotDomain.getCode(), spotDomain.getFloor()
         );
-        walkInStayRepository.updateSpotSnapshot(
+        walkInStayDomainRepository.updateSpotSnapshot(
                 spotDomain.getId(), spotDomain.getCode(), spotDomain.getFloor()
         );
 
