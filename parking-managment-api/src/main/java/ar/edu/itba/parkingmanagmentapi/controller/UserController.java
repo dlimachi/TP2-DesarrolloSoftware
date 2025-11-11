@@ -3,62 +3,44 @@ package ar.edu.itba.parkingmanagmentapi.controller;
 import ar.edu.itba.parkingmanagmentapi.dto.*;
 import ar.edu.itba.parkingmanagmentapi.exceptions.AuthenticationFailedException;
 import ar.edu.itba.parkingmanagmentapi.security.service.SecurityService;
-import ar.edu.itba.parkingmanagmentapi.service.UserService;
-import ar.edu.itba.parkingmanagmentapi.service.VehicleService;
+import ar.edu.itba.parkingmanagmentapi.service.orchestrator.UserOrchestratorService;
 import ar.edu.itba.parkingmanagmentapi.util.UserMapper;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
 @RequestMapping("/users")
 @CrossOrigin(origins = "*")
+@RequiredArgsConstructor
 public class UserController {
 
-    private final UserService userService;
     private final SecurityService securityService;
-
-    private final VehicleService vehicleService;
-
-
-    public UserController(UserService userService, SecurityService securityService, VehicleService vehicleService) {
-        this.userService = userService;
-        this.securityService = securityService;
-        this.vehicleService = vehicleService;
-    }
-
-    /**
-     * Crea un nuevo usuario
-     */
-    @PostMapping
-    public ResponseEntity<?> createUser(@Valid @RequestBody CreateUserRequest user) {
-        UserResponse createdUser = userService.createUser(user);
-        return ApiResponse.created(createdUser);
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getUserById(@PathVariable Long id) {
-        UserResponse user = userService.findById(id);
-        return ApiResponse.ok(user);
-    }
+    private final UserOrchestratorService userOrchestratorService;
 
     @PutMapping("/{id}")
     @PreAuthorize("@authorizationService.isCurrentUser(#id)")
     public ResponseEntity<?> updateUser(
             @PathVariable Long id,
             @Valid @RequestBody UpdateUserRequest userDetails) {
-        UserResponse updatedUser = userService.updateUser(id, userDetails);
+        UserResponse updatedUser = userOrchestratorService.updateUser(id, userDetails);
         return ApiResponse.ok(updatedUser);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getUserById(@PathVariable Long id) {
+        UserResponse user = userOrchestratorService.getUserById(id);
+        return ApiResponse.ok(user);
     }
 
 
     @DeleteMapping("/{id}")
     @PreAuthorize("@authorizationService.isCurrentUser(#id)")
     public ResponseEntity<?> deleteUser(@PathVariable Long id) {
-        userService.deleteUser(id);
+        userOrchestratorService.deleteUser(id);
         return ApiResponse.noContent();
     }
 
@@ -66,7 +48,9 @@ public class UserController {
 
     @GetMapping("/{id}/vehicles")
     public ResponseEntity<?> getAllVehicles(@PathVariable Long id) {
-        List<VehicleResponse> response = vehicleService.findAllVehiclesByUser(id);
+        List<VehicleResponse> response = userOrchestratorService.findAllVehiclesByUser(id).stream()
+                .map(VehicleResponse::fromDomain)
+                .toList();
         return ApiResponse.ok(response);
     }
 
@@ -82,7 +66,7 @@ public class UserController {
 
     @GetMapping("/email/{email}")
     public ResponseEntity<?> getUserByEmail(@PathVariable String email) {
-        UserResponse user = userService.findByEmail(email);
+        UserResponse user = userOrchestratorService.findByEmail(email);
         return ApiResponse.ok(user);
     }
 

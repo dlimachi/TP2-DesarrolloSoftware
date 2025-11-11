@@ -2,6 +2,7 @@ package ar.edu.itba.parkingmanagmentapi.dto;
 
 import lombok.*;
 
+
 @Getter
 @Setter
 @Builder

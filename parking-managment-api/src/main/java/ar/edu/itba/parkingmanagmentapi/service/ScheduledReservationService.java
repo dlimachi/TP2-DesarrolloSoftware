@@ -1,6 +1,7 @@
 package ar.edu.itba.parkingmanagmentapi.service;
 
 import ar.edu.itba.parkingmanagmentapi.domain.DateTimeRange;
+import ar.edu.itba.parkingmanagmentapi.domain.Reservation;
 import ar.edu.itba.parkingmanagmentapi.domain.ReservationCriteria;
 import ar.edu.itba.parkingmanagmentapi.dto.enums.ReservationStatus;
 import ar.edu.itba.parkingmanagmentapi.model.ScheduledReservation;
@@ -12,15 +13,15 @@ import java.util.List;
 
 public interface ScheduledReservationService {
 
-    ScheduledReservation create(ScheduledReservation scheduledReservation);
+    Reservation create(ScheduledReservation scheduledReservation);
 
-    ScheduledReservation updateStatus(Long reservationId, ReservationStatus status);
+    Reservation updateStatus(Long reservationId, ReservationStatus status);
 
-    ScheduledReservation findById(Long id);
+    Reservation findById(Long id);
 
-    List<ScheduledReservation> findBySpotIdAndOverlappingPeriod(Long spotId, DateTimeRange period);
+    List<Reservation> findBySpotIdAndOverlappingPeriod(Long spotId, DateTimeRange period);
 
-    Page<ScheduledReservation> findByCriteria(ReservationCriteria reservationCriteria, Pageable pageable);
+    Page<Reservation> findByCriteria(ReservationCriteria reservationCriteria, Pageable pageable);
 
-    List<ScheduledReservation> checkInReservation(LocalDateTime checkInTime);
+    List<Reservation> checkInReservation(LocalDateTime checkInTime);
 }

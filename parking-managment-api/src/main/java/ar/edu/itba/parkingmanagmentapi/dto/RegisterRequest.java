@@ -1,5 +1,7 @@
 package ar.edu.itba.parkingmanagmentapi.dto;
 
+import ar.edu.itba.parkingmanagmentapi.domain.UserDomain;
+import ar.edu.itba.parkingmanagmentapi.domain.enums.UserType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,4 +21,11 @@ public class RegisterRequest {
 
     private String password;
 
+    public UserDomain toDomain(boolean isManager) {
+        return new UserDomain(
+                this.firstName,
+                this.lastName,
+                this.email,
+                isManager ? UserType.MANAGER : UserType.USER);
+    }
 } 

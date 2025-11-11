@@ -2,7 +2,9 @@ package ar.edu.itba.parkingmanagmentapi.controller;
 
 import ar.edu.itba.parkingmanagmentapi.dto.*;
 import ar.edu.itba.parkingmanagmentapi.service.AuthService;
+import ar.edu.itba.parkingmanagmentapi.validators.RegisterRequestValidator;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -10,14 +12,13 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
+@RequiredArgsConstructor
 public class AuthController {
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
     private final AuthService authService;
 
-    public AuthController(AuthService authService) {
-        this.authService = authService;
-    }
+    private final RegisterRequestValidator registerRequestValidator;
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest) {
@@ -32,10 +33,11 @@ public class AuthController {
     public ResponseEntity<?> register(
             @Valid @RequestBody RegisterRequest registerRequest,
             @RequestParam(value = "manager", defaultValue = "false") boolean isManager) {
+        registerRequestValidator.validate(registerRequest);
 
-        logger.info("Procesando registro para usuario: {} como manager: {}", registerRequest.getEmail(), isManager);
-
-        RegisterResponse response = authService.register(registerRequest, isManager);
+        RegisterResponse response = authService.register(
+                registerRequest.toDomain(isManager),
+                registerRequest.getPassword());
 
         return ApiResponse.created(response);
     }

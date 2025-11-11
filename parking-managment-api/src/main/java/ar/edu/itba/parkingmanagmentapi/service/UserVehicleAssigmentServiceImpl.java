@@ -14,12 +14,21 @@ public class UserVehicleAssigmentServiceImpl implements UserVehicleAssignmentSer
 
     private final UserVehicleAssignmentRepository userVehicleAssignmentRepository;
     private final UserRepository userRepository;
+
     private final VehicleRepository vehicleRepository;
 
     public UserVehicleAssigmentServiceImpl(UserVehicleAssignmentRepository userVehicleAssignmentRepository, UserRepository userRepository, VehicleRepository vehicleRepository) {
         this.userVehicleAssignmentRepository = userVehicleAssignmentRepository;
         this.userRepository = userRepository;
         this.vehicleRepository = vehicleRepository;
+    }
+
+    @Override
+    public UserVehicleAssignment create(Long userId, String licensePlate) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("This user does not exist"));
+        Vehicle vehicle = vehicleRepository.findByLicensePlate(licensePlate).orElseThrow(() -> new NotFoundException("This vehicle does not exist"));
+
+        return new UserVehicleAssignment(user, vehicle);
     }
 
     @Override
@@ -32,5 +41,12 @@ public class UserVehicleAssigmentServiceImpl implements UserVehicleAssignmentSer
 
                     return userVehicleAssignmentRepository.save(new UserVehicleAssignment(user, vehicle));
                 });
+    }
+
+    @Override
+    public UserVehicleAssignment findByUserIdAndLicensePlate(Long userId, String licensePlate) {
+        return userVehicleAssignmentRepository
+                .findByUserIdAndVehicleLicensePlate(userId, licensePlate)
+                .orElse(null);
     }
 }

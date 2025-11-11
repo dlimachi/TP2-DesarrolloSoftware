@@ -1,5 +1,6 @@
 package ar.edu.itba.parkingmanagmentapi.service;
 
+import ar.edu.itba.parkingmanagmentapi.domain.Reservation;
 import ar.edu.itba.parkingmanagmentapi.domain.ReservationCriteria;
 import ar.edu.itba.parkingmanagmentapi.dto.enums.ReservationStatus;
 import ar.edu.itba.parkingmanagmentapi.model.WalkInStay;
@@ -11,19 +12,19 @@ import java.util.List;
 
 public interface WalkInStayService {
 
-    WalkInStay createReservation(WalkInStay walkInStay);
+    Reservation createReservation(Reservation reservation);
 
-    WalkInStay updateReservation(WalkInStay walkInStay);
+    Reservation updateReservation(WalkInStay walkInStay);
 
-    WalkInStay findById(Long walkInStayId);
+    Reservation findById(Long walkInStayId);
 
-    WalkInStay updateStatus(Long id, ReservationStatus status);
+    Reservation updateStatus(Long id, ReservationStatus status);
 
-    Page<WalkInStay> findByCriteria(ReservationCriteria reservationCriteria, Pageable pageable);
+    Page<Reservation> findByCriteria(ReservationCriteria reservationCriteria, Pageable pageable);
 
-    WalkInStay extend(Long id, int extraHours);
+    Reservation extend(Long id, int extraHours);
 
     Duration getRemainingTime(Long id);
 
-     List<WalkInStay> getExpiringReservations();
+     List<Reservation> getExpiringReservations();
 }

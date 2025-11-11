@@ -1,20 +1,20 @@
 package ar.edu.itba.parkingmanagmentapi.service;
 
-import ar.edu.itba.parkingmanagmentapi.dto.VehicleRequest;
+import ar.edu.itba.parkingmanagmentapi.domain.VehicleDomain;
 import ar.edu.itba.parkingmanagmentapi.dto.VehicleResponse;
+import ar.edu.itba.parkingmanagmentapi.model.UserVehicleAssignment;
 import ar.edu.itba.parkingmanagmentapi.model.Vehicle;
-
 import java.util.List;
 
 public interface VehicleService {
 
-    VehicleResponse create(VehicleRequest request);
+    VehicleDomain create(VehicleDomain request, UserVehicleAssignment vehicleAssignment);
 
-    VehicleResponse findByLicensePlate(String licensePlate);
+    VehicleDomain  findByLicensePlate(String licensePlate);
 
-    List<VehicleResponse> findAllVehiclesByUser(Long id);
+    List<VehicleDomain> findAllVehiclesByUser(Long id);
 
-    VehicleResponse update(String licensePlate, VehicleRequest request);
+    VehicleDomain update(VehicleDomain request);
 
     void delete(String licensePlate);
 
@@ -22,6 +22,5 @@ public interface VehicleService {
 
     // -------------------------- RAW ENTITIES --------------------------
 
-    Vehicle findEntityByLicensePlateOrCreate(Vehicle vehicle);
 
 }
