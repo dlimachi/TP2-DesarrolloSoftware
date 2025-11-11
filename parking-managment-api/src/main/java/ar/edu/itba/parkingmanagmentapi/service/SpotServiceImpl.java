@@ -95,7 +95,7 @@ public class SpotServiceImpl implements SpotService {
                 spotDomain.getId(), spotDomain.getCode(), spotDomain.getFloor()
         );
 
-        domainSpotRepository.delete(spotDomain,parkingLotDomain);
+        domainSpotRepository.deleteById(spotDomain.getId());
     }
 
     @Override

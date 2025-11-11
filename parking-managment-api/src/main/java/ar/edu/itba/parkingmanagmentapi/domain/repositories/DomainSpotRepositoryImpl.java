@@ -47,10 +47,12 @@ public class DomainSpotRepositoryImpl implements DomainSpotRepository{
     @Override
     public void delete(SpotDomain spotDomain, ParkingLotDomain parkingLotDomain) {
         ParkingLot entity = parkingLotDomain.toEntity();
-        //List<SpotDomain> spotsDomain = findAll(entity.getId());
-        //List<Spot> spots = spotsDomain.stream().map(spotDomain1 -> spotDomain1.toEntity(entity)).toList();
-        //entity.setSpots(spots);
         spotRepository.delete(spotDomain.toEntity(entity));
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        spotRepository.deleteById(id);
     }
 
 
@@ -68,5 +70,6 @@ public class DomainSpotRepositoryImpl implements DomainSpotRepository{
                 .toList();
         return spots;
     }
+
 
 }

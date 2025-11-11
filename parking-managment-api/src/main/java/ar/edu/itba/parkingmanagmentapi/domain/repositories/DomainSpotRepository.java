@@ -23,6 +23,7 @@ public interface DomainSpotRepository {
     SpotDomain save(SpotDomain spotDomain);
     Optional<SpotDomain> findById(Long id);
     void delete(SpotDomain spotDomain,ParkingLotDomain parkingLotDomain);
+    void deleteById(Long id);
     List<SpotDomain> findAll(Long parkingLotId);
     Page<SpotDomain> findAll(Long parkingLotId, Boolean available, VehicleType vehicleType, Integer floor, Boolean isAccessible, Boolean isReservable, Pageable pageable);
 }
