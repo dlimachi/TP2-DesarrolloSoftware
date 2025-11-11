@@ -7,6 +7,7 @@ import ar.edu.itba.parkingmanagmentapi.dto.ParkingPriceResponse;
 import ar.edu.itba.parkingmanagmentapi.dto.enums.VehicleType;
 import ar.edu.itba.parkingmanagmentapi.service.ParkingPriceService;
 import ar.edu.itba.parkingmanagmentapi.util.ParkingPriceFilter;
+import ar.edu.itba.parkingmanagmentapi.validators.ParkingPriceRequestValidator;
 import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -23,9 +24,11 @@ import java.util.List;
 public class ParkingPriceController {
 
     private final ParkingPriceService parkingPriceService;
+    private final ParkingPriceRequestValidator validator;
 
-    public ParkingPriceController(ParkingPriceService parkingPriceService) {
+    public ParkingPriceController(ParkingPriceService parkingPriceService, ParkingPriceRequestValidator validator) {
         this.parkingPriceService = parkingPriceService;
+        this.validator = validator;
     }
 
     @PostMapping
@@ -34,6 +37,7 @@ public class ParkingPriceController {
             @PathVariable Long parkingLotId,
             @Valid @RequestBody ParkingPriceRequest request
     ) {
+        validator.validate(request);
         ParkingPriceDomain domain = ParkingPriceRequest.toDomain(request);
         ParkingPriceDomain created = parkingPriceService.create(parkingLotId, domain);
         ParkingPriceResponse response = ParkingPriceResponse.fromDomain(created);
@@ -47,6 +51,7 @@ public class ParkingPriceController {
             @PathVariable Long id,
             @Valid @RequestBody ParkingPriceRequest request
     ) {
+        validator.validate(request);
         ParkingPriceDomain domain = ParkingPriceRequest.toDomain(request);
         ParkingPriceDomain updated = parkingPriceService.update(parkingLotId, id, domain);
         ParkingPriceResponse response = ParkingPriceResponse.fromDomain(updated);
