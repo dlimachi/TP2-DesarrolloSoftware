@@ -1,5 +1,6 @@
 package ar.edu.itba.parkingmanagmentapi.dto;
 
+import ar.edu.itba.parkingmanagmentapi.domain.ParkingPriceDomain;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
@@ -19,4 +20,15 @@ public class ParkingPriceResponse {
     private LocalDateTime validFrom;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime validTo;
+
+    public static ParkingPriceResponse fromDomain(ParkingPriceDomain domain) {
+        return new ParkingPriceResponse(
+                domain.getId(),
+                domain.getVehicleType().getName(),
+                domain.getPrice(),
+                domain.getValidFrom(),
+                domain.getValidTo()
+        );
+    }
+
 }

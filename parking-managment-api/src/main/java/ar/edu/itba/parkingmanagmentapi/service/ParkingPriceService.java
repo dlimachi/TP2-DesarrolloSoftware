@@ -1,36 +1,32 @@
 package ar.edu.itba.parkingmanagmentapi.service;
 
 import ar.edu.itba.parkingmanagmentapi.domain.DateTimeRange;
-import ar.edu.itba.parkingmanagmentapi.dto.ParkingPriceRequest;
-import ar.edu.itba.parkingmanagmentapi.dto.ParkingPriceResponse;
+import ar.edu.itba.parkingmanagmentapi.domain.ParkingPriceDomain;
 import ar.edu.itba.parkingmanagmentapi.dto.enums.VehicleType;
-import ar.edu.itba.parkingmanagmentapi.model.ParkingPrice;
+import ar.edu.itba.parkingmanagmentapi.util.ParkingPriceFilter;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ParkingPriceService {
 
-    ParkingPriceResponse create(Long parkingLotId, ParkingPriceRequest request);
+    ParkingPriceDomain create(Long parkingLotId, ParkingPriceDomain domain);
 
-    ParkingPriceResponse update(Long parkingLotId, Long id, ParkingPriceRequest request);
+    ParkingPriceDomain update(Long parkingLotId, Long id, ParkingPriceDomain domain);
 
-    ParkingPriceResponse getById(Long parkingLotId, Long id);
+    ParkingPriceDomain getById(Long parkingLotId, Long id);
 
     BigDecimal calculateEstimatedPrice(Long parkingLotId, DateTimeRange range);
 
     BigDecimal calculateEstimatedPrice(Long parkingLotId, VehicleType vehicleType, DateTimeRange range);
 
-    ParkingPrice findActivePriceBySpotIdAndVehicleType(Long parkingLotId, VehicleType vehicleType);
+    ParkingPriceDomain findActivePriceBySpotIdAndVehicleType(Long parkingLotId, VehicleType vehicleType);
 
-    List<ParkingPriceResponse> getByParkingLot(Long parkingLotId);
+    List<ParkingPriceDomain> getByParkingLot(Long parkingLotId);
 
     void delete(Long parkingLotId, Long id);
 
-    List<ParkingPriceResponse> getByFilters(Long parkingLotId, BigDecimal min, BigDecimal max,
-                                            VehicleType vehicleType, LocalDateTime from, LocalDateTime to, String sort);
+    List<ParkingPriceDomain> getByFilters(Long parkingLotId, ParkingPriceFilter filter);
 
     boolean existsActiveByParkingLotIdAndVehicleType(Long parkingLotId, VehicleType vehicleType);
-
 }

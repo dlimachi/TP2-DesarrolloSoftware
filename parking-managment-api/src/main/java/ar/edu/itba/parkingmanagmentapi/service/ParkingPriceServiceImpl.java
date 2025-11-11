@@ -2,16 +2,15 @@ package ar.edu.itba.parkingmanagmentapi.service;
 
 import ar.edu.itba.parkingmanagmentapi.config.AppConstants;
 import ar.edu.itba.parkingmanagmentapi.domain.DateTimeRange;
-import ar.edu.itba.parkingmanagmentapi.dto.ParkingPriceRequest;
-import ar.edu.itba.parkingmanagmentapi.dto.ParkingPriceResponse;
+import ar.edu.itba.parkingmanagmentapi.domain.ParkingLotDomain;
+import ar.edu.itba.parkingmanagmentapi.domain.ParkingPriceDomain;
+import ar.edu.itba.parkingmanagmentapi.domain.repositories.DomainParkingPriceRepository;
 import ar.edu.itba.parkingmanagmentapi.dto.enums.VehicleType;
 import ar.edu.itba.parkingmanagmentapi.exceptions.BadRequestException;
 import ar.edu.itba.parkingmanagmentapi.exceptions.NotFoundException;
-import ar.edu.itba.parkingmanagmentapi.model.ParkingLot;
 import ar.edu.itba.parkingmanagmentapi.model.ParkingPrice;
-import ar.edu.itba.parkingmanagmentapi.repository.ParkingPriceRepository;
 import ar.edu.itba.parkingmanagmentapi.repository.ParkingPriceSpecifications;
-import ar.edu.itba.parkingmanagmentapi.validators.ParkingPriceRequestValidator;
+import ar.edu.itba.parkingmanagmentapi.util.ParkingPriceFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -27,147 +26,97 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ParkingPriceServiceImpl implements ParkingPriceService {
 
-    private final ParkingPriceRepository parkingPriceRepository;
+    private final DomainParkingPriceRepository domainParkingPriceRepository;
     private final ParkingLotService parkingLotService;
-
-    private final ParkingPriceRequestValidator parkingPriceRequestValidator;
+    // private final ParkingPriceRequestValidator validator;
 
     @Override
-    public ParkingPriceResponse create(Long parkingLotId, ParkingPriceRequest request) {
-        parkingPriceRequestValidator.validate(request);
-        ParkingLot parkingLot = parkingLotService.findEntityById(parkingLotId);
+    public ParkingPriceDomain create(Long parkingLotId, ParkingPriceDomain domain) {
+        ParkingLotDomain parkingLot = parkingLotService.findById(parkingLotId);
 
-        validateNoOverlap(parkingLot, parkingLotId, request);
+        validateNoOverlap(parkingLot, null, domain);
 
-        ParkingPrice parkingPrice = new ParkingPrice();
-        parkingPrice.setVehicleType(VehicleType.fromName(request.getVehicleType()));
-        parkingPrice.setPrice(request.getPrice());
-        parkingPrice.setValidFrom(request.getValidFrom());
-        parkingPrice.setValidTo(request.getValidTo());
-        parkingPrice.setParkingLot(parkingLot);
+        domain.setParkingLot(parkingLot);
 
-        ParkingPrice saved = parkingPriceRepository.save(parkingPrice);
-        return toResponse(saved);
+        return domainParkingPriceRepository.save(domain);
     }
 
     @Override
     @Transactional
-    public ParkingPriceResponse update(Long parkingLotId, Long id, ParkingPriceRequest request) {
-        parkingPriceRequestValidator.validate(request);
-        ParkingLot parkingLot = parkingLotService.findEntityById(parkingLotId);
+    public ParkingPriceDomain update(Long parkingLotId, Long id, ParkingPriceDomain domain) {
+        ParkingLotDomain parkingLot = parkingLotService.findById(parkingLotId);
+        ParkingPriceDomain existing = domainParkingPriceRepository.findById(id);
 
-        ParkingPrice parkingPrice = parkingPriceRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("ParkingPrice not found"));
+        validateNoOverlap(parkingLot, id, domain);
 
-        validateNoOverlap(parkingLot, parkingLotId, request);
+        return domainParkingPriceRepository.update(existing);
+    }
 
-        parkingPrice.setVehicleType(VehicleType.fromName(request.getVehicleType()));
-        parkingPrice.setPrice(request.getPrice());
-        parkingPrice.setValidFrom(request.getValidFrom());
-        parkingPrice.setValidTo(request.getValidTo());
+    // TODO! REMOVE arg parkingLotId
+    @Override
+    public void delete(Long parkingLotId, Long id) { domainParkingPriceRepository.deleteById(id); }
+    // TODO! REMOVE arg parkingLotId
+    @Override
+    public ParkingPriceDomain getById(Long parkingLotId, Long id) {
+        return domainParkingPriceRepository.findById(id);
+    }
 
-        ParkingPrice updated = parkingPriceRepository.save(parkingPrice);
-        return toResponse(updated);
+    @Override
+    public List<ParkingPriceDomain> getByParkingLot(Long parkingLotId) {
+        return domainParkingPriceRepository.findByParkingLotIdAndVehicleType(parkingLotId, null);
+    }
+
+    @Override
+    public BigDecimal calculateEstimatedPrice(Long parkingLotId, DateTimeRange range) {
+        return calculateEstimatedPrice(parkingLotId, null, range); // return BigDecimal.ZERO
     }
 
     @Override
     public BigDecimal calculateEstimatedPrice(Long parkingLotId, VehicleType vehicleType, DateTimeRange range) {
-        ParkingPrice price = findActivePriceBySpotIdAndVehicleType(parkingLotId, vehicleType);
+        ParkingPriceDomain price = findActivePriceBySpotIdAndVehicleType(parkingLotId, vehicleType);
 
         long hours = Duration.between(range.getStart(), range.getEnd()).toHours();
-        if (hours == 0) hours = AppConstants.MINIMUM_BILLING_HOURS;
+        if (hours == 0)
+            hours = AppConstants.MINIMUM_BILLING_HOURS;
 
         return price.getPrice().multiply(BigDecimal.valueOf(hours));
     }
 
-    public ParkingPrice findActivePriceBySpotIdAndVehicleType(Long parkingLotId, VehicleType vehicleType) {
-        List<ParkingPrice> prices = parkingPriceRepository.findByParkingLotIdAndVehicleType(
-                parkingLotId,
-                vehicleType
-        );
-
+    @Override
+    public ParkingPriceDomain findActivePriceBySpotIdAndVehicleType(Long parkingLotId, VehicleType vehicleType) {
+        List<ParkingPriceDomain> prices = domainParkingPriceRepository.findByParkingLotIdAndVehicleType(parkingLotId, vehicleType);
         if (prices.isEmpty()) {
-            throw new NotFoundException("No active price found for parking lot " + parkingLotId +
-                    " and vehicle type " + vehicleType);
+            throw new NotFoundException("No active price found for parking lot " + parkingLotId + " and vehicle type " + vehicleType);
         }
-
         return prices.get(0);
     }
 
-    private void validateNoOverlap(ParkingLot parkingLot, Long excludeId, ParkingPriceRequest request) {
-        VehicleType vehicleType = VehicleType.fromName(request.getVehicleType());
-        List<ParkingPrice> existingPrices =
-                parkingPriceRepository.findByParkingLotAndVehicleType(parkingLot, vehicleType);
+    @Override
+    public boolean existsActiveByParkingLotIdAndVehicleType(Long parkingLotId, VehicleType vehicleType) {
+        return domainParkingPriceRepository.existsActivePrice(parkingLotId, vehicleType);
+    }
+
+    @Override
+    public List<ParkingPriceDomain> getByFilters(Long parkingLotId, ParkingPriceFilter filter) {
+        return domainParkingPriceRepository.findByFilters(parkingLotId, filter);
+    }
+
+    private void validateNoOverlap(ParkingLotDomain parkingLot, Long excludeId, ParkingPriceDomain newDomain) {
+        List<ParkingPriceDomain> existingPrices = domainParkingPriceRepository.findByParkingLotIdAndVehicleType(parkingLot.getId(), newDomain.getVehicleType());
 
         boolean overlaps = existingPrices.stream()
                 .filter(p -> !p.getId().equals(excludeId))
                 .anyMatch(existing -> {
-                    LocalDateTime newFrom = request.getValidFrom();
-                    LocalDateTime newTo = request.getValidTo();
-
+                    LocalDateTime newFrom = newDomain.getValidFrom();
+                    LocalDateTime newTo = newDomain.getValidTo();
                     LocalDateTime existingFrom = existing.getValidFrom();
                     LocalDateTime existingTo = existing.getValidTo();
 
-                    return (newTo == null || existingFrom.isBefore(newTo)) &&
-                            (existingTo == null || newFrom.isBefore(existingTo));
+                    return (newTo == null || existingFrom.isBefore(newTo)) && (existingTo == null || newFrom.isBefore(existingTo));
                 });
 
         if (overlaps) {
             throw new BadRequestException("There is already an overlapping price for this type of vehicle.");
         }
-    }
-
-    @Override
-    public ParkingPriceResponse getById(Long parkingLotId, Long id) {
-        ParkingPrice parkingPrice = parkingPriceRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("ParkingPrice not found"));
-        return toResponse(parkingPrice);
-    }
-
-    @Override
-    public List<ParkingPriceResponse> getByParkingLot(Long parkingLotId) {
-        return parkingPriceRepository.findByParkingLotId(parkingLotId).stream()
-                .map(this::toResponse)
-                .toList();
-    }
-
-    @Override
-    public void delete(Long parkingLotId, Long id) {
-        // WARNING: unused variable?
-        ParkingLot parkingLot = parkingLotService.findEntityById(parkingLotId);
-
-        ParkingPrice price = parkingPriceRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("ParkingPrice not found with id " + id));
-
-        parkingPriceRepository.delete(price);
-    }
-
-    @Override
-    public List<ParkingPriceResponse> getByFilters(Long parkingLotId, BigDecimal min, BigDecimal max,
-                                                   VehicleType vehicleType, LocalDateTime from, LocalDateTime to, String sort) {
-        Specification<ParkingPrice> spec = ParkingPriceSpecifications.withFilters(parkingLotId, min, max, vehicleType, from, to);
-
-        Sort sortSpec = "desc".equalsIgnoreCase(sort)
-                ? Sort.by(Sort.Direction.DESC, "price")
-                : Sort.by(Sort.Direction.ASC, "price");
-
-        return parkingPriceRepository.findAll(spec, sortSpec)
-                .stream()
-                .map(this::toResponse)
-                .toList();
-    }
-
-    @Override
-    public BigDecimal calculateEstimatedPrice(Long parkingLotId, DateTimeRange range) {
-        return BigDecimal.ZERO;
-    }
-
-    @Override
-    public boolean existsActiveByParkingLotIdAndVehicleType(Long parkingLotId, VehicleType vehicleType) {
-        return !parkingPriceRepository.findByParkingLotIdAndVehicleType(parkingLotId, vehicleType).isEmpty();
-    }
-
-    private ParkingPriceResponse toResponse(ParkingPrice entity) {
-        return new ParkingPriceResponse(entity.getId(), entity.getVehicleType().getName(), entity.getPrice(), entity.getValidFrom(), entity.getValidTo());
     }
 }
